@@ -7,13 +7,13 @@ Python script to notify sonarr or radarr of tracker announcements from IRC annou
 2. requirements.txt modules
 
 ## Supported Trackers
-~~1. BTN
-2. MTV~~
+1. ~~BTN~~
+2. ~~MTV~~
 3. IPTorrents
-~~4. Nebulance
-5. HD-Torrents
-6. XSpeeds
-7. FileList~~
+4. ~~Nebulance~~
+5. ~~HD-Torrents~~
+6. ~~XSpeeds~~
+7. ~~FileList~~
 8. TorrentLeech
 9. Alpharatio
 
