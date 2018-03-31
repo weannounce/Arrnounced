@@ -1,19 +1,21 @@
 # sonarrAnnounced
 
-Python script to notify sonarr of tracker announcements from IRC announce channels. 
+Python script to notify sonarr or radarr of tracker announcements from IRC announce channels. 
 
 ## Requirements
 1. Python 3.5.2 or newer
 2. requirements.txt modules
 
 ## Supported Trackers
-1. BTN
-2. MTV
+~~1. BTN
+2. MTV~~
 3. IPTorrents
-4. Nebulance
+~~4. Nebulance
 5. HD-Torrents
 6. XSpeeds
-7. FileList
+7. FileList~~
+8. TorrentLeech
+9. Alpharatio
 
 Open to suggestions/pull requests!
 
@@ -37,9 +39,9 @@ This should automatically install pip3.5 for you
 
 ## sonarrAnnounced
 1. `cd /opt`
-2. `sudo git clone https://github.com/l3uddz/sonarrAnnounced`
-3. `sudo chown -R user:group sonarrAnnounced`
-4. `sudo pip3.5 install -r /opt/sonarrAnnounced/requirements.txt`
+2. `sudo git clone https://github.com/dawtmaytrikx/Announced`
+3. `sudo chown -R user:group announced`
+4. `sudo pip3.5 install -r /opt/announced/requirements.txt`
 5. `mv settings.cfg.default settings.cfg`
 6. `nano settings.cfg`
 - Configure it how you want
