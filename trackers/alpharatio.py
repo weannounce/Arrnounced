@@ -44,15 +44,15 @@ def parse(announcement):
     torrent_id = "".join(list(filter(str.isdigit, decolored.split(']-[')[5])))
     
     if '[Tv' in decolored:
-        notify_pvr(torrent_id, torrent_title, auth_key, name, 'Sonarr')
+        notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, 'Sonarr')
     elif '[Movie' in decolored:
-        notify_pvr(torrent_id, torrent_title, auth_key, name, 'Radarr')
+        notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, 'Radarr')
 
 
 
-def notify_pvr(torrent_id, torrent_title, auth_key, name, pvr_name):
+def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name):
     if torrent_id is not None and torrent_title is not None:
-        download_link = get_torrent_link(torrent_id, auth_key, torrent_pass)
+        download_link = get_torrent_link(torrent_id, torrent_title)
 
         announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
                                  indexer=name, torrent=download_link, pvr=pvr_name)
@@ -73,8 +73,8 @@ def notify_pvr(torrent_id, torrent_title, auth_key, name, pvr_name):
 
 
 # Generate torrent link
-def get_torrent_link(torrent_id, auth_key, torrent_pass):
-    torrent_link = "https://alpharatio.cc/torrents.php?action=download&id={}&authkey={}&torrent_pass={}".format(torrent_id,
+def get_torrent_link(torrent_id, torrent_name):
+    torrent_link = "https://alpharatio.cc/torrents.php?action=download&id={}&authkey={}&torrent_pass={}&usetoken=1".format(torrent_id,
                                                                                                                 auth_key,
                                                                                                                 torrent_pass)
                                                                                               
