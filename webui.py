@@ -15,6 +15,7 @@ from flask_httpauth import HTTPBasicAuth
 import config
 import db
 import sonarr
+import radarr
 import utils
 
 logger = logging.getLogger("WEB-UI")
@@ -176,6 +177,9 @@ def settings():
         cfg['sonarr.url'] = request.form['sonarr_url']
         cfg['sonarr.apikey'] = request.form['sonarr_apikey']
 
+        cfg['radarr.url'] = request.form['radarr_url']
+        cfg['radarr.apikey'] = request.form['radarr_apikey']
+
         if 'debug_file' in request.form:
             cfg['bot.debug_file'] = True
         else:
@@ -236,6 +240,54 @@ def notify():
 
     except Exception as ex:
         logger.exception("Exception while notifying sonarr announcement:")
+
+    return "ERR"
+
+
+@app.route("/radarr/check", methods=['POST'])
+@auth.login_required
+def check():
+    try:
+        data = request.json
+        if 'apikey' in data and 'url' in data:
+            # Check if api key is valid
+            logger.debug("Checking whether apikey: %s is valid for: %s", data.get('apikey'), data.get('url'))
+
+            headers = {'X-Api-Key': data.get('apikey')}
+            resp = requests.get(url="{}/api/diskspace".format(data.get('url')), headers=headers).json()
+            logger.debug("check response: %s", resp)
+
+            if 'error' not in resp:
+                return 'OK'
+
+    except Exception as ex:
+        logger.exception("Exception while checking radarr apikey:")
+
+    return 'ERR'
+
+
+@app.route("/radarr/notify", methods=['POST'])
+@auth.login_required
+@db.db_session
+def notify():
+    try:
+        data = request.json
+        if 'id' in data:
+            # Request to check this torrent again
+            announcement = db.Announced.get(id=data.get('id'))
+            if announcement is not None and len(announcement.title) > 0:
+                logger.debug("Checking announcement again: %s", announcement.title)
+
+                approved = radarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
+                if approved:
+                    logger.debug("Radarr accepted the torrent this time!")
+                    return "OK"
+                else:
+                    logger.debug("Radarr still refused this torrent...")
+                    return "ERR"
+
+    except Exception as ex:
+        logger.exception("Exception while notifying radarr announcement:")
 
     return "ERR"
 
