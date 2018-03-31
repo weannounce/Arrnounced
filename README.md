@@ -16,6 +16,7 @@ Python script to notify sonarr or radarr of tracker announcements from IRC annou
 7. ~~FileList~~
 8. TorrentLeech
 9. Alpharatio
+10. RevolutionTT
 
 Open to suggestions/pull requests!
 
