@@ -52,7 +52,7 @@ def parse(announcement):
 
 def notify_pvr(torrent_id, torrent_title, auth_key, name, pvr_name):
     if torrent_id is not None and torrent_title is not None:
-        download_link = get_torrent_link(torrent_id, auth_key, torrent_title)
+        download_link = get_torrent_link(torrent_id, torrent_title, torrent_pass)
 
         announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
                                  indexer=name, torrent=download_link, pvr=pvr_name)
