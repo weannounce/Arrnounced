@@ -42,6 +42,7 @@
                             <th class="col-xs-2">When</th>
                             <th class="col-xs-2">Indexer</th>
                             <th class="col-xs-8">Title</th>
+                            <th class="col-xs-8">PVR</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -50,6 +51,7 @@
                             <td>{{ format_timestamp(snatch.date) }}</td>
                             <td>{{ snatch.indexer }}</td>
                             <td>{{ snatch.title }}</td>
+                            <td>{{ snatch.pvr }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -65,6 +67,7 @@
                             <th class="col-xs-2">When</th>
                             <th class="col-xs-2">Indexer</th>
                             <th class="col-xs-6">Title</th>
+                            <th class="col-xs-8">PVR</th>
                             <th class="col-xs-2">Actions</th>
                         </tr>
                         </thead>
@@ -74,6 +77,7 @@
                             <td>{{ format_timestamp(release.date) }}</td>
                             <td>{{ release.indexer }}</td>
                             <td>{{ release.title }}</td>
+                            <td>{{ release.pvr }}</td>
                             <td><a href="javascript:notify_sonarr('{{ release.id }}');"><i
                                     class="glyphicon glyphicon-transfer" data-bs-hover-animate="swing"
                                     id="sonarr_notify" title="Notify sonarr"
