@@ -1,4 +1,4 @@
-# sonarrAnnounced
+# Announced
 
 Python script to notify sonarr or radarr of tracker announcements from IRC announce channels. 
 
