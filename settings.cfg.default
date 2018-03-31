@@ -12,7 +12,23 @@ debug_console = true
 apikey = YOUR-API-KEY
 url = http://localhost:8989
 
+[radarr]
+apikey = YOUR-API-KEY
+url = http://localhost:7878
+
 [iptorrents]
+nick =
+nick_pass =
+auth_key = 
+torrent_pass = 
+
+[torrentleech]
+nick =
+nick_pass =
+auth_key = 
+torrent_pass = 
+
+[alpharatio]
 nick =
 nick_pass =
 auth_key = 
