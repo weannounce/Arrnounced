@@ -13,6 +13,7 @@ class Announced(db.Entity):
     title = Required(str)
     indexer = Required(str)
     torrent = Required(str)
+    pvr = Required(str)
 
 
 class Snatched(db.Entity):
@@ -20,6 +21,7 @@ class Snatched(db.Entity):
     title = Required(str)
     indexer = Required(str)
     torrent = Required(str)
+    pvr = Required(str)
 
 
 db.bind('sqlite', 'brain.db', create_db=True)
