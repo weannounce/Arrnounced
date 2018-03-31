@@ -14,6 +14,9 @@ def init():
 
     cfg.init('sonarr.apikey', '')
     cfg.init('sonarr.url', 'http://localhost:8989')
+    
+    cfg.init('radarr.apikey', '')
+    cfg.init('radarr.url', 'http://localhost:7878')
 
     cfg.init('bot.debug_file', True)
     cfg.init('bot.debug_console', True)
@@ -23,6 +26,16 @@ def init():
     cfg.init('iptorrents.nick_pass', '')
     cfg.init('iptorrents.auth_key', '')
     cfg.init('iptorrents.torrent_pass', '')
+    
+    cfg.init('torrentleech.nick', '')
+    cfg.init('torrentleech.nick_pass', '')
+    cfg.init('torrentleech.auth_key', '')
+    cfg.init('torrentleech.torrent_pass', '')
+    
+    cfg.init('alpharatio.nick', '')
+    cfg.init('alpharatio.nick_pass', '')
+    cfg.init('alpharatio.auth_key', '')
+    cfg.init('alpharatio.torrent_pass', '')
 
     cfg.init('morethan.nick', '')
     cfg.init('morethan.nick_pass', '')
