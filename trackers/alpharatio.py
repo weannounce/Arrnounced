@@ -49,12 +49,12 @@ def parse(announcement):
             download_link = get_torrent_link(torrent_id, auth_key, torrent_pass)
 
             announced = db.Announced(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                     indexer=name, torrent=download_link)
+                                     indexer=name, torrent=download_link, pvr='sonarr')
             approved = sonarr.wanted(torrent_title, download_link, name)
             if approved:
                 logger.debug("Sonarr approved release: %s", torrent_title)
                 snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                       indexer=name, torrent=download_link)
+                                       indexer=name, torrent=download_link, pvr='sonarr')
             else:
                 logger.debug("Sonarr rejected release: %s", torrent_title)
 
@@ -64,12 +64,12 @@ def parse(announcement):
             download_link = get_torrent_link(torrent_id, auth_key, torrent_pass)
 
             announced = db.Announced(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                     indexer=name, torrent=download_link)
+                                     indexer=name, torrent=download_link, pvr='radarr')
             approved = radarr.wanted(torrent_title, download_link, name)
             if approved:
                 logger.debug("Radarr approved release: %s", torrent_title)
                 snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                       indexer=name, torrent=download_link)
+                                       indexer=name, torrent=download_link, pvr='radarr')
             else:
                 logger.debug("Radarr rejected release: %s", torrent_title)
 
