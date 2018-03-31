@@ -4,6 +4,7 @@ import logging
 import config
 import db
 import sonarr
+import radarr
 import utils
 
 cfg = config.init()
@@ -34,31 +35,47 @@ logger.setLevel(logging.DEBUG)
 def parse(announcement):
     global name
 
-    if 'TV/' not in announcement:
-        return
     decolored = utils.strip_irc_color_codes(announcement)
+    if ' - http://www.iptorrents.com/details.php?id=' not in decolored:
+        return
 
     # extract required information from announcement
-    torrent_title = utils.substr(decolored, '] ', ' -', True)
+    torrent_title = utils.replace_spaces(utils.substr(decolored, '] ', ' -', True), '.')
     torrent_id = utils.get_id(decolored, 0)
+    
+    if '[TV/' in decolored:
+        # pass announcement to sonarr
+        if torrent_id is not None and torrent_title is not None:
+            download_link = get_torrent_link(torrent_id, torrent_title, torrent_pass)
 
-    # pass announcement to sonarr
-    if torrent_id is not None and torrent_title is not None:
-        download_link = get_torrent_link(torrent_id, utils.replace_spaces(torrent_title, '.'))
+            announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
+                                     indexer=name, torrent=download_link)
+            approved = sonarr.wanted(torrent_title, download_link, name)
+            if approved:
+                logger.debug("Sonarr approved release: %s", torrent_title)
+                snatched = db.Snatched(date=datetime.datetime.now(), title=torrent_title,
+                                       indexer=name, torrent=download_link)
+            else:
+                logger.debug("Sonarr rejected release: %s", torrent_title)
+    
+    elif '[Movie/' in decolored:
+        # pass announcement to radarr
+        if torrent_id is not None and torrent_title is not None:
+            download_link = get_torrent_link(torrent_id, torrent_title, torrent_pass)
 
-        announced = db.Announced(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                 indexer=name, torrent=download_link)
-        approved = sonarr.wanted(torrent_title, download_link, name)
-        if approved:
-            logger.debug("Sonarr approved release: %s", torrent_title)
-            snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                   indexer=name, torrent=download_link)
-        else:
-            logger.debug("Sonarr rejected release: %s", torrent_title)
-
+            announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
+                                     indexer=name, torrent=download_link)
+            approved = radarr.wanted(torrent_title, download_link, name)
+            if approved:
+                logger.debug("Radarr approved release: %s", torrent_title)
+                snatched = db.Snatched(date=datetime.datetime.now(), title=torrent_title,
+                                       indexer=name, torrent=download_link)
+            else:
+                logger.debug("Radarr rejected release: %s", torrent_title)
+                
 
 # Generate torrent link
-def get_torrent_link(torrent_id, torrent_name):
+def get_torrent_link(torrent_id, torrent_name, torrent_pass):
     torrent_link = "https://iptorrents.com/download.php/{}/{}.torrent?torrent_pass={}".format(torrent_id,
                                                                                               torrent_name,
                                                                                               torrent_pass)
