@@ -243,7 +243,7 @@ def notify():
 
     return "ERR"
 
-
+'''
 @app.route("/radarr/check", methods=['POST'])
 @auth.login_required
 def check():
@@ -290,7 +290,7 @@ def notify():
         logger.exception("Exception while notifying radarr announcement:")
 
     return "ERR"
-
+'''
 
 @app.context_processor
 def inject_conf_in_all_templates():
