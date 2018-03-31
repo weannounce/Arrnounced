@@ -36,6 +36,11 @@ def init():
     cfg.init('alpharatio.nick_pass', '')
     cfg.init('alpharatio.auth_key', '')
     cfg.init('alpharatio.torrent_pass', '')
+    
+    cfg.init('revolutiontt.nick', '')
+    cfg.init('revolutiontt.nick_pass', '')
+    cfg.init('revolutiontt.auth_key', '')
+    cfg.init('revolutiontt.torrent_pass', '')
 
     cfg.init('morethan.nick', '')
     cfg.init('morethan.nick_pass', '')

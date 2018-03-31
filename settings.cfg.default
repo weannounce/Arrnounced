@@ -34,6 +34,12 @@ nick_pass =
 auth_key = 
 torrent_pass = 
 
+[revolutiontt]
+nick =
+nick_pass =
+auth_key = 
+torrent_pass = 
+
 [morethan]
 nick =
 nick_pass =
