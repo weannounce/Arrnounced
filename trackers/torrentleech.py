@@ -45,15 +45,15 @@ def parse(announcement):
     
     
     if '<TV ::' in decolored:
-        notify_pvr(torrent_id, torrent_title, auth_key, name, 'Sonarr')
+        notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, 'Sonarr')
     elif '<Movies ::' in decolored:
-        notify_pvr(torrent_id, torrent_title, auth_key, name, 'Radarr')
+        notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, 'Radarr')
 
 
 
-def notify_pvr(torrent_id, torrent_title, auth_key, name, pvr_name):
+def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name):
     if torrent_id is not None and torrent_title is not None:
-        download_link = get_torrent_link(torrent_id, auth_key, torrent_title)
+        download_link = get_torrent_link(torrent_id, torrent_title)
 
         announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
                                  indexer=name, torrent=download_link, pvr=pvr_name)
@@ -74,7 +74,7 @@ def notify_pvr(torrent_id, torrent_title, auth_key, name, pvr_name):
 
 
 # Generate torrent link
-def get_torrent_link(torrent_id, auth_key, torrent_name):
+def get_torrent_link(torrent_id, torrent_name):
     torrent_link = "https://www.torrentleech.org/rss/download/{}/{}/{}.torrent".format(torrent_id,
                                                                                         auth_key,
                                                                                         torrent_name)
