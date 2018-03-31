@@ -20,7 +20,7 @@ Python script to notify sonarr or radarr of tracker announcements from IRC annou
 Open to suggestions/pull requests!
 
 ## To-Do
-- changes to the web frontend and database
+- changes to the web frontend to notify radarr, edit the new trackers etc.
 - add Radarr support to more trackers
 
 ## Feature Requests
