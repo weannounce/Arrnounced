@@ -1,9 +1,9 @@
 [Unit]
-Description=sonarrAnnounced
+Description=Announced
 
 [Service]
-WorkingDirectory=/opt/sonarrAnnounced
-ExecStart=/usr/local/bin/python3.5 /opt/sonarrAnnounced/bot.py
+WorkingDirectory=/opt/Announced
+ExecStart=/usr/local/bin/python3.5 /opt/Announced/bot.py
 Restart=always
 GuessMainPID=no
 Type=simple
