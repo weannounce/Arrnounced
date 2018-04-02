@@ -16,7 +16,7 @@ name = "TorrentLeech"
 irc_host = "irc.torrentleech.org"
 irc_port = 7021
 irc_channel = "#tlannounces"
-invite_cmd = None
+invite_cmd = "TL-Monkey !invite"
 irc_tls = True
 irc_tls_verify = False
 
