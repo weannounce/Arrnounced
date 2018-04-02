@@ -33,6 +33,12 @@ class IRC(BotBase):
         nick_pass = cfg["{}.nick_pass".format(self.tracking['name'].lower())]
         if nick_pass is not None and len(nick_pass) > 1:
             self.rawmsg('NICKSERV', 'IDENTIFY', nick_pass)
+            
+        invite_key = cfg["{}.invite_key".format(self.tracking['name'].lower())]
+        inviter = self.tracking['invite_cmd'].split(" ")[0]
+        invite_cmd = self.tracking['invite_cmd'].split(" ")[1]
+        if invite_key is not None and len(invite_key) > 1:
+            self.message(inviter, " ".join([invite_cmd, invite_key]))
 
         self.join(self.tracking['irc_channel'])
 
@@ -56,6 +62,7 @@ class IRC(BotBase):
     def on_invite(self, channel, by):
         if channel == self.tracking['irc_channel']:
             self.join(self.tracking['irc_channel'])
+            logger.debug("%s invited us to join %s", by, channel)
 
 
 pool = pydle.ClientPool()
