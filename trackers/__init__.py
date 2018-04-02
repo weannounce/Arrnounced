@@ -31,7 +31,7 @@ class Trackers(object):
                 self.loaded.append({
                     'name': tracker.name.lower(), 'irc_host': tracker.irc_host,
                     'irc_port': tracker.irc_port, 'irc_channel': tracker.irc_channel, 'irc_tls': tracker.irc_tls,
-                    'irc_tls_verify': tracker.irc_tls_verify, 'plugin': tracker
+                    'irc_tls_verify': tracker.irc_tls_verify, 'plugin': tracker, 'invite_cmd': tracker.invite_cmd
                 })
             else:
                 logger.info("Problem initializing tracker: %s", tracker.name)
