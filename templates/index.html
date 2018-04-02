@@ -78,9 +78,9 @@
                             <td>{{ release.indexer }}</td>
                             <td>{{ release.title }}</td>
                             <td>{{ release.pvr }}</td>
-                            <td><a href="javascript:notify_sonarr('{{ release.id }}');"><i
+                            <td><a href="javascript:notify_pvr('{{ release.id }}', '{{ release.pvr}}');"><i
                                     class="glyphicon glyphicon-transfer" data-bs-hover-animate="swing"
-                                    id="sonarr_notify" title="Notify sonarr"
+                                    id="notify" title="Notify {{ release.pvr }}"
                                     announcement="{{ release.id }}"></i></a><a
                                     href="{{ correct_download(release.torrent) }}"
                                     style="margin-left:2.5mm;"><i

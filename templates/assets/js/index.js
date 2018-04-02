@@ -1,24 +1,24 @@
 // Index Pgae
-function notify_sonarr(announcement_id) {
-    console.log("Notifying sonarr again for announcement: " + announcement_id);
-    
+function notify_pvr(announcement_id, pvr_name) {
+    console.log("Notifying " + pvr_name +  " again for announcement: " + announcement_id);
+
     alite({
-            url: '/sonarr/notify',
+            url: '/' + pvr_name + '/notify',
             method: 'POST',
             data: {
                 id: announcement_id
             },
         }).then(function (result) {
-            console.log('sonarr_notify result: ', result);
-            if (result == 'ERR') {
-                // sonarr rejected the announcement
-                toastr.error("Sonarr still declined this torrent...");
+            console.log(pvr_name + '_notify result: ', result);
+            if (result === 'ERR') {
+                // PVR rejected the announcement
+                toastr.error(pvr_name + " still declined this torrent...");
             } else {
-                // sonarr accepted the announcement
-                toastr.success("Sonarr approved the torrent this time!");
+                // PVR accepted the announcement
+                toastr.success(pvr_name + " approved the torrent this time!");
             }
         }).catch(function (err) {
-            console.error('sonarr_notify error: ', err);
-            toastr.error("Error notfying sonarr of this announcement??");
-        });  
+            console.error(pvr_name + '_notify error: ', err);
+            toastr.error("Error notfying " +pvr_name + " of this announcement??");
+        });
 }
