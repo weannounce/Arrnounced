@@ -21,24 +21,28 @@ nick =
 nick_pass =
 auth_key = 
 torrent_pass = 
+invite_key =
 
 [torrentleech]
 nick =
 nick_pass =
 auth_key = 
 torrent_pass = 
+invite_key =
 
 [alpharatio]
 nick =
 nick_pass =
 auth_key = 
 torrent_pass = 
+invite_key = 
 
 [revolutiontt]
 nick =
 nick_pass =
 auth_key = 
 torrent_pass = 
+invite_key = 
 
 [morethan]
 nick =
