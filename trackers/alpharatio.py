@@ -16,6 +16,7 @@ name = "AlphaRatio"
 irc_host = "irc.alpharatio.cc"
 irc_port = 6697
 irc_channel = "#Announce"
+invite_cmd = "Voyager enter"
 irc_tls = True
 irc_tls_verify = False
 
