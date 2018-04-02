@@ -35,9 +35,9 @@ class IRC(BotBase):
             self.rawmsg('NICKSERV', 'IDENTIFY', nick_pass)
             
         invite_key = cfg["{}.invite_key".format(self.tracking['name'].lower())]
-        inviter = self.tracking['invite_cmd'].split(" ")[0]
-        invite_cmd = self.tracking['invite_cmd'].split(" ")[1]
         if invite_key is not None and len(invite_key) > 1:
+            inviter = self.tracking['invite_cmd'].split(" ")[0]
+            invite_cmd = self.tracking['invite_cmd'].split(" ")[1]
             self.message(inviter, " ".join([invite_cmd, invite_key]))
 
         self.join(self.tracking['irc_channel'])
