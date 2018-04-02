@@ -26,21 +26,25 @@ def init():
     cfg.init('iptorrents.nick_pass', '')
     cfg.init('iptorrents.auth_key', '')
     cfg.init('iptorrents.torrent_pass', '')
+    cfg.init('iptorrents.invite_key', '')
     
     cfg.init('torrentleech.nick', '')
     cfg.init('torrentleech.nick_pass', '')
     cfg.init('torrentleech.auth_key', '')
     cfg.init('torrentleech.torrent_pass', '')
+    cfg.init('torrentleech.invite_key', '')
     
     cfg.init('alpharatio.nick', '')
     cfg.init('alpharatio.nick_pass', '')
     cfg.init('alpharatio.auth_key', '')
     cfg.init('alpharatio.torrent_pass', '')
+    cfg.init('alpharatio.invite_key', '')
     
     cfg.init('revolutiontt.nick', '')
     cfg.init('revolutiontt.nick_pass', '')
     cfg.init('revolutiontt.auth_key', '')
     cfg.init('revolutiontt.torrent_pass', '')
+    cfg.init('revolutiontt.invite_key', '')
 
     cfg.init('morethan.nick', '')
     cfg.init('morethan.nick_pass', '')
