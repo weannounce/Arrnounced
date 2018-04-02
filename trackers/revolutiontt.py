@@ -16,6 +16,7 @@ name = "RevolutionTT"
 irc_host = "irc.revolutiontt.me"
 irc_port = 7000
 irc_channel = "#announce"
+invite_cmd = "RevoTT !invite " + cfg["{}.nick".format(name.lower())]
 irc_tls = True
 irc_tls_verify = False
 
