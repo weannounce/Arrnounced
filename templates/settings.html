@@ -58,6 +58,14 @@
                 <input class="form-control input-sm" type="text" name="sonarr_apikey" value="{{ conf['sonarr.apikey'] }}" required="" placeholder="Retrieve from Sonarr Settings" id="sonarr_apikey" style="width:75%;margin-bottom:0.1cm;">
                 <button class="btn btn-default btn-xs pull-right" type="button" id="sonarr_check" style="margin-right:25%;">Check </button>
             </fieldset>
+            <fieldset>
+                <legend>Radarr </legend>
+                <label for="radarr_url">URL </label>
+                <input class="form-control input-sm" type="text" name="radarr_url" value="{{ conf['radarr.url'] }}" required="" placeholder="http://localhost:7878" id="radarr_url" style="margin-bottom:0.2cm;width:75%;">
+                <label for="radarr_apikey">API Key</label>
+                <input class="form-control input-sm" type="text" name="radarr_apikey" value="{{ conf['radarr.apikey'] }}" required="" placeholder="Retrieve from Radarr Settings" id="radarr_apikey" style="width:75%;margin-bottom:0.1cm;">
+                <button class="btn btn-default btn-xs pull-right" type="button" id="radarr_check" style="margin-right:25%;">Check </button>
+            </fieldset>
             <button class="btn btn-primary" type="submit" id="save">Save </button>
         </form>
     </div>
