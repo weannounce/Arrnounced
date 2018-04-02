@@ -21,7 +21,7 @@ Python script to notify sonarr or radarr of tracker announcements from IRC annou
 Open to suggestions/pull requests!
 
 ## To-Do
-- changes to the web frontend to notify radarr, edit the new trackers etc.
+- changes to the web frontend to edit the new trackers etc.
 - add Radarr support to more trackers
 
 ## Feature Requests
@@ -39,7 +39,7 @@ Request features at [FeatHub](http://feathub.com/l3uddz/sonarrAnnounced)
 
 This should automatically install pip3.5 for you
 
-## sonarrAnnounced
+## Announced
 1. `cd /opt`
 2. `sudo git clone https://github.com/dawtmaytrikx/Announced`
 3. `sudo chown -R user:group announced`
