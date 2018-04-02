@@ -198,7 +198,7 @@ def settings():
 
 @app.route("/sonarr/check", methods=['POST'])
 @auth.login_required
-def check():
+def sonarr_check():
     try:
         data = request.json
         if 'apikey' in data and 'url' in data:
@@ -221,7 +221,7 @@ def check():
 @app.route("/sonarr/notify", methods=['POST'])
 @auth.login_required
 @db.db_session
-def notify():
+def sonarr_notify():
     try:
         data = request.json
         if 'id' in data:
@@ -243,10 +243,10 @@ def notify():
 
     return "ERR"
 
-'''
+
 @app.route("/radarr/check", methods=['POST'])
 @auth.login_required
-def check():
+def radarr_check():
     try:
         data = request.json
         if 'apikey' in data and 'url' in data:
@@ -269,7 +269,7 @@ def check():
 @app.route("/radarr/notify", methods=['POST'])
 @auth.login_required
 @db.db_session
-def notify():
+def radarr_notify():
     try:
         data = request.json
         if 'id' in data:
@@ -290,7 +290,7 @@ def notify():
         logger.exception("Exception while notifying radarr announcement:")
 
     return "ERR"
-'''
+
 
 @app.context_processor
 def inject_conf_in_all_templates():
