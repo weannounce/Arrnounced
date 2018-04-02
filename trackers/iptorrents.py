@@ -16,6 +16,7 @@ name = "IPTorrents"
 irc_host = "irc.iptorrents.com"
 irc_port = 6667
 irc_channel = "#ipt.announce"
+invite_cmd = None
 irc_tls = False
 irc_tls_verify = False
 
