@@ -196,9 +196,9 @@ def settings():
     return render_template('settings.html')
 
 
-@app.route("/sonarr/check", methods=['POST'])
+@app.route("/<pvr_name>/check", methods=['POST'])
 @auth.login_required
-def sonarr_check():
+def check(pvr_name):
     try:
         data = request.json
         if 'apikey' in data and 'url' in data:
@@ -213,15 +213,15 @@ def sonarr_check():
                 return 'OK'
 
     except Exception as ex:
-        logger.exception("Exception while checking sonarr apikey:")
+        logger.exception("Exception while checking " + pvr_name + " apikey:")
 
     return 'ERR'
 
 
-@app.route("/sonarr/notify", methods=['POST'])
+@app.route("/<pvr_name>/notify", methods=['POST'])
 @auth.login_required
 @db.db_session
-def sonarr_notify():
+def notify(pvr_name):
     try:
         data = request.json
         if 'id' in data:
@@ -229,65 +229,20 @@ def sonarr_notify():
             announcement = db.Announced.get(id=data.get('id'))
             if announcement is not None and len(announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", announcement.title)
-
-                approved = sonarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
+                
+                if pvr_name == "Sonarr":
+                    approved = sonarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
+                elif pvr_name == "Radarr":
+                    approved = radarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
                 if approved:
-                    logger.debug("Sonarr accepted the torrent this time!")
+                    logger.debug(pvr_name + " accepted the torrent this time!")
                     return "OK"
                 else:
-                    logger.debug("Sonarr still refused this torrent...")
+                    logger.debug(pvr_name + " still refused this torrent...")
                     return "ERR"
 
     except Exception as ex:
-        logger.exception("Exception while notifying sonarr announcement:")
-
-    return "ERR"
-
-
-@app.route("/radarr/check", methods=['POST'])
-@auth.login_required
-def radarr_check():
-    try:
-        data = request.json
-        if 'apikey' in data and 'url' in data:
-            # Check if api key is valid
-            logger.debug("Checking whether apikey: %s is valid for: %s", data.get('apikey'), data.get('url'))
-
-            headers = {'X-Api-Key': data.get('apikey')}
-            resp = requests.get(url="{}/api/diskspace".format(data.get('url')), headers=headers).json()
-            logger.debug("check response: %s", resp)
-
-            if 'error' not in resp:
-                return 'OK'
-
-    except Exception as ex:
-        logger.exception("Exception while checking radarr apikey:")
-
-    return 'ERR'
-
-
-@app.route("/radarr/notify", methods=['POST'])
-@auth.login_required
-@db.db_session
-def radarr_notify():
-    try:
-        data = request.json
-        if 'id' in data:
-            # Request to check this torrent again
-            announcement = db.Announced.get(id=data.get('id'))
-            if announcement is not None and len(announcement.title) > 0:
-                logger.debug("Checking announcement again: %s", announcement.title)
-
-                approved = radarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
-                if approved:
-                    logger.debug("Radarr accepted the torrent this time!")
-                    return "OK"
-                else:
-                    logger.debug("Radarr still refused this torrent...")
-                    return "ERR"
-
-    except Exception as ex:
-        logger.exception("Exception while notifying radarr announcement:")
+        logger.exception("Exception while notifying " + pvr_name + " announcement:")
 
     return "ERR"
 
