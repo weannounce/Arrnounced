@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 
 import config
 import db
@@ -23,6 +24,7 @@ irc_tls_verify = False
 # these are loaded by init
 auth_key = None
 torrent_pass = None
+delay = 0
 
 logger = logging.getLogger(name.upper())
 logger.setLevel(logging.DEBUG)
@@ -57,6 +59,10 @@ def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name
 
         announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
                                  indexer=name, torrent=download_link, pvr=pvr_name)
+
+        if delay > 0:
+            logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
+            time.sleep(delay)
                                  
         if pvr_name == 'Sonarr':
             approved = sonarr.wanted(torrent_title, download_link, name)
@@ -83,10 +89,11 @@ def get_torrent_link(torrent_id, torrent_name):
 
 # Initialize tracker
 def init():
-    global auth_key, torrent_pass
+    global auth_key, torrent_pass, delay
 
     auth_key = cfg["{}.auth_key".format(name.lower())]
     torrent_pass = cfg["{}.torrent_pass".format(name.lower())]
+    delay = cfg["{}.delay".format(name.lower())]
 
     # check torrent_pass was supplied
     if not torrent_pass:

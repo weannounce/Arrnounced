@@ -27,51 +27,61 @@ def init():
     cfg.init('iptorrents.auth_key', '')
     cfg.init('iptorrents.torrent_pass', '')
     cfg.init('iptorrents.invite_key', '')
+    cfg.init('iptorrents.delay', 0)
     
     cfg.init('torrentleech.nick', '')
     cfg.init('torrentleech.nick_pass', '')
     cfg.init('torrentleech.auth_key', '')
     cfg.init('torrentleech.torrent_pass', '')
     cfg.init('torrentleech.invite_key', '')
+    cfg.init('torrentleech.delay', 0)
     
     cfg.init('alpharatio.nick', '')
     cfg.init('alpharatio.nick_pass', '')
     cfg.init('alpharatio.auth_key', '')
     cfg.init('alpharatio.torrent_pass', '')
     cfg.init('alpharatio.invite_key', '')
+    cfg.init('alpharatio.delay', 0)
     
     cfg.init('revolutiontt.nick', '')
     cfg.init('revolutiontt.nick_pass', '')
     cfg.init('revolutiontt.auth_key', '')
     cfg.init('revolutiontt.torrent_pass', '')
     cfg.init('revolutiontt.invite_key', '')
+    cfg.init('revolutiontt.delay', 0)
 
     cfg.init('morethan.nick', '')
     cfg.init('morethan.nick_pass', '')
     cfg.init('morethan.auth_key', '')
     cfg.init('morethan.torrent_pass', '')
+    cfg.init('morethan.delay', 0)
 
     cfg.init('btn.nick', '')
     cfg.init('btn.nick_pass', '')
     cfg.init('btn.auth_key', '')
     cfg.init('btn.torrent_pass', '')
+    cfg.init('btn.delay', 0)
 
     cfg.init('nbl.nick', '')
     cfg.init('nbl.nick_pass', '')
     cfg.init('nbl.auth_key', '')
     cfg.init('nbl.torrent_pass', '')
+    cfg.init('nbl.delay', 0)
 
     cfg.init('hdtorrents.nick', '')
     cfg.init('hdtorrents.nick_pass', '')
     cfg.init('hdtorrents.cookies', '')
+    cfg.init('hdtorrents.delay', 0)
 
     cfg.init('xspeeds.nick', '')
     cfg.init('xspeeds.nick_pass', '')
     cfg.init('xspeeds.torrent_pass', '')
+    cfg.init('xspeeds.delay', 0)
 
     cfg.init('flro.nick', '')
     cfg.init('flro.nick_pass', '')
     cfg.init('flro.torrent_pass', '')
+    cfg.init('flro.delay', 0)
 
     cfg.sync()
     return cfg
