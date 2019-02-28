@@ -22,6 +22,7 @@ nick_pass =
 auth_key = 
 torrent_pass = 
 invite_key =
+delay = 0
 
 [torrentleech]
 nick =
@@ -29,6 +30,7 @@ nick_pass =
 auth_key = 
 torrent_pass = 
 invite_key =
+delay = 0
 
 [alpharatio]
 nick =
@@ -36,6 +38,7 @@ nick_pass =
 auth_key = 
 torrent_pass = 
 invite_key = 
+delay = 0
 
 [revolutiontt]
 nick =
@@ -43,6 +46,7 @@ nick_pass =
 auth_key = 
 torrent_pass = 
 invite_key = 
+delay = 0
 
 [morethan]
 nick =
@@ -55,24 +59,29 @@ nick =
 nick_pass =
 auth_key = 
 torrent_pass = 
+delay = 0
 
 [nbl]
 nick = 
 nick_pass = 
 auth_key = 
 torrent_pass = 
+delay = 0
 
 [hdtorrents]
 nick =
 nick_pass =
 cookies =
+delay = 0
 
 [xspeeds]
 nick =
 nick_pass =
 torrent_pass =
+delay = 0
 
 [flro]
 nick =
 nick_pass =
 torrent_pass =
+delay = 0

@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 
 import config
 import db
@@ -20,6 +21,7 @@ irc_tls_verify = False
 
 # these are loaded by init
 cookies = None
+delay = 0
 
 logger = logging.getLogger(name.upper())
 logger.setLevel(logging.DEBUG)
@@ -47,6 +49,11 @@ def parse(announcement):
 
         announced = db.Announced(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
                                  indexer=name, torrent=download_link)
+
+        if delay > 0:
+            logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
+            time.sleep(delay)
+
         approved = sonarr.wanted(torrent_title, download_link, name)
         if approved:
             logger.debug("Sonarr approved release: %s", torrent_title)
@@ -82,9 +89,11 @@ def get_cookies():
 
 # Initialize tracker
 def init():
-    global cookies
+    global cookies, delay
 
     tmp = cfg["{}.cookies".format(name.lower())]
+    delay = cfg["{}.delay".format(name.lower())]
+
     # check cookies were supplied
     if not tmp:
         return False
