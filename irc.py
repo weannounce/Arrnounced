@@ -33,7 +33,7 @@ class IRC(BotBase):
         nick_pass = cfg["{}.nick_pass".format(self.tracking['name'].lower())]
         if nick_pass is not None and len(nick_pass) > 1:
             self.rawmsg('NICKSERV', 'IDENTIFY', nick_pass)
-            
+
         invite_key = cfg["{}.invite_key".format(self.tracking['name'].lower())]
         if invite_key is not None and len(invite_key) > 1:
             inviter = self.tracking['invite_cmd'].split(" ")[0]
