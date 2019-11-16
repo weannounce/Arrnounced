@@ -48,7 +48,7 @@ def parse(announcement):
         download_link = get_torrent_link(torrent_id, utils.replace_spaces(torrent_title, '.'))
 
         announced = db.Announced(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                 indexer=name, torrent=download_link)
+                                 indexer=name, torrent=download_link, pvr="Sonarr")
 
         if delay > 0:
             logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
@@ -58,7 +58,7 @@ def parse(announcement):
         if approved:
             logger.debug("Sonarr approved release: %s", torrent_title)
             snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                   indexer=name, torrent=download_link)
+                                   indexer=name, torrent=download_link, pvr="Sonarr")
         else:
             logger.debug("Sonarr rejected release: %s", torrent_title)
 
