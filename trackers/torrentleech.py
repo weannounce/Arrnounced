@@ -41,12 +41,12 @@ def parse(announcement):
     decolored = utils.strip_irc_color_codes(announcement)
     if 'New Torrent Announcement: <' not in decolored:
         return
-        
+
     # extract required information from announcement
     torrent_title = utils.replace_spaces(utils.substr(decolored, 'Name:\'', '\' uploaded', True), '.')
     torrent_id = decolored.split('/')[-1]
-    
-    
+
+
     if '<TV ::' in decolored:
         notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, 'Sonarr')
     elif '<Movies ::' in decolored:
@@ -64,19 +64,19 @@ def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name
         if delay > 0:
             logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
             time.sleep(delay)
-                                 
+
         if pvr_name == 'Sonarr':
             approved = sonarr.wanted(torrent_title, download_link, name)
         elif pvr_name == 'Radarr':
             approved = radarr.wanted(torrent_title, download_link, name)
-            
+
         if approved:
             logger.debug("%s approved release: %s", pvr_name, torrent_title)
             snatched = db.Snatched(date=datetime.datetime.now(), title=torrent_title,
                                    indexer=name, torrent=download_link, pvr=pvr_name)
         else:
             logger.debug("%s rejected release: %s", pvr_name, torrent_title)
-    
+
     return
 
 
@@ -85,7 +85,7 @@ def get_torrent_link(torrent_id, torrent_name):
     torrent_link = "https://www.torrentleech.org/rss/download/{}/{}/{}.torrent".format(torrent_id,
                                                                                         auth_key,
                                                                                         torrent_name)
-                                                                                              
+
     return torrent_link
 
 

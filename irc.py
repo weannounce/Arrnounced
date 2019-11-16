@@ -48,7 +48,6 @@ class IRC(BotBase):
             logger.debug("Identified with NICKSERV - joining %s", self.tracking['irc_channel'])
             await self.join(self.tracking['irc_channel'])
 
-
     async def on_raw_900(self, message):
         logger.debug("Identified with NICKSERV - joining %s", self.tracking['irc_channel'])
         await self.join(self.tracking['irc_channel'])

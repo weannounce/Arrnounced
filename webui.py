@@ -257,7 +257,7 @@ def notify(pvr_name):
             announcement = db.Announced.get(id=data.get('id'))
             if announcement is not None and len(announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", announcement.title)
-                
+
                 if pvr_name == "Sonarr":
                     approved = sonarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
                 elif pvr_name == "Radarr":
