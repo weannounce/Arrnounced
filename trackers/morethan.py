@@ -16,8 +16,8 @@ name = "MoreThan"
 irc_port = 6669
 irc_host = "irc.morethan.tv"
 irc_channel = "#announce"
-inviter = "TL-Monkey"
-invite_cmd = "!invite"
+inviter = None
+invite_cmd = None
 irc_tls = True
 irc_tls_verify = False
 
