@@ -16,6 +16,7 @@ name = "BTN"
 irc_host = "irc.broadcasthe.net"
 irc_port = 6667
 irc_channel = "#BTN-Announce"
+inviter = None
 invite_cmd = None
 irc_tls = False
 irc_tls_verify = False

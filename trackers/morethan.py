@@ -13,9 +13,11 @@ cfg = config.init()
 # Tracker Configuration
 ############################################################
 name = "MoreThan"
-irc_host = "irc.morethan.tv"
 irc_port = 6667
+irc_host = "irc.morethan.tv"
 irc_channel = "#announce"
+inviter = "TL-Monkey"
+invite_cmd = "!invite"
 irc_tls = False
 irc_tls_verify = False
 

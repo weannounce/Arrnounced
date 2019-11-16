@@ -35,8 +35,8 @@ class IRC(BotBase):
 
         invite_key = cfg["{}.invite_key".format(self.tracking['name'].lower())]
         if invite_key is not None and len(invite_key) > 1:
-            inviter = self.tracking['invite_cmd'].split(" ")[0]
-            invite_cmd = self.tracking['invite_cmd'].split(" ")[1]
+            inviter = self.tracking['inviter']
+            invite_cmd = self.tracking['invite_cmd']
             await self.message(inviter, " ".join([invite_cmd, invite_key]))
 
         await self.join(self.tracking['irc_channel'])
