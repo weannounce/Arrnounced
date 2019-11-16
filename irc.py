@@ -44,9 +44,10 @@ class IRC(BotBase):
     async def on_raw(self, message):
         await super().on_raw(message)
 
-        if cfg["{}.nick".format(self.tracking['name'].lower())] in message._raw and '+r' in message._raw:
+        if message.command == 221 and '+r' in message._raw:
             logger.debug("Identified with NICKSERV - joining %s", self.tracking['irc_channel'])
             await self.join(self.tracking['irc_channel'])
+
 
     async def on_raw_900(self, message):
         logger.debug("Identified with NICKSERV - joining %s", self.tracking['irc_channel'])
