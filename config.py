@@ -83,5 +83,12 @@ def init():
     cfg.init('flro.torrent_pass', '')
     cfg.init('flro.delay', 0)
 
+    cfg.init('red.nick', '')
+    cfg.init('red.nick_pass', '')
+    cfg.init('red.invite_key', '')
+    cfg.init('red.auth_key', '')
+    cfg.init('red.torrent_pass', '')
+    cfg.init('red.delay', 0)
+
     cfg.sync()
     return cfg

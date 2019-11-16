@@ -85,3 +85,11 @@ nick =
 nick_pass =
 torrent_pass =
 delay = 0
+
+[red]
+nick =
+nick_pass =
+auth_key = 
+torrent_pass = 
+invite_key = 
+delay = 0
