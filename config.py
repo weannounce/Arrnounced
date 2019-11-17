@@ -18,6 +18,9 @@ def init():
     cfg.init('radarr.apikey', '')
     cfg.init('radarr.url', 'http://localhost:7878')
 
+    cfg.init('lidarr.apikey', '')
+    cfg.init('lidarr.url', 'http://localhost:8686')
+
     cfg.init('bot.debug_file', True)
     cfg.init('bot.debug_console', True)
 

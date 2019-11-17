@@ -16,6 +16,10 @@ url = http://localhost:8989
 apikey = YOUR-API-KEY
 url = http://localhost:7878
 
+[lidarr]
+apikey = YOUR-API-KEY
+url = http://localhost:8686
+
 [iptorrents]
 nick =
 nick_pass =

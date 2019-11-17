@@ -5,7 +5,7 @@ import re
 
 import config
 import db
-import sonarr
+import lidarr
 import utils
 
 cfg = config.init()
@@ -58,8 +58,7 @@ def parse(announcement):
             logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
             time.sleep(delay)
 
-        #approved = lidarr.wanted(torrent_title, download_link, name)
-        approved = False
+        approved = lidarr.wanted(torrent_title, download_link, name)
         if approved:
             logger.debug("Lidarr approved release: %s", torrent_title)
             snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
