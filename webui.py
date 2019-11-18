@@ -50,9 +50,9 @@ def serve_torrent(tracker, torrent_id, torrent_name):
         found_tracker = trackers.get_tracker(tracker)
         if found_tracker is not None:
             # ask tracker for torrent url
-            download_url = found_tracker['plugin'].get_real_torrent_link(torrent_id, torrent_name)
+            download_url = found_tracker.get_real_torrent_link(torrent_id, torrent_name)
             # ask tracker for cookies
-            cookies = found_tracker['plugin'].get_cookies()
+            cookies = found_tracker.get_cookies()
 
             if download_url is not None and cookies is not None:
                 # download torrent
