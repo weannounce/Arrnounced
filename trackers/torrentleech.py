@@ -4,8 +4,7 @@ import time
 
 import config
 import db
-import sonarr
-import radarr
+from backend import sonarr_wanted, radarr_wanted
 import utils
 
 cfg = config.init()
@@ -66,9 +65,9 @@ def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name
             time.sleep(delay)
 
         if pvr_name == 'Sonarr':
-            approved = sonarr.wanted(torrent_title, download_link, name)
+            approved = sonarr_wanted(torrent_title, download_link, name)
         elif pvr_name == 'Radarr':
-            approved = radarr.wanted(torrent_title, download_link, name)
+            approved = radarr_wanted(torrent_title, download_link, name)
 
         if approved:
             logger.debug("%s approved release: %s", pvr_name, torrent_title)
