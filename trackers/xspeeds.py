@@ -4,7 +4,7 @@ import time
 
 import config
 import db
-import sonarr
+from backend import sonarr_wanted
 import utils
 
 cfg = config.init()
@@ -52,7 +52,7 @@ def parse(announcement):
             logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
             time.sleep(delay)
 
-        approved = sonarr.wanted(torrent_title, download_link, name)
+        approved = sonarr_wanted(torrent_title, download_link, name)
         if approved:
             logger.debug("Sonarr approved release: %s", torrent_title)
             snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),

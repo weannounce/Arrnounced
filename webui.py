@@ -14,8 +14,7 @@ from flask_httpauth import HTTPBasicAuth
 
 import config
 import db
-import sonarr
-import radarr
+from backend import sonarr_wanted, radarr_wanted
 import utils
 
 logger = logging.getLogger("WEB-UI")
@@ -259,9 +258,9 @@ def notify(pvr_name):
                 logger.debug("Checking announcement again: %s", announcement.title)
 
                 if pvr_name == "Sonarr":
-                    approved = sonarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
+                    approved = sonarr_wanted(announcement.title, announcement.torrent, announcement.indexer)
                 elif pvr_name == "Radarr":
-                    approved = radarr.wanted(announcement.title, announcement.torrent, announcement.indexer)
+                    approved = radarr_wanted(announcement.title, announcement.torrent, announcement.indexer)
                 if approved:
                     logger.debug(pvr_name + " accepted the torrent this time!")
                     return "OK"
