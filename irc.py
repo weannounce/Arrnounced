@@ -15,7 +15,7 @@ cfg = config.init()
 
 class IRC(BotBase):
     tracking = None
-    RECONNECT_MAX_ATTEMPTS = 100
+    RECONNECT_MAX_ATTEMPTS = None
 
     async def connect(self, *args, **kwargs):
         try:
