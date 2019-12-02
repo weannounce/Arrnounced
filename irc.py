@@ -63,6 +63,7 @@ class IRC(BotBase):
     async def on_message(self, source, target, message):
         if source[0] != '#':
             logger.info("%s sent us a message: %s", target, message)
+            logger.info("cfg is %s", cfg['server.pass'])
         else:
             self.tracking.parse(message)
 

@@ -98,81 +98,81 @@ def index():
 @app.route("/trackers", methods=['GET', 'POST'])
 @auth.login_required
 def trackers():
-    if request.method == 'POST':
-        if 'iptorrents_torrentpass' in request.form:
-            cfg['iptorrents.torrent_pass'] = request.form['iptorrents_torrentpass']
-            cfg['iptorrents.nick'] = request.form['iptorrents_nick']
-            cfg['iptorrents.nick_pass'] = request.form['iptorrents_nickpassword']
-            cfg['iptorrents.delay'] = request.form['iptorrents_delay']
-            logger.debug("saved iptorrents settings")
+    #if request.method == 'POST':
+        #if 'iptorrents_torrentpass' in request.form:
+        #    cfg['iptorrents.torrent_pass'] = request.form['iptorrents_torrentpass']
+        #    cfg['iptorrents.nick'] = request.form['iptorrents_nick']
+        #    cfg['iptorrents.nick_pass'] = request.form['iptorrents_nickpassword']
+        #    cfg['iptorrents.delay'] = request.form['iptorrents_delay']
+        #    logger.debug("saved iptorrents settings")
 
-        if 'morethan_torrentpass' in request.form:
-            cfg['morethan.auth_key'] = request.form['morethan_authkey']
-            cfg['morethan.torrent_pass'] = request.form['morethan_torrentpass']
-            cfg['morethan.nick'] = request.form['morethan_nick']
-            cfg['morethan.nick_pass'] = request.form['morethan_nickpassword']
-            cfg['morethan.delay'] = request.form['morethan_delay']
-            logger.debug("saved morethan settings")
+        #if 'morethan_torrentpass' in request.form:
+        #    cfg['morethan.auth_key'] = request.form['morethan_authkey']
+        #    cfg['morethan.torrent_pass'] = request.form['morethan_torrentpass']
+        #    cfg['morethan.nick'] = request.form['morethan_nick']
+        #    cfg['morethan.nick_pass'] = request.form['morethan_nickpassword']
+        #    cfg['morethan.delay'] = request.form['morethan_delay']
+        #    logger.debug("saved morethan settings")
 
-        if 'btn_torrentpass' in request.form:
-            cfg['btn.auth_key'] = request.form['btn_authkey']
-            cfg['btn.torrent_pass'] = request.form['btn_torrentpass']
-            cfg['btn.nick'] = request.form['btn_nick']
-            cfg['btn.nick_pass'] = request.form['btn_nickpassword']
-            cfg['btn.delay'] = request.form['btn_delay']
-            logger.debug("saved btn settings")
+        #if 'btn_torrentpass' in request.form:
+        #    cfg['btn.auth_key'] = request.form['btn_authkey']
+        #    cfg['btn.torrent_pass'] = request.form['btn_torrentpass']
+        #    cfg['btn.nick'] = request.form['btn_nick']
+        #    cfg['btn.nick_pass'] = request.form['btn_nickpassword']
+        #    cfg['btn.delay'] = request.form['btn_delay']
+        #    logger.debug("saved btn settings")
 
-        if 'nbl_torrentpass' in request.form:
-            cfg['nbl.auth_key'] = request.form['nbl_authkey']
-            cfg['nbl.torrent_pass'] = request.form['nbl_torrentpass']
-            cfg['nbl.nick'] = request.form['nbl_nick']
-            cfg['nbl.nick_pass'] = request.form['nbl_nickpassword']
-            cfg['nbl.delay'] = request.form['nbl_delay']
-            logger.debug("saved nbl settings")
+        #if 'nbl_torrentpass' in request.form:
+        #    cfg['nbl.auth_key'] = request.form['nbl_authkey']
+        #    cfg['nbl.torrent_pass'] = request.form['nbl_torrentpass']
+        #    cfg['nbl.nick'] = request.form['nbl_nick']
+        #    cfg['nbl.nick_pass'] = request.form['nbl_nickpassword']
+        #    cfg['nbl.delay'] = request.form['nbl_delay']
+        #    logger.debug("saved nbl settings")
 
-        if 'hdtorrents_cookies' in request.form:
-            cfg['hdtorrents.cookies'] = request.form['hdtorrents_cookies']
-            cfg['hdtorrents.nick'] = request.form['hdtorrents_nick']
-            cfg['hdtorrents.nick_pass'] = request.form['hdtorrents_nickpassword']
-            cfg['hdtorrents.delay'] = request.form['hdtorrents_delay']
-            logger.debug("saved hdtorrents settings")
+        #if 'hdtorrents_cookies' in request.form:
+        #    cfg['hdtorrents.cookies'] = request.form['hdtorrents_cookies']
+        #    cfg['hdtorrents.nick'] = request.form['hdtorrents_nick']
+        #    cfg['hdtorrents.nick_pass'] = request.form['hdtorrents_nickpassword']
+        #    cfg['hdtorrents.delay'] = request.form['hdtorrents_delay']
+        #    logger.debug("saved hdtorrents settings")
 
-        if 'xspeeds_torrentpass' in request.form:
-            cfg['xspeeds.torrent_pass'] = request.form['xspeeds_torrentpass']
-            cfg['xspeeds.nick'] = request.form['xspeeds_nick']
-            cfg['xspeeds.nick_pass'] = request.form['xspeeds_nickpassword']
-            cfg['xspeeds.delay'] = request.form['xspeeds_delay']
-            logger.debug("saved xspeeds settings")
+        #if 'xspeeds_torrentpass' in request.form:
+        #    cfg['xspeeds.torrent_pass'] = request.form['xspeeds_torrentpass']
+        #    cfg['xspeeds.nick'] = request.form['xspeeds_nick']
+        #    cfg['xspeeds.nick_pass'] = request.form['xspeeds_nickpassword']
+        #    cfg['xspeeds.delay'] = request.form['xspeeds_delay']
+        #    logger.debug("saved xspeeds settings")
 
-        if 'flro_torrentpass' in request.form:
-            cfg['flro.torrent_pass'] = request.form['flro_torrentpass']
-            cfg['flro.nick'] = request.form['flro_nick']
-            cfg['flro.nick_pass'] = request.form['flro_nickpassword']
-            cfg['flro.delay'] = request.form['flro_delay']
-            logger.debug("saved filelist settings")
+        #if 'flro_torrentpass' in request.form:
+        #    cfg['flro.torrent_pass'] = request.form['flro_torrentpass']
+        #    cfg['flro.nick'] = request.form['flro_nick']
+        #    cfg['flro.nick_pass'] = request.form['flro_nickpassword']
+        #    cfg['flro.delay'] = request.form['flro_delay']
+        #    logger.debug("saved filelist settings")
 
-        if 'torrentleech_torrentpass' in request.form:
-            cfg['torrentleech.torrent_pass'] = request.form['torrentleech_torrentpass']
-            cfg['torrentleech.nick'] = request.form['torrentleech_nick']
-            cfg['torrentleech.nick_pass'] = request.form['torrentleech_nickpassword']
-            cfg['torrentleech.delay'] = request.form['torrentleech_delay']
-            logger.debug("saved torrentleech settings")
+        #if 'torrentleech_torrentpass' in request.form:
+        #    cfg['torrentleech.torrent_pass'] = request.form['torrentleech_torrentpass']
+        #    cfg['torrentleech.nick'] = request.form['torrentleech_nick']
+        #    cfg['torrentleech.nick_pass'] = request.form['torrentleech_nickpassword']
+        #    cfg['torrentleech.delay'] = request.form['torrentleech_delay']
+        #    logger.debug("saved torrentleech settings")
 
-        if 'alpharatio_torrentpass' in request.form:
-            cfg['alpharatio.torrent_pass'] = request.form['alpharatio_torrentpass']
-            cfg['alpharatio.nick'] = request.form['alpharatio_nick']
-            cfg['alpharatio.nick_pass'] = request.form['alpharatio_nickpassword']
-            cfg['alpharatio.delay'] = request.form['alpharatio_delay']
-            logger.debug("saved alpharatio settings")
+        #if 'alpharatio_torrentpass' in request.form:
+        #    cfg['alpharatio.torrent_pass'] = request.form['alpharatio_torrentpass']
+        #    cfg['alpharatio.nick'] = request.form['alpharatio_nick']
+        #    cfg['alpharatio.nick_pass'] = request.form['alpharatio_nickpassword']
+        #    cfg['alpharatio.delay'] = request.form['alpharatio_delay']
+        #    logger.debug("saved alpharatio settings")
 
-        if 'revolutiontt_torrentpass' in request.form:
-            cfg['revolutiontt.torrent_pass'] = request.form['revolutiontt_torrentpass']
-            cfg['revolutiontt.nick'] = request.form['revolutiontt_nick']
-            cfg['revolutiontt.nick_pass'] = request.form['revolutiontt_nickpassword']
-            cfg['revolutiontt.delay'] = request.form['revolutiontt_delay']
-            logger.debug("saved revolutiontt settings")
+        #if 'revolutiontt_torrentpass' in request.form:
+        #    cfg['revolutiontt.torrent_pass'] = request.form['revolutiontt_torrentpass']
+        #    cfg['revolutiontt.nick'] = request.form['revolutiontt_nick']
+        #    cfg['revolutiontt.nick_pass'] = request.form['revolutiontt_nickpassword']
+        #    cfg['revolutiontt.delay'] = request.form['revolutiontt_delay']
+        #    logger.debug("saved revolutiontt settings")
 
-        cfg.sync()
+        #cfg.sync()
 
     return render_template('trackers.html')
 
