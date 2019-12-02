@@ -5,7 +5,6 @@ from pluginbase import PluginBase
 import utils
 
 logger = logging.getLogger("TRACKERS")
-logger.setLevel(logging.DEBUG)
 
 
 class Trackers(object):

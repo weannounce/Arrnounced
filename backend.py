@@ -7,7 +7,6 @@ import requests
 import config
 
 logger = logging.getLogger("BACKEND")
-logger.setLevel(logging.DEBUG)
 cfg = config.init()
 
 sonarr_backend = { 'name': 'sonarr', 'api_path': '/api/release/push', 'use_indexer': True }

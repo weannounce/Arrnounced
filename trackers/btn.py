@@ -27,7 +27,6 @@ torrent_pass = None
 delay = 0
 
 logger = logging.getLogger(name.upper())
-logger.setLevel(logging.DEBUG)
 
 ############################################################
 # Tracker Framework (all trackers must follow)
