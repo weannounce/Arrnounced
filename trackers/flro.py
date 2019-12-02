@@ -53,7 +53,7 @@ def parse(announcement):
 
         approved = sonarr_wanted(torrent_title, download_link, name)
         if approved:
-            logger.debug("Sonarr approved release: %s", torrent_title)
+            logger.info("Sonarr approved release: %s", torrent_title)
             snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
                                    indexer=name, torrent=download_link, pvr="Sonarr")
         else:
