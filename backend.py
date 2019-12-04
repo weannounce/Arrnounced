@@ -7,7 +7,6 @@ import requests
 import config
 
 logger = logging.getLogger("BACKEND")
-logger.setLevel(logging.DEBUG)
 cfg = config.init()
 
 sonarr_backend = { 'name': 'sonarr', 'api_path': '/api/release/push', 'use_indexer': True }
@@ -27,7 +26,7 @@ def __wanted(backend, title, download_link, indexer):
     global cfg
     approved = False
 
-    logger.debug("Notifying %s of release from %s: %s @ %s",
+    logger.info("Notifying %s of release from %s: %s @ %s",
             backend['name'].capitalize(), indexer, title, download_link)
 
     headers = {'X-Api-Key': cfg[backend['name'] + '.apikey']}

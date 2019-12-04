@@ -3,7 +3,6 @@ import datetime
 from pony.orm import *
 
 logger = logging.getLogger("DB")
-logger.setLevel(logging.DEBUG)
 
 db = Database()
 

@@ -8,7 +8,6 @@ import config
 BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSupport)
 
 logger = logging.getLogger("IRC")
-logger.setLevel(logging.DEBUG)
 
 cfg = config.init()
 
@@ -30,7 +29,7 @@ class IRC(BotBase):
     async def attempt_join_channel(self):
         invite_key = cfg["{}.invite_key".format(self.tracking.name.lower())]
         if invite_key is not None and len(invite_key) > 1:
-            logger.debug("Requesting invite to %s", self.tracking.irc_channel)
+            logger.info("Requesting invite to %s", self.tracking.irc_channel)
             inviter = self.tracking.inviter
             invite_cmd = self.tracking.invite_cmd
             await self.message(inviter, " ".join([invite_cmd, invite_key]))
@@ -53,23 +52,23 @@ class IRC(BotBase):
         await super().on_raw(message)
 
         if message.command == 221 and '+r' in message._raw:
-            logger.debug("Identified with NICKSERV (221)")
+            logger.info("Identified with NICKSERV (221)")
             await self.attempt_join_channel()
 
     async def on_raw_900(self, message):
-        logger.debug("Identified with NICKSERV (900)")
+        logger.info("Identified with NICKSERV (900)")
         await self.attempt_join_channel()
 
     async def on_message(self, source, target, message):
         if source[0] != '#':
-            logger.debug("%s sent us a message: %s", target, message)
+            logger.info("%s sent us a message: %s", target, message)
         else:
             self.tracking.parse(message)
 
     async def on_invite(self, channel, by):
         if channel == self.tracking.irc_channel:
             await self.join(self.tracking.irc_channel)
-            logger.debug("%s invited us to join %s", by, channel)
+            logger.info("%s invited us to join %s", by, channel)
 
 
 pool = pydle.ClientPool()

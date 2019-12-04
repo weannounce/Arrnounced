@@ -26,7 +26,6 @@ torrent_pass = None
 delay = 0
 
 logger = logging.getLogger(name.upper())
-logger.setLevel(logging.DEBUG)
 
 
 ############################################################
@@ -70,7 +69,7 @@ def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name
             approved = radarr_wanted(torrent_title, download_link, name)
 
         if approved:
-            logger.debug("%s approved release: %s", pvr_name, torrent_title)
+            logger.info("%s approved release: %s", pvr_name, torrent_title)
             snatched = db.Snatched(date=datetime.datetime.now(), title=torrent_title,
                                    indexer=name, torrent=download_link, pvr=pvr_name)
         else:

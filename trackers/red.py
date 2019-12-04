@@ -29,7 +29,6 @@ torrent_pass = None
 delay = 0
 
 logger = logging.getLogger(name.upper())
-logger.setLevel(logging.DEBUG)
 
 ############################################################
 # Tracker Framework (all trackers must follow)
@@ -60,7 +59,7 @@ def parse(announcement):
 
         approved = lidarr_wanted(torrent_title, download_link, name)
         if approved:
-            logger.debug("Lidarr approved release: %s", torrent_title)
+            logger.info("Lidarr approved release: %s", torrent_title)
             snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
                                    indexer=name, torrent=download_link, pvr="Lidarr")
         else:

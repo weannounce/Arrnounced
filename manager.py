@@ -11,7 +11,6 @@ thread_irc = None
 thread_webui = None
 trackers = None
 logger = logging.getLogger("MANAGER")
-logger.setLevel(logging.DEBUG)
 
 
 def run():
@@ -19,8 +18,8 @@ def run():
 
     trackers = Trackers()
     if len(trackers.loaded) <= 0:
-        logger.info("No trackers were initialized, exiting...")
-        quit()
+        logger.error("No trackers were initialized, exiting...")
+        quit(1)
 
     thread_irc = irc_task(trackers)
     thread_webui = webui_task(trackers)
