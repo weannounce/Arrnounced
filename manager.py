@@ -20,8 +20,6 @@ def run():
     if len(trackers) == 0:
         logger.error("No trackers were initialized, exiting...")
         quit(1)
-    logger.error("asdf")
-    quit()
 
     thread_irc = irc_task(trackers)
     #thread_webui = webui_task(trackers)

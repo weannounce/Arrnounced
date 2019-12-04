@@ -8,7 +8,7 @@ import config
 import db
 
 cfg = config.init()
-logger = logging.getLogger("TRACKERS")
+logger = logging.getLogger("TRACKER_CONF")
 track_config_path = "autodl-trackers/trackers"
 debug = False
 
@@ -21,12 +21,14 @@ def parse_xml_configs():
         if tracker.parseConfig(tree.getroot()):
             xml_configs[tracker.trackerInfo["type"]] =  tracker
         else:
-            logger.error("Could not parse tracker config: {}".format(trackerFile))
+            logger.error("Could not parse tracker XML config: {}".format(trackerFile))
     return xml_configs
 
 class TrackerXmlConfig:
     def parseConfig(self, root):
         self.trackerInfo = root.attrib
+        # TODO: Workaround for profig handling periods as subsections
+        self.trackerInfo["type"] = self.trackerInfo["type"].replace('.', '_')
         self.settings = []
         self.servers = []
         self.torrentUrl = []
@@ -124,6 +126,9 @@ def get_trackers():
             logger.error("Tracker '{}' from configuration is not supported".format(user_config.name))
         else:
             trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
+            # TODO: No port specificed in XML configs. Handle better?
+            trackers[user_config.name].xml_config.servers[0]["port"] = \
+                user_config["port"] if "port" in user_config else 6667
 
     return trackers
 
