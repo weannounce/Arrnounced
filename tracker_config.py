@@ -30,7 +30,7 @@ class TrackerXmlConfig:
         # TODO: Workaround for profig handling periods as subsections
         self.trackerInfo["type"] = self.trackerInfo["type"].replace('.', '_')
         self.settings = []
-        self.servers = []
+        self.server = None
         self.torrentUrl = []
         self.linePatterns = []
         self.multiLinePattern = []
@@ -40,7 +40,7 @@ class TrackerXmlConfig:
             self.settings.append(re.sub('^(gazelle_|cookie_)', '', setting.tag))
 
         for server in root.findall("./servers/*"):
-            self.servers.append(server.attrib)
+            self.server = server.attrib
 
         for extract in root.findall("./parseinfo/linepatterns/*"):
             self.linePatterns.append(self.__parseExtract(extract))
@@ -63,9 +63,8 @@ class TrackerXmlConfig:
             for setting in self.settings:
                 print('\t\t', setting)
             print("\tServer")
-            for server in self.servers:
-                for key in server:
-                    print('\t\t', key, server[key])
+            for key in self.server:
+                print('\t\t', key, server[key])
             print("\tTorrentUrl")
             for var in self.torrentUrl:
                 print('\t\t', var.varType, ": ", var.var)
@@ -86,8 +85,8 @@ class TrackerXmlConfig:
         if self.trackerInfo is None:
             return False
         elif (0 == len(self.settings) or
-                0 == len(self.servers) or
-                (0 == len(self.linePatterns) and 0 == len(self.multiLinePattern))):
+              self.server is None or
+              (0 == len(self.linePatterns) and 0 == len(self.multiLinePattern))):
             return False
 
         return True
@@ -127,7 +126,7 @@ def get_trackers():
         else:
             trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
             # TODO: No port specificed in XML configs. Handle better?
-            trackers[user_config.name].xml_config.servers[0]["port"] = \
+            trackers[user_config.name].xml_config.server["port"] = \
                 user_config["port"] if "port" in user_config else 6667
 
     return trackers

@@ -82,8 +82,8 @@ def start(trackers):
     global cfg, pool, clients
 
     for tracker_name, tracker in trackers.items():
-        logger.info("Pooling server: %s:%d %s", tracker.xml_config.servers[0]["serverNames"],
-                tracker.xml_config.servers[0]["port"], tracker.xml_config.servers[0]["channelNames"])
+        logger.info("Pooling server: %s:%d %s", tracker.xml_config.server["serverNames"],
+                tracker.xml_config.server["port"], tracker.xml_config.server["channelNames"])
         continue
 
         nick = cfg["{}.nick".format(tracker.name.lower())]
