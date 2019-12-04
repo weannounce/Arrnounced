@@ -45,4 +45,9 @@ if __name__ == "__main__":
         log_level = logging.DEBUG
 
     init_logging(log_level)
+
+    if not config.validate_config():
+        logging.error("Configuration not valid")
+        quit(1)
+    quit()
     manager.run()

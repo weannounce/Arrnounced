@@ -50,6 +50,7 @@ class IRC(BotBase):
             await self.attempt_join_channel()
 
     async def on_raw(self, message):
+        logger.debug(message._raw)
         await super().on_raw(message)
 
         if message.command == 221 and '+r' in message._raw:

@@ -33,3 +33,20 @@ def init():
 
     cfg.sync()
     return cfg
+
+server_fields = { "host": True, "port": True, "user": False, "pass": False }
+
+def validate_config():
+    global cfg
+    valid = True
+
+    sections = cfg.as_dict()
+    if "server" in sections: 
+        for field, mandatory in server_fields.items():
+            if mandatory and cfg.section("server")[field] is None:
+                valid = False
+            elif cfg.section("server")[field] is not None and len(cfg.section("server")[field]) == 0:
+                valid = False
+    else:
+        valid = False
+    return valid
