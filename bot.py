@@ -49,5 +49,5 @@ if __name__ == "__main__":
     if not config.validate_config():
         logging.error("Configuration not valid")
         quit(1)
-    quit()
+
     manager.run()

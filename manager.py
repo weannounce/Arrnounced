@@ -5,7 +5,7 @@ from worker import Worker
 
 import irc
 import webui
-from trackers import Trackers
+import tracker_config
 
 thread_irc = None
 thread_webui = None
@@ -16,10 +16,12 @@ logger = logging.getLogger("MANAGER")
 def run():
     global thread_irc, thread_webui, trackers
 
-    trackers = Trackers()
-    if len(trackers.loaded) <= 0:
+    trackers = tracker_config.get_trackers()
+    if len(trackers) == 0:
         logger.error("No trackers were initialized, exiting...")
         quit(1)
+    logger.error("asdf")
+    quit()
 
     thread_irc = irc_task(trackers)
     #thread_webui = webui_task(trackers)

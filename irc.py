@@ -81,7 +81,7 @@ clients = []
 def start(trackers):
     global cfg, pool, clients
 
-    for tracker in trackers.loaded.values():
+    for tracker in trackers:
         logger.info("Pooling server: %s:%d %s", tracker.irc_host, tracker.irc_port, tracker.irc_channel)
 
         nick = cfg["{}.nick".format(tracker.name.lower())]

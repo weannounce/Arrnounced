@@ -1,10 +1,16 @@
 import profig
 
-cfg = profig.Config('settings.cfg')
+cfg = None
+base_sections = [ "server", "sonarr", "radarr", "lidarr", "bot" ]
 
 
 def init():
     global cfg
+    if cfg is not None:
+        return cfg
+
+    cfg = profig.Config('settings.cfg')
+    cfg.read()
 
     # Settings
     cfg.init('server.host', 'localhost')
@@ -12,13 +18,13 @@ def init():
     cfg.init('server.user', 'admin')
     cfg.init('server.pass', 'password')
 
-    cfg.init('sonarr.apikey', '')
+    cfg.init('sonarr.apikey', None, type=str)
     cfg.init('sonarr.url', 'http://localhost:8989')
 
-    cfg.init('radarr.apikey', '')
+    cfg.init('radarr.apikey', None, type=str)
     cfg.init('radarr.url', 'http://localhost:7878')
 
-    cfg.init('lidarr.apikey', '')
+    cfg.init('lidarr.apikey', None, type=str)
     cfg.init('lidarr.url', 'http://localhost:8686')
 
     cfg.init('bot.debug_file', True)
@@ -31,7 +37,11 @@ def init():
     #cfg.init('revolutiontt.invite_key', '')
     #cfg.init('revolutiontt.delay', 0)
 
-    cfg.sync()
+    #cfg.sync()
+    #print(cfg)
+    #print(cfg["radarr.apikey"])
+    #for s in cfg.sections():
+    #    print(s)
     return cfg
 
 server_fields = { "host": True, "port": True, "user": False, "pass": False }
