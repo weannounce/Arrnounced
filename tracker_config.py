@@ -43,10 +43,10 @@ class TrackerXmlConfig:
             self.server = server.attrib
 
         for extract in root.findall("./parseinfo/linepatterns/*"):
-            self.linePatterns.append(self.__parseExtract(extract))
+            self.linePatterns.append(self._parseExtract(extract))
 
         for extract in root.findall("./parseinfo/multilinepatterns/*"):
-            self.multiLinePattern.append(self.__parseExtract(extract))
+            self.multiLinePattern.append(self._parseExtract(extract))
 
         for var in root.findall("./parseinfo/linematched/var[@name='torrentUrl']/*"):
             self.torrentUrl.append(Var(var.tag, var.attrib))
@@ -91,7 +91,7 @@ class TrackerXmlConfig:
 
         return True
 
-    def __parseExtract(self, extract):
+    def _parseExtract(self, extract):
         regex = extract.findall("./regex")
         groups = extract.findall("./vars/*")
         groupList = []
@@ -125,9 +125,6 @@ def get_trackers():
             logger.error("Tracker '{}' from configuration is not supported".format(user_config.name))
         else:
             trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
-            # TODO: No port specificed in XML configs. Handle better?
-            trackers[user_config.name].xml_config.server["port"] = \
-                user_config["port"] if "port" in user_config else 6667
 
     return trackers
 
@@ -136,6 +133,28 @@ class TrackerConfig:
         self.xml_config = xml_config
         self.user_config = user_config
         self.logger = logging.getLogger(self.user_config.name.upper())
+
+    @property
+    def irc_port(self):
+        #return self.user_config.get("irc_port", default=6667)
+        # TODO: Fix type support from config class
+        return int(self.user_config["irc_port"]) if "irc_port" in self.user_config else 6667
+
+    @property
+    def irc_nick(self):
+        return self.user_config["nick"] if "nick" in self.user_config else None
+
+    @property
+    def irc_tls(self):
+        return self.user_config["tls"] if "tls" in self.user_config else False
+
+    @property
+    def irc_server(self):
+        return self.xml_config.server["serverNames"]
+
+    @property
+    def irc_channel(self):
+        return self.xml_config.server["channelNames"]
 
 
     @db.db_session

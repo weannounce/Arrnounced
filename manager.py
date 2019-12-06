@@ -9,20 +9,19 @@ import tracker_config
 
 thread_irc = None
 thread_webui = None
-trackers = None
 logger = logging.getLogger("MANAGER")
 
 
 def run():
-    global thread_irc, thread_webui, trackers
+    global thread_irc, thread_webui
 
-    trackers = tracker_config.get_trackers()
-    if len(trackers) == 0:
-        logger.error("No trackers were initialized, exiting...")
+    tracker_configs = tracker_config.get_trackers()
+    if len(tracker_configs) == 0:
+        logger.error("No tracker configs were initialized, exiting...")
         quit(1)
 
-    thread_irc = irc_task(trackers)
-    #thread_webui = webui_task(trackers)
+    thread_irc = irc_task(tracker_configs)
+    #thread_webui = webui_task(tracker_configs)
 
     thread_irc.fire('START')
     #thread_webui.fire('START')
@@ -37,7 +36,7 @@ def run():
 # Tasks
 ############################################################
 
-def irc_task(trackers):
+def irc_task(tracker_configs):
     worker = Worker()
     working = True
 
@@ -46,7 +45,7 @@ def irc_task(trackers):
         logger.debug("Start IRC Task signaled")
         while working:
             try:
-                irc.start(trackers)
+                irc.start(tracker_configs)
             except Exception as e:
                 logger.exception("Exception irc_task START: ")
 
@@ -57,7 +56,7 @@ def irc_task(trackers):
     return worker.start()
 
 
-def webui_task(trackers):
+def webui_task(tracker_configs):
     worker = Worker()
     working = True
 
@@ -66,7 +65,7 @@ def webui_task(trackers):
         logger.debug("Start WebUI Task signaled")
         while working:
             try:
-                webui.run(trackers)
+                webui.run(tracker_configs)
             except Exception as e:
                 logger.exception("Exception webui_task START: ")
 
