@@ -31,9 +31,9 @@ class TrackerXmlConfig:
         self.trackerInfo["type"] = self.trackerInfo["type"].replace('.', '_')
         self.settings = []
         self.server = None
-        self.torrentUrl = []
-        self.linePatterns = []
-        self.multiLinePattern = []
+        self.torrent_url = []
+        self.line_patterns = []
+        self.multi_line_patterns = []
         self.ignores = []
 
         for setting in root.findall("./settings/*"):
@@ -43,13 +43,13 @@ class TrackerXmlConfig:
             self.server = server.attrib
 
         for extract in root.findall("./parseinfo/linepatterns/*"):
-            self.linePatterns.append(self._parseExtract(extract))
+            self.line_patterns.append(self._parseExtract(extract))
 
         for extract in root.findall("./parseinfo/multilinepatterns/*"):
-            self.multiLinePattern.append(self._parseExtract(extract))
+            self.multi_line_patterns.append(self._parseExtract(extract))
 
         for var in root.findall("./parseinfo/linematched/var[@name='torrentUrl']/*"):
-            self.torrentUrl.append(Var(var.tag, var.attrib))
+            self.torrent_url.append(Var(var.tag, var.attrib))
 
         # What's up with expected?? False seems to mean to ignore the ignore??
         for ignore in root.findall("./parseinfo/ignore/*"):
@@ -66,15 +66,15 @@ class TrackerXmlConfig:
             for key in self.server:
                 print('\t\t', key, server[key])
             print("\tTorrentUrl")
-            for var in self.torrentUrl:
+            for var in self.torrent_url:
                 print('\t\t', var.varType, ": ", var.var)
             print("\tLinePatterns")
-            for pattern in self.linePatterns:
+            for pattern in self.line_patterns:
                 print('\t\t', pattern.regex)
                 for group in pattern.groups:
                     print('\t\t\þ', group)
             print("\tMultiLinePattern")
-            for pattern in self.multiLinePattern:
+            for pattern in self.multi_line_patterns:
                 print('\t\t', pattern.regex)
                 for group in pattern.groups:
                     print('\t\t\t', group)
@@ -86,7 +86,7 @@ class TrackerXmlConfig:
             return False
         elif (0 == len(self.settings) or
               self.server is None or
-              (0 == len(self.linePatterns) and 0 == len(self.multiLinePattern))):
+              (0 == len(self.line_patterns) and 0 == len(self.multi_line_patterns))):
             return False
 
         return True
@@ -123,7 +123,10 @@ def get_trackers():
             continue
         elif user_config.name not in xml_configs:
             logger.error("Tracker '{}' from configuration is not supported".format(user_config.name))
+        # TODO: Multipattern not supported from the get go
         else:
+            # TODO: Check that all variables (var/varenc) from torrentUrl is specified in user_config
+            # TODO: Move initialization here?
             trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
 
     return trackers
@@ -165,17 +168,21 @@ class TrackerConfig:
     def nick_pass(self):
         return self.user_config["nick_pass"]
 
-    @property
-    def auth_key(self):
-        return self.user_config["auth_key"]
+    #@property
+    #def auth_key(self):
+    #    return self.user_config["auth_key"]
+
+    #@property
+    #def torrent_pass(self):
+    #    return self.user_config["torrent_pass"]
 
     @property
-    def torrent_pass(self):
-        return self.user_config["torrent_pass"]
+    def inviter(self):
+        return self.user_config["inviter"]
 
     @property
-    def invite_key(self):
-        return self.user_config["invite_key"]
+    def invite_cmd(self):
+        return self.user_config["invite_cmd"]
 
     @property
     def delay(self):
@@ -189,37 +196,14 @@ class TrackerConfig:
     def irc_channel(self):
         return self.xml_config.server["channelNames"]
 
+    @property
+    def line_patterns(self):
+        return self.xml_config.line_patterns
 
-    @db.db_session
-    def parse(self, announcement):
-        global name
+    @property
+    def multi_line_patterns (self):
+        return self.xml_config.multi_line_patterns
 
-        # extract required information from announcement
-        torrent_title = utils.str_before(announcement, ' - ')
-        torrent_id = utils.get_id(announcement, 1)
-
-        # pass announcement to sonarr
-        if torrent_id is not None and torrent_title is not None:
-            download_link = get_torrent_link(torrent_id, utils.replace_spaces(torrent_title, '.'))
-
-            announced = db.Announced(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                     indexer=name, torrent=download_link, pvr="Sonarr")
-
-            if delay > 0:
-                logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
-                time.sleep(delay)
-
-            approved = sonarr_wanted(torrent_title, download_link, name)
-            if approved:
-                logger.info("Sonarr approved release: %s", torrent_title)
-                snatched = db.Snatched(date=datetime.datetime.now(), title=utils.replace_spaces(torrent_title, '.'),
-                                       indexer=name, torrent=download_link, pvr="Sonarr")
-            else:
-                logger.debug("Sonarr rejected release: %s", torrent_title)
-
-
-    # Generate torrent link
-    def get_torrent_link(self, torrent_id, torrent_name):
-        torrent_link = "https://www.morethan.tv/torrents.php?action=download&id={}&authkey={}&torrent_pass={}" \
-            .format(torrent_id, auth_key, torrent_pass)
-        return torrent_link
+    @property
+    def torrent_url (self):
+        return self.xml_config.torrent_url

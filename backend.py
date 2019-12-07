@@ -13,13 +13,13 @@ sonarr_backend = { 'name': 'sonarr', 'api_path': '/api/release/push', 'use_index
 radarr_backend = { 'name': 'radarr', 'api_path': '/api/release/push', 'use_indexer': True }
 lidarr_backend = { 'name': 'lidarr', 'api_path': '/api/v1/release/push', 'use_indexer': False }
 
-def sonarr_wanted(title, download_link, indexer):
+def notify_sonarr(title, download_link, indexer):
     __wanted(sonarr_backend, title, download_link, indexer)
 
-def radarr_wanted(title, download_link, indexer):
+def notify_radarr(title, download_link, indexer):
     __wanted(radarr_backend, title, download_link, indexer)
 
-def lidarr_wanted(title, download_link, indexer):
+def notify_lidarr(title, download_link, indexer):
     __wanted(lidarr_backend, title, download_link, indexer)
 
 def __wanted(backend, title, download_link, indexer):

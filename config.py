@@ -52,11 +52,11 @@ def init():
         section.init('nick_pass', None, type=str)
         section.init('auth_key', None, type=str)
         section.init('torrent_pass', None, type=str)
-        section.init('invite_key', None, type=str)
+        section.init('inviter', None, type=str)
+        section.init('invite_cmd', None, type=str)
         section.init('delay', 0)
 
 
-    #cfg.sync()
     #for s in cfg.sections():
     #    print(s)
     return cfg
@@ -70,7 +70,7 @@ def validate_config():
         return _valid
 
     sections = cfg.as_dict()
-    if "server" in sections: 
+    if "server" in sections:
         for field, mandatory in server_fields.items():
             if mandatory and cfg.section("server")[field] is None:
                 _valid = False
@@ -78,4 +78,7 @@ def validate_config():
                 _valid = False
     else:
         _valid = False
+
+    # TODO: check that inviter is set if invite_cmd is set and vice versea
+    # Check that no empty values exist
     return _valid

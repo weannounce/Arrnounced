@@ -4,6 +4,7 @@ import socket
 import pydle
 
 import config
+import announcement
 
 BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSupport)
 
@@ -13,12 +14,12 @@ cfg = config.init()
 
 
 class IRC(BotBase):
-    tracking = None
+    tracker_config = None
     RECONNECT_MAX_ATTEMPTS = None
 
-    #def __init__(self, tracker_config)
-    #    super().__init__(tracker_config.irc_nick)
-    #    self.tracker_config = tracker_config
+    def __init__(self, tracker_config):
+        super().__init__(tracker_config.irc_nick)
+        self.tracker_config = tracker_config
 
     async def connect(self, *args, **kwargs):
         try:
@@ -26,32 +27,24 @@ class IRC(BotBase):
         except socket.error:
             await self.on_disconnect(expected=False)
 
-    def set_tracker(self, track):
-        self.tracking = track
-
     # Request channel invite or join channel
     async def attempt_join_channel(self):
-        invite_key = cfg["{}.invite_key".format(self.tracking.name.lower())]
-        if invite_key is not None and len(invite_key) > 1:
-            logger.info("Requesting invite to %s", self.tracking.irc_channel)
-            inviter = self.tracking.inviter
-            invite_cmd = self.tracking.invite_cmd
-            await self.message(inviter, " ".join([invite_cmd, invite_key]))
+        if self.tracker_config.invite_cmd is None:
+            logger.info("Joining %s", self.tracker_config.irc_channel)
+            await self.join(self.tracker_config.irc_channel)
         else:
-            logger.info("Joining %s", self.tracking.irc_channel)
-            await self.join(self.tracking.irc_channel)
+            logger.info("Requesting invite to %s", self.tracker_config.irc_channel)
+            await self.message(self.tracker_config.inviter, self.tracker_config.invite_cmd)
 
     async def on_connect(self):
-        logger.info("Connected to: %s", self.tracking.irc_host)
+        logger.info("Connected to: %s", self.tracker_config.irc_server)
         await super().on_connect()
 
-        nick_pass = cfg["{}.nick_pass".format(self.tracking.name.lower())]
-
-        if nick_pass is not None and len(nick_pass) > 1:
-            logger.info("Identifying with NICKSERV")
-            await self.rawmsg('NICKSERV', 'IDENTIFY', nick_pass)
-        else:
+        if self.tracker_config.nick_pass is None:
             await self.attempt_join_channel()
+        else:
+            logger.info("Identifying with NICKSERV")
+            await self.rawmsg('NICKSERV', 'IDENTIFY', self.tracker_config.nick_pass)
 
     async def on_raw(self, message):
         logger.debug(message._raw)
@@ -68,13 +61,12 @@ class IRC(BotBase):
     async def on_message(self, source, target, message):
         if source[0] != '#':
             logger.info("%s sent us a message: %s", target, message)
-            logger.info("cfg is %s", cfg['server.pass'])
         else:
-            self.tracking.parse(message)
+            announcement.parse_and_notify(self.tracker_config, message)
 
     async def on_invite(self, channel, by):
-        if channel == self.tracking.irc_channel:
-            await self.join(self.tracking.irc_channel)
+        if channel == self.tracker_config.irc_channel:
+            await self.join(self.tracker_config.irc_channel)
             logger.info("%s invited us to join %s", by, channel)
 
 
@@ -88,11 +80,9 @@ def start(tracker_configs):
     for tracker_name, tracker_config in tracker_configs.items():
         logger.info("Connecting to server: %s:%d %s", tracker_config.irc_server,
                 tracker_config.irc_port, tracker_config.irc_channel)
-        continue
 
-        client = IRC(tracker_config.irc_nick)
+        client = IRC(tracker_config)
 
-        client.set_tracker(tracker_config)
         clients.append(client)
         try:
             pool.connect(client, hostname=tracker_config.irc_server, port=tracker_config.irc_port,
