@@ -128,6 +128,17 @@ def get_trackers():
 
     return trackers
 
+def parse_bool(string):
+    true_strings = [ "true", "True", "yes", "Yes", "1" ]
+    false_strings = [ "false", "False", "no", "No", "0" ]
+    if string in true_strings:
+        return True
+    elif string in false_strings:
+        return False
+    else:
+        return None
+
+
 class TrackerConfig:
     def __init__(self, user_config, xml_config):
         self.xml_config = xml_config
@@ -136,9 +147,7 @@ class TrackerConfig:
 
     @property
     def irc_port(self):
-        #return self.user_config.get("irc_port", default=6667)
-        # TODO: Fix type support from config class
-        return int(self.user_config["irc_port"]) if "irc_port" in self.user_config else 6667
+        return self.user_config["irc_port"]
 
     @property
     def irc_nick(self):
@@ -146,7 +155,31 @@ class TrackerConfig:
 
     @property
     def irc_tls(self):
-        return self.user_config["tls"] if "tls" in self.user_config else False
+        return self.user_config["tls"]
+
+    @property
+    def irc_tls_verify(self):
+        return self.user_config["tls_verify"]
+
+    @property
+    def nick_pass(self):
+        return self.user_config["nick_pass"]
+
+    @property
+    def auth_key(self):
+        return self.user_config["auth_key"]
+
+    @property
+    def torrent_pass(self):
+        return self.user_config["torrent_pass"]
+
+    @property
+    def invite_key(self):
+        return self.user_config["invite_key"]
+
+    @property
+    def delay(self):
+        return self.user_config["delay"]
 
     @property
     def irc_server(self):

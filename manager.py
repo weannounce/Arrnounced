@@ -1,4 +1,5 @@
 import logging
+import sys
 from time import sleep
 
 from worker import Worker
@@ -18,7 +19,7 @@ def run():
     tracker_configs = tracker_config.get_trackers()
     if len(tracker_configs) == 0:
         logger.error("No tracker configs were initialized, exiting...")
-        quit(1)
+        sys.exit(1)
 
     thread_irc = irc_task(tracker_configs)
     #thread_webui = webui_task(tracker_configs)

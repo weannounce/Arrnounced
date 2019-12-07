@@ -1,11 +1,15 @@
 import profig
+import logging
 
 cfg = None
-base_sections = [ "server", "sonarr", "radarr", "lidarr", "bot" ]
-
+_valid = True
+base_sections = [ "server", "bot", "sonarr", "radarr", "lidarr" ]
+logger = logging.getLogger("CONFIG")
 
 def init():
     global cfg
+    global _valid
+    global base_sections
     if cfg is not None:
         return cfg
 
@@ -18,6 +22,9 @@ def init():
     cfg.init('server.user', 'admin')
     cfg.init('server.pass', 'password')
 
+    cfg.init('bot.debug_file', True)
+    cfg.init('bot.debug_console', True)
+
     cfg.init('sonarr.apikey', None, type=str)
     cfg.init('sonarr.url', 'http://localhost:8989')
 
@@ -27,19 +34,29 @@ def init():
     cfg.init('lidarr.apikey', None, type=str)
     cfg.init('lidarr.url', 'http://localhost:8686')
 
-    cfg.init('bot.debug_file', True)
-    cfg.init('bot.debug_console', True)
+    for section in cfg.sections():
+        if section.name in base_sections:
+            continue
+        # Check mandatory values
+        section.init('nick', None, type=str)
+        nick = section["nick"]
+        if nick is None or len(nick) == 0:
+            logger.error("{}: nick not set: {}".format(section.name, str(nick)))
+            _valid = False
 
-    #cfg.init('revolutiontt.nick', '')
-    #cfg.init('revolutiontt.nick_pass', '')
-    #cfg.init('revolutiontt.auth_key', '')
-    #cfg.init('revolutiontt.torrent_pass', '')
-    #cfg.init('revolutiontt.invite_key', '')
-    #cfg.init('revolutiontt.delay', 0)
+
+        # Init optional tracker values
+        section.init('tls', False)
+        section.init('tls_verify', False)
+        section.init('irc_port', 6667)
+        section.init('nick_pass', None, type=str)
+        section.init('auth_key', None, type=str)
+        section.init('torrent_pass', None, type=str)
+        section.init('invite_key', None, type=str)
+        section.init('delay', 0)
+
 
     #cfg.sync()
-    #print(cfg)
-    #print(cfg["radarr.apikey"])
     #for s in cfg.sections():
     #    print(s)
     return cfg
@@ -48,15 +65,17 @@ server_fields = { "host": True, "port": True, "user": False, "pass": False }
 
 def validate_config():
     global cfg
-    valid = True
+    global _valid
+    if not _valid:
+        return _valid
 
     sections = cfg.as_dict()
     if "server" in sections: 
         for field, mandatory in server_fields.items():
             if mandatory and cfg.section("server")[field] is None:
-                valid = False
+                _valid = False
             elif cfg.section("server")[field] is not None and len(cfg.section("server")[field]) == 0:
-                valid = False
+                _valid = False
     else:
-        valid = False
-    return valid
+        _valid = False
+    return _valid
