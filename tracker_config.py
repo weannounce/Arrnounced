@@ -19,16 +19,16 @@ def parse_xml_configs():
         tracker = TrackerXmlConfig()
 
         if tracker.parseConfig(tree.getroot()):
-            xml_configs[tracker.trackerInfo["type"]] =  tracker
+            xml_configs[tracker.tracker_info["type"]] =  tracker
         else:
             logger.error("Could not parse tracker XML config: {}".format(trackerFile))
     return xml_configs
 
 class TrackerXmlConfig:
     def parseConfig(self, root):
-        self.trackerInfo = root.attrib
+        self.tracker_info = root.attrib
         # TODO: Workaround for profig handling periods as subsections
-        self.trackerInfo["type"] = self.trackerInfo["type"].replace('.', '_')
+        self.tracker_info["type"] = self.tracker_info["type"].replace('.', '_')
         self.settings = []
         self.server = None
         self.torrent_url = []
@@ -57,17 +57,17 @@ class TrackerXmlConfig:
 
 
         if debug:
-            for info in self.trackerInfo:
+            for info in self.tracker_info:
                 print(info, root.attrib[info])
             print("\tSettings")
             for setting in self.settings:
                 print('\t\t', setting)
             print("\tServer")
             for key in self.server:
-                print('\t\t', key, server[key])
+                print('\t\t', key, self.server[key])
             print("\tTorrentUrl")
             for var in self.torrent_url:
-                print('\t\t', var.varType, ": ", var.var)
+                print('\t\t', var.varType, ": ", var.name)
             print("\tLinePatterns")
             for pattern in self.line_patterns:
                 print('\t\t', pattern.regex)
@@ -82,7 +82,7 @@ class TrackerXmlConfig:
             for ignore in self.ignores:
                 print('\t\t', ignore)
 
-        if self.trackerInfo is None:
+        if self.tracker_info is None:
             return False
         elif (0 == len(self.settings) or
               self.server is None or
@@ -99,16 +99,17 @@ class TrackerXmlConfig:
             groupList.append(group.attrib['name'])
         return Extract(regex[0].attrib['value'], groupList)
 
-# Value is XML attribute name
 class VarType(Enum):
-    STRING = "value"
-    VAR = "name"
-    VARENC = "name"
+    STRING = 1
+    VAR = 2
+    VARENC = 3
+
+vartype_to_name = { VarType.STRING: "value", VarType.VAR: "name", VarType.VARENC: "name" }
 
 class Var:
     def __init__(self, varType, var):
         self.varType = VarType[varType.upper()]
-        self.var = var[self.varType.value]
+        self.name = var[vartype_to_name[self.varType]]
 
 class Extract:
     def __init__(self, regex, groups):
@@ -144,66 +145,64 @@ def parse_bool(string):
 
 class TrackerConfig:
     def __init__(self, user_config, xml_config):
-        self.xml_config = xml_config
-        self.user_config = user_config
-        self.logger = logging.getLogger(self.user_config.name.upper())
+        self._xml_config = xml_config
+        self._user_config = user_config
+
+    def __getitem__(self, key):
+        return self._user_config[key]
 
     @property
     def irc_port(self):
-        return self.user_config["irc_port"]
+        return self._user_config["irc_port"]
 
     @property
     def irc_nick(self):
-        return self.user_config["nick"] if "nick" in self.user_config else None
+        return self._user_config["nick"] if "nick" in self._user_config else None
 
     @property
     def irc_tls(self):
-        return self.user_config["tls"]
+        return self._user_config["tls"]
 
     @property
     def irc_tls_verify(self):
-        return self.user_config["tls_verify"]
+        return self._user_config["tls_verify"]
 
     @property
     def nick_pass(self):
-        return self.user_config["nick_pass"]
-
-    #@property
-    #def auth_key(self):
-    #    return self.user_config["auth_key"]
-
-    #@property
-    #def torrent_pass(self):
-    #    return self.user_config["torrent_pass"]
+        return self._user_config["nick_pass"]
 
     @property
     def inviter(self):
-        return self.user_config["inviter"]
+        return self._user_config["inviter"]
 
     @property
     def invite_cmd(self):
-        return self.user_config["invite_cmd"]
+        return self._user_config["invite_cmd"]
 
     @property
     def delay(self):
-        return self.user_config["delay"]
+        return self._user_config["delay"]
+
+    @property
+    def short_name(self):
+        return self._xml_config.tracker_info["shortName"]
 
     @property
     def irc_server(self):
-        return self.xml_config.server["serverNames"]
+        return self._xml_config.server["serverNames"]
 
     @property
     def irc_channel(self):
-        return self.xml_config.server["channelNames"]
+        return self._xml_config.server["channelNames"]
 
     @property
     def line_patterns(self):
-        return self.xml_config.line_patterns
+        return self._xml_config.line_patterns
 
     @property
     def multi_line_patterns (self):
-        return self.xml_config.multi_line_patterns
+        return self._xml_config.multi_line_patterns
 
     @property
     def torrent_url (self):
-        return self.xml_config.torrent_url
+        return self._xml_config.torrent_url

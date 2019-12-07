@@ -2,29 +2,16 @@ import datetime
 import logging
 import time
 import re
+import urllib.parse
 from  tracker_config import VarType
 
 import db
 from backend import notify_sonarr, notify_radarr, notify_lidarr
 import utils
 
-#name = "TorrentLeech"
-#irc_host = "irc.torrentleech.org"
-#irc_port = 7021
-#irc_channel = "#tlannounces"
-#invite_cmd = "TL-Monkey !invite"
-#irc_tls = True
-#irc_tls_verify = False
-#
-## these are loaded by init
-#auth_key = None
-#torrent_pass = None
-#delay = 0
-
 logger = logging.getLogger("ANNOUNCEMENT")
 
 
-# Parse announcement message
 def parse_and_notify(tracker_config, announcement):
     if len(tracker_config.line_patterns) > 0:
         _parse_line_patterns(tracker_config, announcement)
@@ -40,7 +27,12 @@ def _parse_line_patterns(tracker_config, announcement):
             for i, group in enumerate(pattern.groups, start=1):
                 pattern_groups[group] = match.group(i)
             break
-    torrent_url = get_torrent_link(tracker_config, pattern_groups)
+
+    if len(pattern_groups) == 0:
+        logger.warning("{}: No match found for '{}'".format(tracker_config.short_name, announcement))
+        return
+
+    torrent_url = _get_torrent_link(tracker_config, pattern_groups)
     logger.debug("Torrent URL: {}".format(torrent_url))
 
 def _parse_multi_line_patterns(tracker_config, announcement):
@@ -48,7 +40,7 @@ def _parse_multi_line_patterns(tracker_config, announcement):
 
 def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name):
     if torrent_id is not None and torrent_title is not None:
-        download_link = get_torrent_link(torrent_id, torrent_title)
+        download_link = _get_torrent_link(torrent_id, torrent_title)
 
         announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
                                  indexer=name, torrent=download_link, pvr=pvr_name)
@@ -72,19 +64,20 @@ def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name
     return
 
 
-# Generate torrent link
-def get_torrent_link(tracker_config, pattern_groups):
+def _get_torrent_link(tracker_config, pattern_groups):
     url = ""
     for var in tracker_config.torrent_url:
         if var.varType is VarType.STRING:
-            url = url + var.var
+            url = url + var.name
         elif var.varType is VarType.VAR :
-            if var.var.startswith("$"):
-                url = url + pattern_groups[var.var]
+            if var.name.startswith("$"):
+                url = url + pattern_groups[var.name]
             else:
-                # TODO: Nicer fetching of this variable variables
-                url = url + tracker_config.user_config[var.var]
+                url = url + tracker_config[var.name]
         elif var.varType is VarType.VARENC:
-            # TODO: Difference with VAR?
-            pass
+            if var.name in pattern_groups:
+                var_value = pattern_groups[var.name]
+            else:
+                var_value = tracker_config[var.name]
+            url = url + urllib.parse.quote_plus(var_value)
     return url
