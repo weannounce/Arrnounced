@@ -15,8 +15,8 @@ logger = logging.getLogger("ANNOUNCEMENT")
 def parse_and_notify(tracker_config, announcement):
     if len(tracker_config.line_patterns) > 0:
         _parse_line_patterns(tracker_config, announcement)
-    elif len(tracker_config.multi_line_patterns) > 0:
-        _parse_multi_line_patterns(tracker_config, announcement)
+    elif len(tracker_config.multiline_patterns) > 0:
+        _parse_multiline_patterns(tracker_config, announcement)
 
 @db.db_session
 def _parse_line_patterns(tracker_config, announcement):
@@ -35,7 +35,7 @@ def _parse_line_patterns(tracker_config, announcement):
     torrent_url = _get_torrent_link(tracker_config, pattern_groups)
     logger.debug("Torrent URL: {}".format(torrent_url))
 
-def _parse_multi_line_patterns(tracker_config, announcement):
+def _parse_multiline_patterns(tracker_config, announcement):
     logger.error("Multi line announcements are not supported yet!")
 
 def notify_pvr(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name):

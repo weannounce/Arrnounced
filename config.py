@@ -2,13 +2,11 @@ import profig
 import logging
 
 cfg = None
-_valid = True
 base_sections = [ "server", "bot", "sonarr", "radarr", "lidarr" ]
 logger = logging.getLogger("CONFIG")
 
 def init():
     global cfg
-    global _valid
     global base_sections
     if cfg is not None:
         return cfg
@@ -37,21 +35,14 @@ def init():
     for section in cfg.sections():
         if section.name in base_sections:
             continue
-        # Check mandatory values
+        # Init mandatory tracker values
         section.init('nick', None, type=str)
-        nick = section["nick"]
-        if nick is None or len(nick) == 0:
-            logger.error("{}: nick not set: {}".format(section.name, str(nick)))
-            _valid = False
-
 
         # Init optional tracker values
+        section.init('irc_port', 6667)
         section.init('tls', False)
         section.init('tls_verify', False)
-        section.init('irc_port', 6667)
         section.init('nick_pass', None, type=str)
-        section.init('auth_key', None, type=str)
-        section.init('torrent_pass', None, type=str)
         section.init('inviter', None, type=str)
         section.init('invite_cmd', None, type=str)
         section.init('delay', 0)
@@ -62,23 +53,44 @@ def init():
     return cfg
 
 server_fields = { "host": True, "port": True, "user": False, "pass": False }
+mandatory_tracker_fields = [ "nick" ]
 
 def validate_config():
     global cfg
-    global _valid
-    if not _valid:
-        return _valid
+    global tracker_fields
+    valid = True
 
     sections = cfg.as_dict()
     if "server" in sections:
         for field, mandatory in server_fields.items():
             if mandatory and cfg.section("server")[field] is None:
-                _valid = False
+                valid = False
             elif cfg.section("server")[field] is not None and len(cfg.section("server")[field]) == 0:
-                _valid = False
+                valid = False
     else:
-        _valid = False
+        valid = False
 
-    # TODO: check that inviter is set if invite_cmd is set and vice versea
-    # Check that no empty values exist
-    return _valid
+    if not (cfg.get("sonarr.apikey") or
+            cfg.get("radarr.apikey") or
+            cfg.get("lidarr.apikey")):
+        logger.error("Must specify at least one backend (Sonarr/Radarr/Lidarr)")
+        valid = False
+
+    for section in cfg.sections():
+        if section.name in base_sections:
+            continue
+
+        for mandatory in mandatory_tracker_fields:
+            if not section.get(mandatory):
+                logger.error("{}: Must set '{}'".format(section.name, mandatory))
+                valid = False
+
+        if bool(section.get("inviter")) != bool(section.get("invite_cmd")):
+            logger.error("{}: Must set both 'inviter' and 'invite_cmd'".format(section.name))
+            valid = False
+
+    for section in cfg:
+        if len(str(cfg[section])) == 0:
+            logger.error("{}: Empty value in configuration not allowed".format(section))
+            valid = False
+    return valid

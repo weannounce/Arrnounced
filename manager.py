@@ -18,7 +18,7 @@ def run():
 
     tracker_configs = tracker_config.get_trackers()
     if len(tracker_configs) == 0:
-        logger.error("No tracker configs were initialized, exiting...")
+        logger.error("No trackers configured, exiting...")
         sys.exit(1)
 
     thread_irc = irc_task(tracker_configs)

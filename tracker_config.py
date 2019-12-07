@@ -33,11 +33,12 @@ class TrackerXmlConfig:
         self.server = None
         self.torrent_url = []
         self.line_patterns = []
-        self.multi_line_patterns = []
+        self.multiline_patterns = []
         self.ignores = []
 
         for setting in root.findall("./settings/*"):
-            self.settings.append(re.sub('^(gazelle_|cookie_)', '', setting.tag))
+            if "description" not in setting.tag:
+                self.settings.append(re.sub('^(gazelle_|cookie_)', '', setting.tag))
 
         for server in root.findall("./servers/*"):
             self.server = server.attrib
@@ -46,7 +47,7 @@ class TrackerXmlConfig:
             self.line_patterns.append(self._parseExtract(extract))
 
         for extract in root.findall("./parseinfo/multilinepatterns/*"):
-            self.multi_line_patterns.append(self._parseExtract(extract))
+            self.multiline_patterns.append(self._parseExtract(extract))
 
         for var in root.findall("./parseinfo/linematched/var[@name='torrentUrl']/*"):
             self.torrent_url.append(Var(var.tag, var.attrib))
@@ -74,7 +75,7 @@ class TrackerXmlConfig:
                 for group in pattern.groups:
                     print('\t\t\þ', group)
             print("\tMultiLinePattern")
-            for pattern in self.multi_line_patterns:
+            for pattern in self.multiline_patterns:
                 print('\t\t', pattern.regex)
                 for group in pattern.groups:
                     print('\t\t\t', group)
@@ -86,7 +87,7 @@ class TrackerXmlConfig:
             return False
         elif (0 == len(self.settings) or
               self.server is None or
-              (0 == len(self.line_patterns) and 0 == len(self.multi_line_patterns))):
+              (0 == len(self.line_patterns) and 0 == len(self.multiline_patterns))):
             return False
 
         return True
@@ -124,13 +125,20 @@ def get_trackers():
             continue
         elif user_config.name not in xml_configs:
             logger.error("Tracker '{}' from configuration is not supported".format(user_config.name))
-        # TODO: Multipattern not supported from the get go
-        else:
-            # TODO: Check that all variables (var/varenc) from torrentUrl is specified in user_config
-            # TODO: Move initialization here?
+        elif len(xml_configs[user_config.name].multiline_patterns) > 0:
+            logger.error("{}: Multiline announcements are not supported yet!".format(user_config.name))
+        elif _are_settings_configured(user_config, xml_configs[user_config.name].settings):
             trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
 
     return trackers
+
+def _are_settings_configured(user_config, required_settings):
+    configured = True
+    for setting in required_settings:
+        if setting not in user_config:
+            logger.error("{}: Must specify '{}' in config".format(user_config.name, setting))
+            configured = False
+    return configured
 
 def parse_bool(string):
     true_strings = [ "true", "True", "yes", "Yes", "1" ]
@@ -200,8 +208,8 @@ class TrackerConfig:
         return self._xml_config.line_patterns
 
     @property
-    def multi_line_patterns (self):
-        return self._xml_config.multi_line_patterns
+    def multiline_patterns (self):
+        return self._xml_config.multiline_patterns
 
     @property
     def torrent_url (self):

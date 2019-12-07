@@ -41,15 +41,16 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", help="Verbose logging", action="store_true")
     args = parser.parse_args()
 
-    if cfg is None or not config.validate_config():
-        print("Error: Configuration not valid", file=sys.stderr)
-        sys.exit(1)
-
     log_level = logging.INFO
     if args.verbose:
         log_level = logging.DEBUG
 
     init_logging(log_level)
+
+    if cfg is None or not config.validate_config():
+        print("Error: Configuration not valid", file=sys.stderr)
+        sys.exit(1)
+
 
 
     manager.run()
