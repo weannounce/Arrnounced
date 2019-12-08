@@ -46,6 +46,9 @@ def init():
         section.init('inviter', None, type=str)
         section.init('invite_cmd', None, type=str)
         section.init('delay', 0)
+        section.init('notify_sonarr', False)
+        section.init('notify_radarr', False)
+        section.init('notify_lidarr', False)
 
 
     #for s in cfg.sections():

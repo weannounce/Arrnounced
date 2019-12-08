@@ -192,6 +192,18 @@ class TrackerConfig:
         return self._user_config["delay"]
 
     @property
+    def notify_sonarr(self):
+        return self._user_config["notify_sonarr"]
+
+    @property
+    def notify_radarr(self):
+        return self._user_config["notify_radarr"]
+
+    @property
+    def notify_lidarr(self):
+        return self._user_config["notify_lidarr"]
+
+    @property
     def short_name(self):
         return self._xml_config.tracker_info["shortName"]
 
