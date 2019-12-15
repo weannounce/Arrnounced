@@ -39,6 +39,7 @@ class IRC(BotBase):
 
     async def on_connect(self):
         logger.info("Connected to: %s", self.tracking.irc_host)
+        await super().on_connect()
 
         nick_pass = cfg["{}.nick_pass".format(self.tracking.name.lower())]
 
