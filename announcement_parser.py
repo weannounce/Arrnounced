@@ -9,13 +9,19 @@ import db
 from backend import notify, Backend
 import utils
 
-logger = logging.getLogger("ANNOUNCEMENT")
+logger = logging.getLogger("ANNOUNCE_PARSE")
 
-# TODO: Move parsing to an AnnoucnementParser and move all orqestration here.
-# I.e. this module calls for parsing, backend notification and db writing
-# Call this module AnnoucementManager?
+class Announcement:
+    #torrent_name = None
+    #torrent_url = None
+    #backends = []
 
-def parse_and_notify(tracker_config, announcement):
+    def __init__(self, torrent_name, torrent_url, backends):
+        self.torrent_name = torrent_name
+        self.torrent_url = torrent_url
+        self.backends = backends
+
+def parse(tracker_config, announcement):
     if len(tracker_config.line_patterns) > 0:
         pattern_groups = _parse_line_patterns(tracker_config, announcement)
     elif len(tracker_config.multiline_patterns) > 0:
@@ -23,17 +29,12 @@ def parse_and_notify(tracker_config, announcement):
 
     if len(pattern_groups) == 0:
         logger.warning("{}: No match found for '{}'".format(tracker_config.short_name, announcement))
-        return
+        return None
 
     torrent_url = _get_torrent_link(tracker_config, pattern_groups)
     backends = _notify_which_backend(tracker_config, pattern_groups)
 
-    if tracker_config.delay > 0:
-        logger.debug("{}: Waiting %s seconds to check %s",
-                tracker_config.short_name, tracker_config.delay, pattern_groups["torrentName"])
-        time.sleep(tracker_config.delay)
-
-    notify(backends, pattern_groups["torrentName"], torrent_url, tracker_config.short_name)
+    return Announcement(pattern_groups["torrentName"], torrent_url, backends)
 
 def _parse_line_patterns(tracker_config, announcement):
     logger.debug("{}: Parsing annoucement '{}'".format(tracker_config.short_name, announcement))

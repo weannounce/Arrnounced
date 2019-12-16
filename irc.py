@@ -4,7 +4,7 @@ import socket
 import pydle
 
 import config
-import announcement
+import announcement_manager
 
 BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSupport)
 
@@ -62,7 +62,7 @@ class IRC(BotBase):
         if source[0] != '#':
             logger.info("%s sent us a message: %s", target, message)
         else:
-            announcement.parse_and_notify(self.tracker_config, message)
+            announcement_manager.handle_announcement(self.tracker_config, message)
 
     async def on_invite(self, channel, by):
         if channel == self.tracker_config.irc_channel:
