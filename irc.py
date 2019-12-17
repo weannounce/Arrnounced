@@ -4,7 +4,7 @@ import socket
 import pydle
 
 import config
-import announcement_manager
+import message_handler
 
 BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSupport)
 
@@ -47,7 +47,6 @@ class IRC(BotBase):
             await self.rawmsg('NICKSERV', 'IDENTIFY', self.tracker_config.nick_pass)
 
     async def on_raw(self, message):
-        logger.debug(message._raw)
         await super().on_raw(message)
 
         if message.command == 221 and '+r' in message._raw:
@@ -58,11 +57,8 @@ class IRC(BotBase):
         logger.info("Identified with NICKSERV (900)")
         await self.attempt_join_channel()
 
-    async def on_message(self, source, target, message):
-        if source[0] != '#':
-            logger.info("%s sent us a message: %s", target, message)
-        else:
-            announcement_manager.handle_announcement(self.tracker_config, message)
+    async def on_message(self, target, source, message):
+        message_handler.on_message(self.tracker_config, source, target, message)
 
     async def on_invite(self, channel, by):
         if channel == self.tracker_config.irc_channel:

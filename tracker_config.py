@@ -216,6 +216,10 @@ class TrackerConfig:
         return self._xml_config.server["channelNames"]
 
     @property
+    def announcer_name(self):
+        return self._xml_config.server["announcerNames"]
+
+    @property
     def line_patterns(self):
         return self._xml_config.line_patterns
 

@@ -9,26 +9,22 @@ import db
 from backend import notify, Backend
 import utils
 
-logger = logging.getLogger("ANNOUNCE_PARSE")
+logger = logging.getLogger("ANNOUNCE_PARSER")
 
 class Announcement:
-    #torrent_name = None
-    #torrent_url = None
-    #backends = []
-
     def __init__(self, torrent_name, torrent_url, backends):
         self.torrent_name = torrent_name
         self.torrent_url = torrent_url
         self.backends = backends
 
-def parse(tracker_config, announcement):
+def parse(tracker_config, message):
     if len(tracker_config.line_patterns) > 0:
-        pattern_groups = _parse_line_patterns(tracker_config, announcement)
+        pattern_groups = _parse_line_patterns(tracker_config, message)
     elif len(tracker_config.multiline_patterns) > 0:
-        pattern_groups = _parse_multiline_patterns(tracker_config, announcement)
+        pattern_groups = _parse_multiline_patterns(tracker_config, message)
 
     if len(pattern_groups) == 0:
-        logger.warning("{}: No match found for '{}'".format(tracker_config.short_name, announcement))
+        logger.warning("{}: No match found for '{}'".format(tracker_config.short_name, message))
         return None
 
     torrent_url = _get_torrent_link(tracker_config, pattern_groups)
@@ -36,11 +32,11 @@ def parse(tracker_config, announcement):
 
     return Announcement(pattern_groups["torrentName"], torrent_url, backends)
 
-def _parse_line_patterns(tracker_config, announcement):
-    logger.debug("{}: Parsing annoucement '{}'".format(tracker_config.short_name, announcement))
+def _parse_line_patterns(tracker_config, message):
+    logger.debug("{}: Parsing annoucement '{}'".format(tracker_config.short_name, message))
     pattern_groups = {}
     for pattern in tracker_config.line_patterns:
-        match = re.search(pattern.regex, announcement)
+        match = re.search(pattern.regex, message)
         if match:
             for i, group in enumerate(pattern.groups, start=1):
                 pattern_groups[group] = match.group(i)
@@ -49,7 +45,7 @@ def _parse_line_patterns(tracker_config, announcement):
     return pattern_groups
 
 
-def _parse_multiline_patterns(tracker_config, announcement):
+def _parse_multiline_patterns(tracker_config, message):
     logger.error("Multi line announcements are not supported yet!")
 
 
