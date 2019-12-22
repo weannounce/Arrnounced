@@ -12,10 +12,10 @@ import utils
 logger = logging.getLogger("ANNOUNCE_PARSER")
 
 class Announcement:
-    def __init__(self, torrent_name, torrent_url, backends):
+    def __init__(self, torrent_name, torrent_url, category):
         self.torrent_name = torrent_name
         self.torrent_url = torrent_url
-        self.backends = backends
+        self.category = category
 
 def parse(tracker_config, message):
     if len(tracker_config.line_patterns) > 0:
@@ -28,9 +28,9 @@ def parse(tracker_config, message):
         return None
 
     torrent_url = _get_torrent_link(tracker_config, pattern_groups)
-    backends = _notify_which_backend(tracker_config, pattern_groups)
 
-    return Announcement(pattern_groups["torrentName"], torrent_url, backends)
+    return Announcement(pattern_groups["torrentName"], torrent_url,
+            pattern_groups.get('category'))
 
 def _parse_line_patterns(tracker_config, message):
     logger.debug("{}: Parsing annoucement '{}'".format(tracker_config.short_name, message))
@@ -47,6 +47,7 @@ def _parse_line_patterns(tracker_config, message):
 
 def _parse_multiline_patterns(tracker_config, message):
     logger.error("Multi line announcements are not supported yet!")
+    return {}
 
 
 def _get_torrent_link(tracker_config, pattern_groups):
@@ -68,60 +69,3 @@ def _get_torrent_link(tracker_config, pattern_groups):
 
     logger.debug("Torrent URL: {}".format(url))
     return url
-
-series_re = r"\b(series|tv|television|shows?|sitcoms?|dramas?|soaps?|soapies?)\b"
-movie_re = r"\b(movies?|films?|flicks?|motion pictures?|moving pictures?|cinema)\b"
-music_re = r"\b(music|audio|songs?|audiobooks?|mp3|flac)\b"
-def _notify_which_backend(tracker_config, pattern_groups):
-    backends = []
-    if tracker_config.notify_sonarr:
-        backends.append(Backend.SONARR)
-    if tracker_config.notify_radarr:
-        backends.append(Backend.RADARR)
-    if tracker_config.notify_lidarr:
-        backends.append(Backend.LIDARR)
-
-    # TOOO: This probably won't work very well. Replace/Remove.
-    # Maybe specify category strings in config.
-    if len(backends ) == 0 and "category" in pattern_groups:
-        if re.search(series_re, pattern_groups["category"], re.IGNORECASE):
-            logger.debug("Matched category Series")
-            backends.append(Backend.SONARR)
-        if re.search(movie_re, pattern_groups["category"], re.IGNORECASE):
-            logger.debug("Matched category Movies")
-            backends.append(Backend.RADARR)
-        if re.search(music_re, pattern_groups["category"], re.IGNORECASE):
-            logger.debug("Matched category Music")
-            backends.append(Backend.LIDARR)
-
-    if len(backends) == 0:
-        backends = [ Backend.SONARR, Backend.RADARR, Backend.LIDARR ]
-
-    return backends
-
-#@db.db_session
-#def _notify_backend(torrent_id, torrent_title, auth_key, torrent_pass, name, pvr_name):
-#    if torrent_id is not None and torrent_title is not None:
-#        download_link = _get_torrent_link(torrent_id, torrent_title)
-#
-#        announced = db.Announced(date=datetime.datetime.now(), title=torrent_title,
-#                                 indexer=name, torrent=download_link, pvr=pvr_name)
-#
-#        if delay > 0:
-#            logger.debug("Waiting %s seconds to check %s", delay, torrent_title)
-#            time.sleep(delay)
-#
-#        if pvr_name == 'Sonarr':
-#            approved = sonarr_wanted(torrent_title, download_link, name)
-#        elif pvr_name == 'Radarr':
-#            approved = radarr_wanted(torrent_title, download_link, name)
-#
-#        if approved:
-#            logger.info("%s approved release: %s", pvr_name, torrent_title)
-#            snatched = db.Snatched(date=datetime.datetime.now(), title=torrent_title,
-#                                   indexer=name, torrent=download_link, pvr=pvr_name)
-#        else:
-#            logger.debug("%s rejected release: %s", pvr_name, torrent_title)
-#
-#    return
-

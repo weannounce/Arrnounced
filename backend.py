@@ -1,6 +1,7 @@
 import datetime
 import logging
 import requests
+import re
 from enum import Enum
 
 import config
@@ -16,16 +17,46 @@ class Backend(Enum):
     LIDARR = 3
 
 _backend_data = {
-        Backend.SONARR: { 'name': 'Sonarr', 'api_path': '/api/release/push', 'use_indexer': True },
-        Backend.RADARR: { 'name': 'Radarr', 'api_path': '/api/release/push', 'use_indexer': True },
-        Backend.LIDARR: { 'name': 'Lidarr', 'api_path': '/api/v1/release/push', 'use_indexer': False }
+        Backend.SONARR: { 'name': 'Sonarr', 'api_path': '/api/release/push', 'use_indexer': True,
+            'configured': cfg['sonarr.apikey'] is not None },
+        Backend.RADARR: { 'name': 'Radarr', 'api_path': '/api/release/push', 'use_indexer': True,
+            'configured': cfg['radarr.apikey'] is not None },
+        Backend.LIDARR: { 'name': 'Lidarr', 'api_path': '/api/v1/release/push', 'use_indexer': False,
+            'configured': cfg['lidarr.apikey'] is not None }
         }
 
 def backends_to_string(backends):
     return "/".join(_backend_data[x]['name'] for x in backends)
 
-def notify(announcement, tracker_name):
-    for backend in announcement.backends:
+series_re = r"\b(series|tv|television|shows?|sitcoms?|dramas?|soaps?|soapies?)\b"
+movie_re = r"\b(movies?|films?|flicks?|motion pictures?|moving pictures?|cinema)\b"
+music_re = r"\b(music|audio|songs?|audiobooks?|mp3|flac)\b"
+def notify_which_backends(tracker_config, category):
+    backends = tracker_config.notify_backends
+    # TODO: Only add configured backends.
+    # Print warning if tracker_config.notify_backends contains unconfigured backend
+
+    # TODO: This probably won't work very well. Replace/Remove.
+    # Maybe specify category strings in config.
+    if len(backends) == 0 and category is not None:
+        if re.search(series_re, category, re.IGNORECASE):
+            logger.debug("Matched category Series")
+            backends.append(Backend.SONARR)
+        if re.search(movie_re, category, re.IGNORECASE):
+            logger.debug("Matched category Movies")
+            backends.append(Backend.RADARR)
+        if re.search(music_re, category, re.IGNORECASE):
+            logger.debug("Matched category Music")
+            backends.append(Backend.LIDARR)
+
+    if len(backends) == 0:
+        backends = [ Backend.SONARR, Backend.RADARR, Backend.LIDARR ]
+
+    return backends
+
+
+def notify(announcement, backends, tracker_name):
+    for backend in backends:
         backend_name = _backend_data[backend]['name']
 
         if _notify(_backend_data[backend], announcement.torrent_name, announcement.torrent_url, tracker_name):
@@ -46,6 +77,7 @@ def _notify(backend, title, torrent_url, tracker_name):
     global cfg
     approved = False
 
+    # TODO: Get cfg_backend section to separate variable first
     headers = {'X-Api-Key': cfg[backend['name'].lower() + '.apikey']}
     params = {
         'title': utils.replace_spaces(title, '.'),

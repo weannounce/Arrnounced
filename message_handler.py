@@ -7,7 +7,7 @@ from  tracker_config import VarType
 import announce_parser
 
 import db
-from backend import notify, backends_to_string, Backend
+from backend import notify, notify_which_backends, backends_to_string, Backend
 import utils
 
 logger = logging.getLogger("ANNOUNCE_MANAGER")
@@ -23,22 +23,23 @@ def on_message(tracker_config, source, target, message):
 
     announcement = announce_parser.parse(tracker_config, message)
 
-    if tracker_config.delay > 0:
-        logger.debug("{}: Waiting %s seconds to check %s",
-                tracker_config.short_name, tracker_config.delay, pattern_groups["torrentName"])
-        time.sleep(tracker_config.delay)
+    backends = notify_which_backends(tracker_config, announcement.category)
+    backends_string = backends_to_string(backends)
 
-    backends_string = backends_to_string(announcement.backends)
+    if tracker_config.delay > 0:
+        logger.debug("{}: Waiting %s seconds to notify %s",
+                tracker_config.short_name, tracker_config.delay, announcement.torrent_name)
+        time.sleep(tracker_config.delay)
 
     db.Announced(date=datetime.datetime.now(), title=announcement.torrent_name,
             indexer=tracker_config.short_name, torrent=announcement.torrent_url, pvr=backends_string)
-    logger.debug("Notifying %s of release from %s: %s @ %s", backends_string,
-                tracker_config.short_name, announcement.torrent_name,
-                announcement.torrent_url)
+    logger.info("Notifying %s of release from %s: %s", backends_string,
+                tracker_config.short_name, announcement.torrent_name)
 
-    backend = notify(announcement, tracker_config.short_name)
+    backend = notify(announcement, backends, tracker_config.short_name)
 
     if backend is None:
+        # TODO Print rejection reason
         logger.debug("Release was rejected: %s", announcement.torrent_name)
     else:
         logger.info("%s approved release: %s", backend, announcement.torrent_name)

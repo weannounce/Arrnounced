@@ -6,6 +6,7 @@ from enum import Enum
 
 import config
 import db
+from backend import Backend
 
 cfg = config.init()
 logger = logging.getLogger("TRACKER_CONF")
@@ -192,16 +193,15 @@ class TrackerConfig:
         return self._user_config["delay"]
 
     @property
-    def notify_sonarr(self):
-        return self._user_config["notify_sonarr"]
-
-    @property
-    def notify_radarr(self):
-        return self._user_config["notify_radarr"]
-
-    @property
-    def notify_lidarr(self):
-        return self._user_config["notify_lidarr"]
+    def notify_backends(self):
+        backends = []
+        if self._user_config["notify_sonarr"]:
+            backends.append(Backend.SONARR)
+        if self._user_config["notify_radarr"]:
+            backends.append(Backend.RADARR)
+        if self._user_config["notify_lidarr"]:
+            backends.append(Backend.LIDARR)
+        return backends
 
     @property
     def short_name(self):
