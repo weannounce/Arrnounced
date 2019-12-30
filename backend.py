@@ -73,21 +73,21 @@ def notify_radarr(title, download_link, indexer):
 def notify_lidarr(title, download_link, indexer):
     _notify(_backend_data[Backend.LIDARR], title, download_link, indexer)
 
-def _notify(backend, title, torrent_url, tracker_name):
+def _notify(backend, title, torrent_url, indexer):
     global cfg
     approved = False
 
     # TODO: Get cfg_backend section to separate variable first
     headers = {'X-Api-Key': cfg[backend['name'].lower() + '.apikey']}
     params = {
-        'title': utils.replace_spaces(title, '.'),
+        'title': title,
         'downloadUrl': torrent_url,
         'protocol': 'Torrent',
         'publishDate': datetime.datetime.now().isoformat()
     }
 
     if backend['use_indexer']:
-        params['indexer'] = tracker_name
+        params['indexer'] = indexer
 
     try:
         resp = requests.post(url="{}{}".format(cfg[backend['name'].lower() + '.url'], backend['api_path']),

@@ -7,7 +7,6 @@ from  tracker_config import VarType
 
 import db
 from backend import notify, Backend
-import utils
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
 
@@ -17,6 +16,7 @@ class Announcement:
         self.torrent_url = torrent_url
         self.category = category
 
+# TODO check ignore lines
 def parse(tracker_config, message):
     if len(tracker_config.line_patterns) > 0:
         pattern_groups = _parse_line_patterns(tracker_config, message)

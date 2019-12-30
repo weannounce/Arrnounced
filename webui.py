@@ -18,7 +18,6 @@ from backend import notify_sonarr, notify_radarr
 import utils
 
 logger = logging.getLogger("WEB-UI")
-logger.setLevel(logging.DEBUG)
 
 app = Flask("Announced")
 auth = HTTPBasicAuth()

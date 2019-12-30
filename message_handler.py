@@ -8,7 +8,6 @@ import announce_parser
 
 import db
 from backend import notify, notify_which_backends, backends_to_string, Backend
-import utils
 
 logger = logging.getLogger("ANNOUNCE_MANAGER")
 
@@ -21,7 +20,11 @@ def on_message(tracker_config, source, target, message):
     if not _isAnnouncement(source, target, tracker_config):
         return
 
+    # TODO: remove color and decode HTML from message
+
     announcement = announce_parser.parse(tracker_config, message)
+    if announcement is None:
+        return
 
     backends = notify_which_backends(tracker_config, announcement.category)
     backends_string = backends_to_string(backends)

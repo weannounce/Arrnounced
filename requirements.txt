@@ -1,6 +1,5 @@
 Flask
 Flask_HTTPAuth
-pluginbase
 pony
 profig
 pydle
