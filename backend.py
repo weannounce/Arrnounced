@@ -59,7 +59,7 @@ def notify(announcement, backends, tracker_name):
     for backend in backends:
         backend_name = _backend_data[backend]['name']
 
-        if _notify(_backend_data[backend], announcement.torrent_name, announcement.torrent_url, tracker_name):
+        if _notify(_backend_data[backend], announcement.torrent_name, announcement.torrent_url, "Irc" + tracker_name):
             return _backend_data[backend]['name']
 
     return None
