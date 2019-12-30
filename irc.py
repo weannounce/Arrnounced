@@ -58,7 +58,7 @@ class IRC(BotBase):
         await self.attempt_join_channel()
 
     async def on_message(self, target, source, message):
-        message_handler.on_message(self.tracker_config, source, target, message)
+        message_handler.on_message(self.tracker_config, source, target.lower(), message)
 
     async def on_invite(self, channel, by):
         if channel == self.tracker_config.irc_channel:

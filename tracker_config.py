@@ -213,7 +213,7 @@ class TrackerConfig:
 
     @property
     def irc_channel(self):
-        return self._xml_config.server["channelNames"]
+        return self._xml_config.server["channelNames"].lower()
 
     @property
     def announcer_name(self):

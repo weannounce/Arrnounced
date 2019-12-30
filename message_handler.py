@@ -18,6 +18,7 @@ def _isAnnouncement(source, target, tracker_config):
 @db.db_session
 def on_message(tracker_config, source, target, message):
     if not _isAnnouncement(source, target, tracker_config):
+        logger.debug("Message is no announcement")
         return
 
     # TODO: remove color and decode HTML from message
