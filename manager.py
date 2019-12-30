@@ -22,13 +22,13 @@ def run():
         sys.exit(1)
 
     thread_irc = irc_task(tracker_configs)
-    #thread_webui = webui_task(tracker_configs)
+    thread_webui = webui_task(tracker_configs)
 
     thread_irc.fire('START')
-    #thread_webui.fire('START')
+    thread_webui.fire('START')
 
     thread_irc.wait_thread(thread_irc)
-    #thread_webui.wait_thread(thread_webui)
+    thread_webui.wait_thread(thread_webui)
 
     logger.debug("Finished waiting for irc & webui threads")
 
