@@ -23,12 +23,12 @@ def init_logging(log_level):
     rootLogger = logging.getLogger()
     rootLogger.setLevel(log_level)
 
-    if cfg['bot.debug_console']:
+    if cfg['log.to_console']:
         consoleHandler = logging.StreamHandler()
         consoleHandler.setFormatter(logFormatter)
         rootLogger.addHandler(consoleHandler)
 
-    if cfg['bot.debug_file']:
+    if cfg['log.to_file']:
         fileHandler = RotatingFileHandler('arrnounced.log', maxBytes=1024 * 1024 * 5, backupCount=5)
         fileHandler.setFormatter(logFormatter)
         rootLogger.addHandler(fileHandler)

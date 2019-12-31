@@ -28,7 +28,7 @@ trackers = None
 def run(loaded_trackers):
     global trackers
     trackers = loaded_trackers
-    app.run(debug=False, host=cfg['server.host'], port=int(cfg['server.port']), use_reloader=False)
+    app.run(debug=False, host=cfg['webui.host'], port=int(cfg['webui.port']), use_reloader=False)
 
 
 def shutdown_server():
@@ -73,10 +73,10 @@ def serve_torrent(tracker, torrent_id, torrent_name):
 # panel routes
 @auth.get_password
 def get_pw(username):
-    if not username == cfg['server.user']:
+    if not username == cfg['webui.user']:
         return None
     else:
-        return cfg['server.pass']
+        return cfg['webui.pass']
     return None
 
 
@@ -195,10 +195,10 @@ def logs():
 @auth.login_required
 def settings():
     if request.method == 'POST':
-        cfg['server.host'] = request.form['server_host']
-        cfg['server.port'] = request.form['server_port']
-        cfg['server.user'] = request.form['server_user']
-        cfg['server.pass'] = request.form['server_pass']
+        cfg['webui.host'] = request.form['server_host']
+        cfg['webui.port'] = request.form['server_port']
+        cfg['webui.user'] = request.form['server_user']
+        cfg['webui.pass'] = request.form['server_pass']
 
         cfg['sonarr.url'] = request.form['sonarr_url']
         cfg['sonarr.apikey'] = request.form['sonarr_apikey']
@@ -207,14 +207,14 @@ def settings():
         cfg['radarr.apikey'] = request.form['radarr_apikey']
 
         if 'debug_file' in request.form:
-            cfg['bot.debug_file'] = True
+            cfg['log.to_file'] = True
         else:
-            cfg['bot.debug_file'] = False
+            cfg['log.to_file'] = False
 
         if 'debug_console' in request.form:
-            cfg['bot.debug_console'] = True
+            cfg['log.to_console'] = True
         else:
-            cfg['bot.debug_console'] = False
+            cfg['log.to_console'] = False
 
         #cfg.sync()
         logger.debug("Saved settings: %s", request.form)

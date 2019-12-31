@@ -2,7 +2,7 @@ import profig
 import logging
 
 cfg = None
-base_sections = [ "server", "bot", "sonarr", "radarr", "lidarr" ]
+base_sections = [ "webui", "log", "sonarr", "radarr", "lidarr" ]
 logger = logging.getLogger("CONFIG")
 
 def init():
@@ -15,13 +15,13 @@ def init():
     cfg.read()
 
     # Settings
-    cfg.init('server.host', 'localhost')
-    cfg.init('server.port', '3467')
-    cfg.init('server.user', 'admin')
-    cfg.init('server.pass', 'password')
+    cfg.init('webui.host', 'localhost')
+    cfg.init('webui.port', '3467')
+    cfg.init('webui.user', 'admin')
+    cfg.init('webui.pass', 'password')
 
-    cfg.init('bot.debug_file', True)
-    cfg.init('bot.debug_console', True)
+    cfg.init('log.to_file', True)
+    cfg.init('log.to_console', True)
 
     cfg.init('sonarr.apikey', None, type=str)
     cfg.init('sonarr.url', 'http://localhost:8989')
