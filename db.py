@@ -6,7 +6,6 @@ logger = logging.getLogger("DB")
 
 db = Database()
 
-
 class Announced(db.Entity):
     date = Required(datetime.datetime)
     title = Required(str)
@@ -23,5 +22,6 @@ class Snatched(db.Entity):
     pvr = Required(str)
 
 
-db.bind('sqlite', 'brain.db', create_db=True)
-db.generate_mapping(create_tables=True)
+def init(destination_dir):
+    db.bind('sqlite', destination_dir + '/brain.db', create_db=True)
+    db.generate_mapping(create_tables=True)
