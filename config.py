@@ -55,23 +55,12 @@ def init():
     #    print(s)
     return cfg
 
-server_fields = { "host": True, "port": True, "user": False, "pass": False }
 mandatory_tracker_fields = [ "nick" ]
 
 def validate_config():
     global cfg
     global tracker_fields
     valid = True
-
-    sections = cfg.as_dict()
-    if "server" in sections:
-        for field, mandatory in server_fields.items():
-            if mandatory and cfg.section("server")[field] is None:
-                valid = False
-            elif cfg.section("server")[field] is not None and len(cfg.section("server")[field]) == 0:
-                valid = False
-    else:
-        valid = False
 
     if not (cfg.get("sonarr.apikey") or
             cfg.get("radarr.apikey") or
