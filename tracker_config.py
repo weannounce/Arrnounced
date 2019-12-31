@@ -8,15 +8,13 @@ import config
 import db
 from backend import Backend
 
-cfg = config.init()
 logger = logging.getLogger("TRACKER_CONF")
-track_config_path = "autodl-trackers/trackers"
 debug = False
 
-def parse_xml_configs():
+def parse_xml_configs(tracker_config_path):
     xml_configs = {}
-    for trackerFile in sorted(os.listdir(track_config_path)):
-        tree = ET.parse(track_config_path + "/" + trackerFile)
+    for trackerFile in sorted(os.listdir(tracker_config_path)):
+        tree = ET.parse(tracker_config_path + "/" + trackerFile)
         tracker = TrackerXmlConfig()
 
         if tracker.parseConfig(tree.getroot()):
@@ -118,10 +116,10 @@ class Extract:
         self.regex = regex
         self.groups = groups
 
-def get_trackers():
-    xml_configs = parse_xml_configs()
+def get_trackers(tracker_config_path):
+    xml_configs = parse_xml_configs(tracker_config_path)
     trackers = {}
-    for user_config in cfg.sections():
+    for user_config in config.sections():
         if user_config.name in config.base_sections:
             continue
         elif user_config.name not in xml_configs:

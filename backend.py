@@ -8,7 +8,6 @@ import config
 import utils
 
 logger = logging.getLogger("BACKEND")
-cfg = config.init()
 
 # TODO: Use same log string formating everywhere. format(...) vs the same thing wihout format...
 class Backend(Enum):
@@ -17,40 +16,56 @@ class Backend(Enum):
     LIDARR = 3
 
 _backend_data = {
-        Backend.SONARR: { 'name': 'Sonarr', 'api_path': '/api/release/push', 'use_indexer': True,
-            'configured': cfg['sonarr.apikey'] is not None },
-        Backend.RADARR: { 'name': 'Radarr', 'api_path': '/api/release/push', 'use_indexer': True,
-            'configured': cfg['radarr.apikey'] is not None },
-        Backend.LIDARR: { 'name': 'Lidarr', 'api_path': '/api/v1/release/push', 'use_indexer': False,
-            'configured': cfg['lidarr.apikey'] is not None }
+        Backend.SONARR: { 'name': 'Sonarr', 'api_path': '/api/release/push', 'use_indexer': True },
+        Backend.RADARR: { 'name': 'Radarr', 'api_path': '/api/release/push', 'use_indexer': True },
+        Backend.LIDARR: { 'name': 'Lidarr', 'api_path': '/api/v1/release/push', 'use_indexer': False }
         }
+
+# TODO: Make this looks nicer if possible. E.g. some for-loop
+def init(config):
+    if config['sonarr.apikey'] is None:
+        del _backend_data[Backend.SONARR]
+    else:
+        _backend_data[Backend.SONARR]['apikey'] = config['sonarr.apikey']
+        _backend_data[Backend.SONARR]['url'] = config['sonarr.url']
+
+    if config['radarr.apikey'] is None:
+        del _backend_data[Backend.RADARR]
+    else:
+        _backend_data[Backend.RADARR]['apikey'] = config['radarr.apikey']
+        _backend_data[Backend.RADARR]['url'] = config['radarr.url']
+
+    if config['lidarr.apikey'] is None:
+        del _backend_data[Backend.LIDARR]
+    else:
+        _backend_data[Backend.LIDARR]['apikey'] = config['lidarr.apikey']
+        _backend_data[Backend.LIDARR]['url'] = config['lidarr.url']
 
 def backends_to_string(backends):
     return "/".join(_backend_data[x]['name'] for x in backends)
 
-series_re = r"\b(series|tv|television|shows?|sitcoms?|dramas?|soaps?|soapies?)\b"
-movie_re = r"\b(movies?|films?|flicks?|motion pictures?|moving pictures?|cinema)\b"
-music_re = r"\b(music|audio|songs?|audiobooks?|mp3|flac)\b"
+#series_re = r"\b(series|tv|television|shows?|sitcoms?|dramas?|soaps?|soapies?)\b"
+#movie_re = r"\b(movies?|films?|flicks?|motion pictures?|moving pictures?|cinema)\b"
+#music_re = r"\b(music|audio|songs?|audiobooks?|mp3|flac)\b"
 def notify_which_backends(tracker_config, category):
     backends = tracker_config.notify_backends
-    # TODO: Only add configured backends.
-    # Print warning if tracker_config.notify_backends contains unconfigured backend
 
     # TODO: This probably won't work very well. Replace/Remove.
     # Maybe specify category strings in config.
-    if len(backends) == 0 and category is not None:
-        if re.search(series_re, category, re.IGNORECASE):
-            logger.debug("Matched category Series")
-            backends.append(Backend.SONARR)
-        if re.search(movie_re, category, re.IGNORECASE):
-            logger.debug("Matched category Movies")
-            backends.append(Backend.RADARR)
-        if re.search(music_re, category, re.IGNORECASE):
-            logger.debug("Matched category Music")
-            backends.append(Backend.LIDARR)
+    #if len(backends) == 0 and category is not None:
+    #    if re.search(series_re, category, re.IGNORECASE):
+    #        logger.debug("Matched category Series")
+    #        backends.append(Backend.SONARR)
+    #    if re.search(movie_re, category, re.IGNORECASE):
+    #        logger.debug("Matched category Movies")
+    #        backends.append(Backend.RADARR)
+    #    if re.search(music_re, category, re.IGNORECASE):
+    #        logger.debug("Matched category Music")
+    #        backends.append(Backend.LIDARR)
 
+    # Return all configured backends if none were added
     if len(backends) == 0:
-        backends = [ Backend.SONARR, Backend.RADARR, Backend.LIDARR ]
+        backends = list(_backend_data.keys())
 
     return backends
 
@@ -74,11 +89,9 @@ def notify_lidarr(title, download_link, indexer):
     _notify(_backend_data[Backend.LIDARR], title, download_link, indexer)
 
 def _notify(backend, title, torrent_url, indexer):
-    global cfg
     approved = False
 
-    # TODO: Get cfg_backend section to separate variable first
-    headers = {'X-Api-Key': cfg[backend['name'].lower() + '.apikey']}
+    headers = {'X-Api-Key': backend['apikey']}
     params = {
         'title': title,
         'downloadUrl': torrent_url,
@@ -90,7 +103,7 @@ def _notify(backend, title, torrent_url, indexer):
         params['indexer'] = indexer
 
     try:
-        resp = requests.post(url="{}{}".format(cfg[backend['name'].lower() + '.url'], backend['api_path']),
+        resp = requests.post(url="{}{}".format(backend['url'], backend['api_path']),
                 headers=headers, json=params).json()
         if 'approved' in resp:
             approved = resp['approved']

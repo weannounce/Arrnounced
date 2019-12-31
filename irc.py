@@ -10,9 +10,6 @@ BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSuppo
 
 logger = logging.getLogger("IRC")
 
-cfg = config.init()
-
-
 class IRC(BotBase):
     tracker_config = None
     RECONNECT_MAX_ATTEMPTS = None
@@ -71,7 +68,7 @@ clients = []
 
 
 def start(tracker_configs):
-    global cfg, pool, clients
+    global pool, clients
 
     for tracker_name, tracker_config in tracker_configs.items():
         logger.info("Connecting to server: %s:%d %s", tracker_config.irc_server,

@@ -13,10 +13,10 @@ thread_webui = None
 logger = logging.getLogger("MANAGER")
 
 
-def run():
+def run(tracker_config_path):
     global thread_irc, thread_webui
 
-    tracker_configs = tracker_config.get_trackers()
+    tracker_configs = tracker_config.get_trackers(tracker_config_path)
     if len(tracker_configs) == 0:
         logger.error("No trackers configured, exiting...")
         sys.exit(1)

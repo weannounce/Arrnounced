@@ -5,13 +5,11 @@ cfg = None
 base_sections = [ "webui", "log", "sonarr", "radarr", "lidarr" ]
 logger = logging.getLogger("CONFIG")
 
-def init():
+def init(config_path):
     global cfg
     global base_sections
-    if cfg is not None:
-        return cfg
 
-    cfg = profig.Config('settings.cfg')
+    cfg = profig.Config(config_path)
     cfg.read()
 
     # Settings
@@ -81,8 +79,34 @@ def validate_config():
             logger.error("{}: Must set both 'inviter' and 'invite_cmd'".format(section.name))
             valid = False
 
+        # TODO: Check categories here as well
+        if section.get("notify_sonarr") and cfg.get("sonarr.apikey") is None:
+            logger.error("{}: Must configure sonarr to use 'notify_sonarr'".format(section.name))
+            valid = False
+        if section.get("notify_radarr") and cfg.get("radarr.apikey") is None:
+            logger.error("{}: Must configure radarr to use 'notify_radarr'".format(section.name))
+            valid = False
+        if section.get("notify_lidarr") and cfg.get("lidarr.apikey") is None:
+            logger.error("{}: Must configure lidarr to use 'notify_lidarr'".format(section.name))
+            valid = False
+
     for section in cfg:
         if len(str(cfg[section])) == 0:
             logger.error("{}: Empty value in configuration not allowed".format(section))
             valid = False
     return valid
+
+def sections():
+    return cfg.sections()
+
+def webui_host():
+    return cfg['webui.host']
+
+def webui_port():
+    return cfg['webui.port']
+
+def webui_user():
+    return cfg['webui.user']
+
+def webui_pass():
+    return cfg['webui.pass']

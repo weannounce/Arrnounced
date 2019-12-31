@@ -21,14 +21,14 @@ logger = logging.getLogger("WEB-UI")
 
 app = Flask("Announced")
 auth = HTTPBasicAuth()
-cfg = config.init()
 trackers = None
 
 
 def run(loaded_trackers):
     global trackers
     trackers = loaded_trackers
-    app.run(debug=False, host=cfg['webui.host'], port=int(cfg['webui.port']), use_reloader=False)
+    app.run(debug=False, host=config.webui_host(),
+            port=int(config.webui_port()), use_reloader=False)
 
 
 def shutdown_server():
@@ -73,10 +73,10 @@ def serve_torrent(tracker, torrent_id, torrent_name):
 # panel routes
 @auth.get_password
 def get_pw(username):
-    if not username == cfg['webui.user']:
+    if not username == config.webui_user():
         return None
     else:
-        return cfg['webui.pass']
+        return config.webui_pass()
     return None
 
 
