@@ -10,6 +10,7 @@ $(function(){
             },
         }).then(function (result) {
             console.log('sonarr_check result: ', result);
+            // TODO: A toastr would be nice here instead
             if (result == 'ERR') {
                 // apikey was invalid
                 $("#sonarr_check").removeClass("btn-success").addClass("btn-danger");

@@ -107,38 +107,6 @@ def logs():
 
     return render_template('logs.html', logs=logs)
 
-
-@app.route("/settings", methods=['GET', 'POST'])
-@auth.login_required
-def settings():
-    if request.method == 'POST':
-        cfg['webui.host'] = request.form['server_host']
-        cfg['webui.port'] = request.form['server_port']
-        cfg['webui.user'] = request.form['server_user']
-        cfg['webui.pass'] = request.form['server_pass']
-
-        cfg['sonarr.url'] = request.form['sonarr_url']
-        cfg['sonarr.apikey'] = request.form['sonarr_apikey']
-
-        cfg['radarr.url'] = request.form['radarr_url']
-        cfg['radarr.apikey'] = request.form['radarr_apikey']
-
-        if 'debug_file' in request.form:
-            cfg['log.to_file'] = True
-        else:
-            cfg['log.to_file'] = False
-
-        if 'debug_console' in request.form:
-            cfg['log.to_console'] = True
-        else:
-            cfg['log.to_console'] = False
-
-        #cfg.sync()
-        logger.debug("Saved settings: %s", request.form)
-
-    return render_template('settings.html')
-
-
 @app.route("/<pvr_name>/check", methods=['POST'])
 @auth.login_required
 def check(pvr_name):
@@ -173,6 +141,7 @@ def notify(pvr_name):
             if announcement is not None and len(announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", announcement.title)
 
+                # TODO: pvr_name may be multiple PVRs in the form "Sonarr/Radarr"
                 if pvr_name == "Sonarr":
                     approved = notify_sonarr(announcement.title, announcement.torrent, announcement.indexer)
                 elif pvr_name == "Radarr":
@@ -188,12 +157,6 @@ def notify(pvr_name):
         logger.exception("Exception while notifying " + pvr_name + " announcement:")
 
     return "ERR"
-
-
-@app.context_processor
-def inject_conf_in_all_templates():
-    global cfg
-    return dict(conf=cfg)
 
 
 @app.context_processor
