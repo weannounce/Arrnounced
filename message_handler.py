@@ -48,4 +48,4 @@ def on_message(tracker_config, source, target, message):
     else:
         logger.info("%s approved release: %s", backend, announcement.torrent_name)
         snatched = db.Snatched(date=datetime.datetime.now(), title=announcement.torrent_name,
-                indexer=name, torrent=download_link, pvr=pvr_name)
+                indexer=tracker_config.short_name, torrent=announcement.torrent_url, pvr=backend)
