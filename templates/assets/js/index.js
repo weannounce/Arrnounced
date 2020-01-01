@@ -3,10 +3,11 @@ function notify_pvr(announcement_id, pvr_name) {
     console.log("Notifying " + pvr_name +  " again for announcement: " + announcement_id);
 
     alite({
-            url: '/' + pvr_name + '/notify',
+            url: '/notify',
             method: 'POST',
             data: {
-                id: announcement_id
+                id: announcement_id,
+                pvr_name: pvr_name
             },
         }).then(function (result) {
             console.log(pvr_name + '_notify result: ', result);

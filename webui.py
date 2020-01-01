@@ -14,7 +14,7 @@ from flask_httpauth import HTTPBasicAuth
 
 import config
 import db
-from backend import notify_sonarr, notify_radarr
+from backend import notify_sonarr, notify_radarr, notify_lidarr
 import utils
 
 logger = logging.getLogger("WEB-UI")
@@ -129,32 +129,35 @@ def check(pvr_name):
     return 'ERR'
 
 
-@app.route("/<pvr_name>/notify", methods=['POST'])
+@app.route("/notify", methods=['POST'])
 @auth.login_required
 @db.db_session
-def notify(pvr_name):
+def notify():
     try:
         data = request.json
-        if 'id' in data:
+        if 'id' in data and 'pvr_name' in data:
             # Request to check this torrent again
             announcement = db.Announced.get(id=data.get('id'))
             if announcement is not None and len(announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", announcement.title)
 
-                # TODO: pvr_name may be multiple PVRs in the form "Sonarr/Radarr"
-                if pvr_name == "Sonarr":
-                    approved = notify_sonarr(announcement.title, announcement.torrent, announcement.indexer)
-                elif pvr_name == "Radarr":
-                    approved = notify_radarr(announcement.title, announcement.torrent, announcement.indexer)
-                if approved:
-                    logger.debug(pvr_name + " accepted the torrent this time!")
-                    return "OK"
-                else:
-                    logger.debug(pvr_name + " still refused this torrent...")
-                    return "ERR"
+                for backend in data.get('pvr_name').split("/"):
+                    if backend == "Sonarr":
+                        approved = notify_sonarr(announcement.title, announcement.torrent, announcement.indexer)
+                    elif backend == "Radarr":
+                        approved = notify_radarr(announcement.title, announcement.torrent, announcement.indexer)
+                    elif backend == "Lidarr":
+                        approved = notify_lidarr(announcement.title, announcement.torrent, announcement.indexer)
+
+                    if approved:
+                        logger.debug(backend + " accepted the torrent this time!")
+                        return "OK"
+
+                logger.debug(data.get('pvr_name') + " still refused this torrent...")
+                return "ERR"
 
     except Exception as ex:
-        logger.exception("Exception while notifying " + pvr_name + " announcement:")
+        logger.exception("Exception while notifying announcement:")
 
     return "ERR"
 

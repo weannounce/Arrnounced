@@ -70,13 +70,13 @@ def notify(announcement, backends, tracker_name):
     return None
 
 def notify_sonarr(title, download_link, indexer):
-    _notify(_backend_data[Backend.SONARR], title, download_link, indexer)
+    return _notify(_backend_data[Backend.SONARR], title, download_link, indexer)
 
 def notify_radarr(title, download_link, indexer):
-    _notify(_backend_data[Backend.RADARR], title, download_link, indexer)
+    return _notify(_backend_data[Backend.RADARR], title, download_link, indexer)
 
 def notify_lidarr(title, download_link, indexer):
-    _notify(_backend_data[Backend.LIDARR], title, download_link, indexer)
+    return _notify(_backend_data[Backend.LIDARR], title, download_link, indexer)
 
 def _notify(backend, title, torrent_url, indexer):
     approved = False
