@@ -42,6 +42,7 @@ def init_logging(config, log_level, destination_dir):
 ############################################################
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Arrnounced - Listen for IRC announcements")
+    # TODO: Update default paths to ~/.arrnounced
     parser.add_argument("-c", "--config", help="Configuration file", type=is_file, default="./settings.cfg")
     parser.add_argument("-t", "--trackers", help="XML tracker config path", type=is_dir, default="./autodl-trackers/trackers")
     parser.add_argument("-d", "--data", help="Data directory for storing logs and database", type=is_dir, default="./")

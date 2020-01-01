@@ -3,25 +3,33 @@ import logging
 import time
 import re
 import urllib.parse
+import html
+
 from  tracker_config import VarType
 import announce_parser
-
+import utils
 import db
 from backend import notify, notify_which_backends, backends_to_string, Backend
 
 logger = logging.getLogger("ANNOUNCE_MANAGER")
 
-def _isAnnouncement(source, target, tracker_config):
+def _is_announcement(source, target, tracker_config):
     return (source == tracker_config.announcer_name and
         target == tracker_config.irc_channel)
 
+def _sanitize_message(message):
+    message = utils.strip_irc_color_codes(message)
+    message = html.unescape(message)
+    return message
+
+
 @db.db_session
 def on_message(tracker_config, source, target, message):
-    if not _isAnnouncement(source, target, tracker_config):
+    if not _is_announcement(source, target, tracker_config):
         logger.debug("Message is no announcement")
         return
 
-    # TODO: remove color and decode HTML from message
+    message = _sanitize_message(message)
 
     announcement = announce_parser.parse(tracker_config, message)
     if announcement is None:

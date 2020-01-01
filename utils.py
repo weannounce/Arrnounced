@@ -17,7 +17,6 @@ def strip_irc_color_codes(line):
 def replace_spaces(text, new):
     return re.sub('[ ]{1,}', new, text)
 
-
 # credits: http://code.activestate.com/recipes/576880-convert-datetime-in-python-to-user-friendly-repres/
 def human_datetime(date_time):
     """
