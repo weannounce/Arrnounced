@@ -17,14 +17,14 @@ def parse_xml_configs(tracker_config_path):
         tree = ET.parse(tracker_config_path + "/" + trackerFile)
         tracker = TrackerXmlConfig()
 
-        if tracker.parseConfig(tree.getroot()):
+        if tracker.parse_config(tree.getroot()):
             xml_configs[tracker.tracker_info["type"]] =  tracker
         else:
             logger.error("Could not parse tracker XML config: {}".format(trackerFile))
     return xml_configs
 
 class TrackerXmlConfig:
-    def parseConfig(self, root):
+    def parse_config(self, root):
         self.tracker_info = root.attrib
         # TODO: Workaround for profig handling periods as subsections
         self.tracker_info["type"] = self.tracker_info["type"].replace('.', '_')
@@ -51,9 +51,11 @@ class TrackerXmlConfig:
         for var in root.findall("./parseinfo/linematched/var[@name='torrentUrl']/*"):
             self.torrent_url.append(Var(var.tag, var.attrib))
 
-        # What's up with expected?? False seems to mean to ignore the ignore??
         for ignore in root.findall("./parseinfo/ignore/*"):
-            self.ignores.append(ignore.attrib['value'])
+            self.ignores.append(
+                    (ignore.attrib['value'],
+                     ("expected" not in ignore.attrib or
+                         ignore.attrib['expected'] == "true")))
 
 
         if debug:
@@ -232,6 +234,10 @@ class TrackerConfig:
     @property
     def multiline_patterns (self):
         return self._xml_config.multiline_patterns
+
+    @property
+    def ignores (self):
+        return self._xml_config.ignores
 
     @property
     def torrent_url (self):

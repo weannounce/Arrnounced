@@ -16,8 +16,19 @@ class Announcement:
         self.torrent_url = torrent_url
         self.category = category
 
-# TODO check ignore lines
+def _ignore_message(ignores, message):
+    for ignore_regex, expected in ignores:
+        # If message matches an expected regex it will be ignord
+        # If it's not expected it works as an inverse, ignore everything which doesn't match.
+        if bool(re.search(ignore_regex, message)) == expected:
+            return True
+    return False
+
 def parse(tracker_config, message):
+    if _ignore_message(tracker_config.ignores, message):
+        logger.debug("{}: Message ignored: {}".format(tracker_config.short_name, message))
+        return None
+
     if len(tracker_config.line_patterns) > 0:
         pattern_groups = _parse_line_patterns(tracker_config, message)
     elif len(tracker_config.multiline_patterns) > 0:
