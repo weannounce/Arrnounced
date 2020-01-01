@@ -36,6 +36,12 @@ def on_message(tracker_config, source, target, message):
         return
 
     backends = notify_which_backends(tracker_config, announcement.category)
+
+    if len(backends) == 0:
+        # TODO: Should it still generate a database entry?
+        logger.debug("No backends to notify for %s", message)
+        return
+
     backends_string = backends_to_string(backends)
 
     if tracker_config.delay > 0:

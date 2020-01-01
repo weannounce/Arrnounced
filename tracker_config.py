@@ -155,6 +155,21 @@ class TrackerConfig:
         self._xml_config = xml_config
         self._user_config = user_config
 
+        self.backends = {}
+        if self._user_config["notify_sonarr"]:
+            self.backends[Backend.SONARR] = None
+        if self._user_config["notify_radarr"]:
+            self.backends[Backend.RADARR] = None
+        if self._user_config["notify_lidarr"]:
+            self.backends[Backend.LIDARR] = None
+
+        if self._user_config["category_sonarr"] is not None:
+            self.backends[Backend.SONARR] = self._user_config["category_sonarr"]
+        if self._user_config["category_radarr"] is not None:
+            self.backends[Backend.RADARR] = self._user_config["category_radarr"]
+        if self._user_config["category_lidarr"] is not None:
+            self.backends[Backend.LIDARR] = self._user_config["category_lidarr"]
+
     def __getitem__(self, key):
         return self._user_config[key]
 
@@ -192,14 +207,7 @@ class TrackerConfig:
 
     @property
     def notify_backends(self):
-        backends = []
-        if self._user_config["notify_sonarr"]:
-            backends.append(Backend.SONARR)
-        if self._user_config["notify_radarr"]:
-            backends.append(Backend.RADARR)
-        if self._user_config["notify_lidarr"]:
-            backends.append(Backend.LIDARR)
-        return backends
+        return self.backends
 
     @property
     def short_name(self):

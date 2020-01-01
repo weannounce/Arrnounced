@@ -44,27 +44,17 @@ def init(config):
 def backends_to_string(backends):
     return "/".join(_backend_data[x]['name'] for x in backends)
 
-#series_re = r"\b(series|tv|television|shows?|sitcoms?|dramas?|soaps?|soapies?)\b"
-#movie_re = r"\b(movies?|films?|flicks?|motion pictures?|moving pictures?|cinema)\b"
-#music_re = r"\b(music|audio|songs?|audiobooks?|mp3|flac)\b"
-def notify_which_backends(tracker_config, category):
-    backends = tracker_config.notify_backends
+def notify_which_backends(tracker_config, announced_category):
+    backends = []
+    for backend, category_regex in tracker_config.notify_backends.items():
+        if category_regex is None:
+            backends.append(backend)
+        elif (announced_category is not None and
+                re.search(category_regex, announced_category, re.IGNORECASE)):
+            backends.append(backend)
 
-    # TODO: This probably won't work very well. Replace/Remove.
-    # Maybe specify category strings in config.
-    #if len(backends) == 0 and category is not None:
-    #    if re.search(series_re, category, re.IGNORECASE):
-    #        logger.debug("Matched category Series")
-    #        backends.append(Backend.SONARR)
-    #    if re.search(movie_re, category, re.IGNORECASE):
-    #        logger.debug("Matched category Movies")
-    #        backends.append(Backend.RADARR)
-    #    if re.search(music_re, category, re.IGNORECASE):
-    #        logger.debug("Matched category Music")
-    #        backends.append(Backend.LIDARR)
-
-    # Return all configured backends if none were added
-    if len(backends) == 0:
+    # Return all configured backends if none where specified
+    if len(tracker_config.notify_backends) == 0:
         backends = list(_backend_data.keys())
 
     return backends
