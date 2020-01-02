@@ -1,6 +1,6 @@
-# Announced
+# Arrnounced
 
-Python script to notify sonarr or radarr of tracker announcements from IRC announce channels. 
+Python script to notify sonarr or radarr of tracker announcements from IRC announce channels.
 
 ## Requirements
 1. Python 3.5.2 or newer
