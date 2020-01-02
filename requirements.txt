@@ -1,9 +1,7 @@
-Flask
-Flask_HTTPAuth
-pony
-profig
-pydle
-requests
-tornado==4.5.3
-Unidecode
-pythreadworker
+Flask==1.1.1
+Flask-HTTPAuth==3.3.0
+pony==0.7.11
+profig==0.5.1
+pydle==0.9.3
+requests==2.22.0
+pythreadworker==0.9.0
