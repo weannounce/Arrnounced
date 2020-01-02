@@ -1,5 +1,5 @@
-import profig
 import logging
+import profig
 
 cfg = None
 base_sections = [ "webui", "log", "sonarr", "radarr", "lidarr" ]

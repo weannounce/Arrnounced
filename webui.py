@@ -1,21 +1,20 @@
 import logging
 import os
 import re
-from urllib.parse import urlparse
-
 import requests
-from flask import Flask
 from flask import abort
+from flask import Flask
 from flask import render_template
 from flask import request
 from flask import send_file
 from flask import send_from_directory
 from flask_httpauth import HTTPBasicAuth
+from urllib.parse import urlparse
 
 import config
 import db
-from backend import notify_sonarr, notify_radarr, notify_lidarr
 import utils
+from backend import notify_sonarr, notify_radarr, notify_lidarr
 
 logger = logging.getLogger("WEB-UI")
 

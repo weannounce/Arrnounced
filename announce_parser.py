@@ -1,12 +1,8 @@
-import datetime
 import logging
-import time
 import re
 import urllib.parse
-from  tracker_config import VarType
 
-import db
-from backend import notify, Backend
+from  tracker_config import VarType
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
 

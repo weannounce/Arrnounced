@@ -1,5 +1,5 @@
-import logging
 import datetime
+import logging
 from pony.orm import *
 
 logger = logging.getLogger("DB")

@@ -1,15 +1,14 @@
 import datetime
-import logging
-import time
-import re
-import urllib.parse
 import html
+import logging
+import re
+import time
 
-from  tracker_config import VarType
 import announce_parser
-import utils
 import db
+import utils
 from backend import notify, notify_which_backends, backends_to_string, Backend
+from tracker_config import VarType
 
 logger = logging.getLogger("ANNOUNCE_MANAGER")
 

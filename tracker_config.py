@@ -1,11 +1,10 @@
-import os
-import xml.etree.ElementTree as ET
-import re
 import logging
+import os
+import re
+import xml.etree.ElementTree as ET
 from enum import Enum
 
 import config
-import db
 from backend import Backend
 
 logger = logging.getLogger("TRACKER_CONF")

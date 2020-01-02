@@ -1,12 +1,11 @@
 import logging
 import sys
 from time import sleep
-
 from worker import Worker
 
 import irc
-import webui
 import tracker_config
+import webui
 
 thread_irc = None
 thread_webui = None

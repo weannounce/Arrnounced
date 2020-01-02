@@ -1,7 +1,7 @@
 import datetime
 import logging
-import requests
 import re
+import requests
 from enum import Enum
 
 import config

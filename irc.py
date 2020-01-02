@@ -1,7 +1,6 @@
 import logging
-import socket
-
 import pydle
+import socket
 
 import config
 import message_handler

@@ -1,9 +1,9 @@
 import datetime
 import logging
 import re
+import requests
 from pathlib import Path
 
-import requests
 
 logger = logging.getLogger("UTILS")
 
@@ -12,7 +12,6 @@ def strip_irc_color_codes(line):
     line = re.sub("\x03\d\d?", "", line)
     line = re.sub("[\x01-\x1F]", "", line)
     return line
-
 
 def replace_spaces(text, new):
     return re.sub('[ ]{1,}', new, text)

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import logging
-import sys
 import os
+import sys
 from logging.handlers import RotatingFileHandler
 
-import config
-import manager
 import backend
 import db
+import config
+import manager
 
 def is_file(path):
     if os.path.isfile(path):
