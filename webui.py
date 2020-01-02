@@ -140,6 +140,7 @@ def notify():
             if announcement is not None and len(announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", announcement.title)
 
+                # TODO: Move this  to backend.py.
                 for backend in data.get('pvr_name').split("/"):
                     if backend == "Sonarr":
                         approved = notify_sonarr(announcement.title, announcement.torrent, announcement.indexer)

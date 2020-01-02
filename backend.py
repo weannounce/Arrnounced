@@ -41,7 +41,7 @@ def init(config):
         _backend_data[Backend.LIDARR]['url'] = config['lidarr.url']
 
 def backends_to_string(backends):
-    return "/".join(_backend_data[x]['name'] for x in backends)
+    return "/".join(_backend_data[x]['name'] for x in backends) if len(backends) > 0 else "None"
 
 def notify_which_backends(tracker_config, announced_category):
     backends = []
