@@ -1,59 +1,31 @@
 # Arrnounced
 
-Python script to notify sonarr or radarr of tracker announcements from IRC announce channels.
+Notify Sonarr/Radarr/Lidarr of tracker IRC announcements.
+
+Built on the work of [sonarrAnnounced](https://github.com/l3uddz/sonarrAnnounced) with tracker configuration from [autodl-trackers](https://github.com/autodl-community/autodl-trackers) (used by [autodl-irssi](https://github.com/autodl-community/autodl-irssi))
 
 ## Requirements
-1. Python 3.5.2 or newer
+1. Python 3.5.2 or newer. Only tested with 3.8 though.
 2. requirements.txt modules
 
 ## Supported Trackers
-1. ~~BTN~~
-2. ~~MTV~~
-3. IPTorrents
-4. ~~Nebulance~~
-5. ~~HD-Torrents~~
-6. ~~XSpeeds~~
-7. ~~FileList~~
-8. TorrentLeech
-9. Alpharatio
-10. RevolutionTT
+All single line pattern trackers from [this repository](https://github.com/autodl-community/autodl-trackers/tree/master/trackers) are supported.
 
-Open to suggestions/pull requests!
+However, only a few of them are tested at the moment. There are likely issues. Feel free to report them.
 
-## To-Do
-- changes to the web frontend to edit the new trackers etc.
-- add Radarr support to more trackers
+[Multiline patterns](https://github.com/autodl-community/autodl-trackers/blob/cf392143eff916971d0627aa5827e4bc28bf8aad/trackers/AceHD.tracker#L47) are not supported yet.
 
-## Feature Requests
-Request features at [FeatHub](http://feathub.com/l3uddz/sonarrAnnounced)
+# Installation
 
+## Manual
 
-# Installation (on Debian Jessie)
-## Python 3.5.2
+1. `git clone https://github.com/weannounce/arrnounced.git`
+2. `cd arrnounced`
+3. `pip install --user -r requirements.txt`
+4. `git clone https://github.com/autodl-community/autodl-trackers.git`
+5. Create settings.cfg with example.cfg as guide and your [choice of trackers](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
 
-1. `wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz`
-2. `tar xvf Python-3.5.2.tar.xz`
-3. `cd Python-3.5.2`
-4. `sudo apt-get install make git build-essential libssl-dev zlib1g-dev libbz2-dev libsqlite3-dev`
-5. `sudo ./configure --enable-loadable-sqlite-extensions && sudo make && sudo make install`
+Start with `./arrnounced.py`. Configuration files path as well as log and database location may be changed with command line arguments.
 
-This should automatically install pip3.5 for you
-
-## Announced
-1. `cd /opt`
-2. `sudo git clone https://github.com/dawtmaytrikx/Announced`
-3. `sudo chown -R user:group announced`
-4. `sudo pip3.5 install -r /opt/announced/requirements.txt`
-5. `mv settings.cfg.default settings.cfg`
-6. `nano settings.cfg`
-- Configure it how you want
-7. Edit systemd/announced.service with your user and group
-8. `sudo cp announced.service /etc/systemd/system/announced.service`
-9. `sudo systemctl daemon-reload`
-10. `sudo systemctl start announced`
-- Check it is working properly, http://localhost:PORT - use user/pass you chosen in the [server] section of settings.cfg
-11. if you want auto start @ boot, `sudo systemctl enable announced`
-
-# Installation videos
-1. Debian Jessie: https://youtu.be/oLiGMcUWiB0
-2. Windows: https://youtu.be/UbHwFqkLc0c
+## Docker
+TBA
