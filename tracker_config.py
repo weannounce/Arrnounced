@@ -19,7 +19,7 @@ def parse_xml_configs(tracker_config_path):
         if tracker.parse_config(tree.getroot()):
             xml_configs[tracker.tracker_info["type"]] =  tracker
         else:
-            logger.error("Could not parse tracker XML config: {}".format(trackerFile))
+            logger.error("Could not parse tracker XML config: %s", trackerFile)
     return xml_configs
 
 class TrackerXmlConfig:
@@ -124,19 +124,22 @@ def get_trackers(tracker_config_path):
         if user_config.name in config.base_sections:
             continue
         elif user_config.name not in xml_configs:
-            logger.error("Tracker '{}' from configuration is not supported".format(user_config.name))
+            logger.error("Tracker '%s' from configuration is not supported", user_config.name)
         elif len(xml_configs[user_config.name].multiline_patterns) > 0:
-            logger.error("{}: Multiline announcements are not supported yet!".format(user_config.name))
+            logger.error("%s: Multiline announcements are not supported yet!", user_config.name)
         elif _are_settings_configured(user_config, xml_configs[user_config.name].settings):
             trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
 
     return trackers
 
+"""
+Check that all setting from the XML tracker config is configured in the user config.
+"""
 def _are_settings_configured(user_config, required_settings):
     configured = True
     for setting in required_settings:
         if setting not in user_config:
-            logger.error("{}: Must specify '{}' in config".format(user_config.name, setting))
+            logger.error("%s: Must specify '%s' in config", user_config.name, setting)
             configured = False
     return configured
 

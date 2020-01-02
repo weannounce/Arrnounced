@@ -75,39 +75,39 @@ def validate_config():
 
         for mandatory in mandatory_tracker_fields:
             if not section.get(mandatory):
-                logger.error("{}: Must set '{}'".format(section.name, mandatory))
+                logger.error("%s: Must set '%s'", section.name, mandatory)
                 valid = False
 
         if bool(section.get("inviter")) != bool(section.get("invite_cmd")):
-            logger.error("{}: Must set both 'inviter' and 'invite_cmd'".format(section.name))
+            logger.error("%s: Must set both 'inviter' and 'invite_cmd'", section.name)
             valid = False
 
         if ((section.get("notify_sonarr") or section.get("category_sonarr") is not None)
                 and cfg.get("sonarr.apikey") is None):
-            logger.error("{}: Must configure sonarr to use 'notify_sonarr' or 'category_sonarr'".format(section.name))
+            logger.error("%s: Must configure sonarr to use 'notify_sonarr' or 'category_sonarr'", section.name)
             valid = False
         if ((section.get("notify_radarr") or section.get("category_radarr") is not None)
                 and cfg.get("radarr.apikey") is None):
-            logger.error("{}: Must configure radarr to use 'notify_radarr' or 'category_radarr'".format(section.name))
+            logger.error("%s: Must configure radarr to use 'notify_radarr' or 'category_radarr'", section.name)
             valid = False
         if ((section.get("notify_lidarr") or section.get("category_lidarr") is not None)
                 and cfg.get("lidarr.apikey") is None):
-            logger.error("{}: Must configure lidarr to use 'notify_lidarr' or 'category_lidarr'".format(section.name))
+            logger.error("%s: Must configure lidarr to use 'notify_lidarr' or 'category_lidarr'", section.name)
             valid = False
 
         if section.get("notify_sonarr") and section.get("category_sonarr") is not None:
-            logger.error("{}: Cannot use both notify_sonarr and cateogry_sonarr".format(section.name))
+            logger.error("%s: Cannot use both notify_sonarr and cateogry_sonarr", section.name)
             valid = False
         if section.get("notify_radarr") and section.get("category_radarr") is not None:
-            logger.error("{}: Cannot use both notify_radarr and cateogry_radarr".format(section.name))
+            logger.error("%s: Cannot use both notify_radarr and cateogry_radarr", section.name)
             valid = False
         if section.get("notify_lidarr") and section.get("category_lidarr") is not None:
-            logger.error("{}: Cannot use both notify_lidarr and cateogry_lidarr".format(section.name))
+            logger.error("%s: Cannot use both notify_lidarr and cateogry_lidarr", section.name)
             valid = False
 
     for section in cfg:
         if len(str(cfg[section])) == 0:
-            logger.error("{}: Empty value in configuration not allowed".format(section))
+            logger.error("%s: Empty value in configuration not allowed", section)
             valid = False
     return valid
 

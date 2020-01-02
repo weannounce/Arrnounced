@@ -9,7 +9,6 @@ import utils
 
 logger = logging.getLogger("BACKEND")
 
-# TODO: Use same log string formating everywhere. format(...) vs the same thing wihout format...
 class Backend(Enum):
     SONARR = 1
     RADARR = 2

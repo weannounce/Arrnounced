@@ -22,7 +22,7 @@ def _ignore_message(ignores, message):
 
 def parse(tracker_config, message):
     if _ignore_message(tracker_config.ignores, message):
-        logger.debug("{}: Message ignored: {}".format(tracker_config.short_name, message))
+        logger.debug("%s: Message ignored: %s", tracker_config.short_name, message)
         return None
 
     if len(tracker_config.line_patterns) > 0:
@@ -31,7 +31,7 @@ def parse(tracker_config, message):
         pattern_groups = _parse_multiline_patterns(tracker_config, message)
 
     if len(pattern_groups) == 0:
-        logger.warning("{}: No match found for '{}'".format(tracker_config.short_name, message))
+        logger.warning("%s: No match found for '%s'", tracker_config.short_name, message)
         return None
 
     torrent_url = _get_torrent_link(tracker_config, pattern_groups)
@@ -40,7 +40,7 @@ def parse(tracker_config, message):
             pattern_groups.get('category'))
 
 def _parse_line_patterns(tracker_config, message):
-    logger.debug("{}: Parsing annoucement '{}'".format(tracker_config.short_name, message))
+    logger.debug("%s: Parsing annoucement '%s'", tracker_config.short_name, message)
     pattern_groups = {}
     for pattern in tracker_config.line_patterns:
         match = re.search(pattern.regex, message)
@@ -74,5 +74,5 @@ def _get_torrent_link(tracker_config, pattern_groups):
                 var_value = tracker_config[var.name]
             url = url + urllib.parse.quote_plus(var_value)
 
-    logger.debug("Torrent URL: {}".format(url))
+    logger.debug("Torrent URL: %s", url)
     return url
