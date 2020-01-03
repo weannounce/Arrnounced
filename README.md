@@ -34,7 +34,26 @@ The default XML tracker configuration is `~/.arrnounced/autodl-trackers/trackers
 # Installation
 
 ## Docker
-TBA
+* You must provide `settings.cfg` in `/config`. This is also where logs and the database will be stored.
+* To access the web UI using bridged network the webui host in settings.cfg must be `0.0.0.0`.
+* As Arrnounced runs as a non-root user by deafult it is recommended to specify your own user to handle write access to `/config`.
+
+```bash
+# Default example
+docker run -v path/to/settings:/config \
+           --user 1000 \
+           -p 3467:3467 weannounce:arrnounced:latest
+```
+
+The docker image comes with a snapshot of XML tracker configurations located under `/trackers`. If you prefer your own version you can mount over it.
+
+```bash
+# Example with custom XML tracker configs
+docker run -v path/to/settings:/config \
+           -v path/to/trackers:/trackers \
+           --user 1000 \
+           -p 3467:3467 weannounce:arrnounced:latest
+```
 
 ## Manual
 

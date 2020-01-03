@@ -13,7 +13,7 @@ def init(config_path):
     cfg.read()
 
     # Settings
-    cfg.init('webui.host', 'localhost')
+    cfg.init('webui.host', '0.0.0.0')
     cfg.init('webui.port', '3467')
     cfg.init('webui.user', 'admin')
     cfg.init('webui.pass', 'password')
