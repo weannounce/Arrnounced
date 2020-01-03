@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 import backend
 import db
@@ -42,10 +43,15 @@ def init_logging(config, log_level, destination_dir):
 ############################################################
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Arrnounced - Listen for IRC announcements")
-    # TODO: Update default paths to ~/.arrnounced
-    parser.add_argument("-c", "--config", help="Configuration file", type=is_file, default="./settings.cfg")
-    parser.add_argument("-t", "--trackers", help="XML tracker config path", type=is_dir, default="./autodl-trackers/trackers")
-    parser.add_argument("-d", "--data", help="Data directory for storing logs and database", type=is_dir, default="./")
+    parser.add_argument("-d", "--data", type=is_dir,
+            help="Data directory for storing logs and database. Default ~/.arrnounced",
+            default=str(Path.home().joinpath(".arrnounced")))
+    parser.add_argument("-c", "--config", type=is_file,
+            help="Configuration file. Default ~/.arrnounced/settings.cfg",
+            default=str(Path.home().joinpath(".arrnounced", "settings.cfg")))
+    parser.add_argument("-t", "--trackers", type=is_dir,
+            help="XML tracker config path. Default ~/.arrnounced/autodl-trackers/trackers",
+            default=str(Path.home().joinpath(".arrnounced", "autodl-trackers", "trackers")))
     parser.add_argument("-v", "--verbose", help="Verbose logging", action="store_true")
 
     try:
