@@ -47,6 +47,6 @@ TBA
 4. `git clone https://github.com/weannounce/arrnounced.git` in you location of choice
 5. Inside arrnounced directory: `pip install --user -r requirements.txt`
 
-Start with `./arrnounced.py`.
+Start with `<path to arrnounced>/src/arrnounced.py`.
 
 Configuration files path as well as log and database location may be changed with command line arguments.
