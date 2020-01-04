@@ -1,3 +1,4 @@
+import inspect
 import logging
 import os
 import re
@@ -9,6 +10,7 @@ from flask import request
 from flask import send_file
 from flask import send_from_directory
 from flask_httpauth import HTTPBasicAuth
+from pathlib import Path
 from urllib.parse import urlparse
 
 import config
@@ -18,14 +20,18 @@ from backend import notify_sonarr, notify_radarr, notify_lidarr
 
 logger = logging.getLogger("WEB-UI")
 
-app = Flask("Arrnounced")
+# Template directory is the current ([0]) stack object's ([1]) directory + templates
+templates_dir = Path(os.path.dirname(os.path.abspath(inspect.stack()[0][1]))).joinpath("templates")
+app = Flask("Arrnounced", template_folder=templates_dir)
 auth = HTTPBasicAuth()
 trackers = None
+log_file = None
 
-
-def run(loaded_trackers):
+def run(loaded_trackers, the_log_file):
     global trackers
+    global log_file
     trackers = loaded_trackers
+    log_file = the_log_file
     app.run(debug=False, host=config.webui_host(),
             port=int(config.webui_port()), use_reloader=False)
 
@@ -82,7 +88,7 @@ def get_pw(username):
 @app.route('/assets/<path:path>')
 @auth.login_required
 def send_asset(path):
-    return send_from_directory("templates/assets/{}".format(os.path.dirname(path)), os.path.basename(path))
+    return send_from_directory(str(templates_dir) + "/assets/{}".format(os.path.dirname(path)), os.path.basename(path))
 
 
 @app.route("/")
@@ -96,7 +102,8 @@ def index():
 @auth.login_required
 def logs():
     logs = []
-    with open('status.log') as f:
+    # TODO: Move this to log module and remove log_file as input to run
+    with open(log_file) as f:
         for line in f:
             log_parts = re.search('(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\s-\s(\S+)\s+-\s(.+)', line)
             if log_parts:

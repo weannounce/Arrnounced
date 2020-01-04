@@ -23,7 +23,7 @@ def is_dir(path):
     else:
         raise NotADirectoryError("Error: '" + path + "' is not a valid directory")
 
-def init_logging(config, log_level, destination_dir):
+def init_logging(config, log_level, log_file):
     logFormatter = logging.Formatter('%(asctime)s - %(levelname)s:%(name)-28s - %(message)s')
     rootLogger = logging.getLogger()
     rootLogger.setLevel(log_level)
@@ -34,7 +34,7 @@ def init_logging(config, log_level, destination_dir):
         rootLogger.addHandler(consoleHandler)
 
     if config['log.to_file']:
-        fileHandler = RotatingFileHandler(destination_dir + '/arrnounced.log', maxBytes=1024 * 1024 * 5, backupCount=5)
+        fileHandler = RotatingFileHandler(log_file, maxBytes=1024 * 1024 * 5, backupCount=5)
         fileHandler.setFormatter(logFormatter)
         rootLogger.addHandler(fileHandler)
 
@@ -66,7 +66,8 @@ if __name__ == "__main__":
     if args.verbose:
         log_level = logging.DEBUG
 
-    init_logging(cfg, log_level, args.data)
+    log_file = Path(args.data).joinpath("arrnounced.log")
+    init_logging(cfg, log_level, log_file)
 
     if cfg is None or not config.validate_config():
         print("Error: Configuration not valid", file=sys.stderr)
@@ -75,4 +76,4 @@ if __name__ == "__main__":
     backend.init(cfg)
     db.init(args.data)
 
-    manager.run(args.trackers)
+    manager.run(args.trackers, log_file)
