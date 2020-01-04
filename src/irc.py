@@ -86,11 +86,3 @@ def start(tracker_configs):
         pool.handle_forever()
     except Exception as ex:
         logger.exception("Exception pool.handle_forever:")
-
-
-def stop():
-    global pool
-
-    for tracker in clients:
-        logger.debug("Removing tracker: %s", tracker.tracking.name)
-        pool.disconnect(tracker)
