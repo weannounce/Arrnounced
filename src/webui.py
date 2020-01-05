@@ -1,7 +1,6 @@
 import inspect
 import logging
 import os
-import re
 import requests
 from flask import abort
 from flask import Flask
@@ -15,6 +14,7 @@ from urllib.parse import urlparse
 
 import config
 import db
+import log
 import utils
 from backend import notify_sonarr, notify_radarr, notify_lidarr
 
@@ -25,13 +25,10 @@ templates_dir = Path(os.path.dirname(os.path.abspath(inspect.stack()[0][1]))).jo
 app = Flask("Arrnounced", template_folder=templates_dir)
 auth = HTTPBasicAuth()
 trackers = None
-log_file = None
 
-def run(loaded_trackers, the_log_file):
+def run(loaded_trackers):
     global trackers
-    global log_file
     trackers = loaded_trackers
-    log_file = the_log_file
     app.run(debug=False, host=config.webui_host(),
             port=int(config.webui_port()), use_reloader=False)
 
@@ -102,14 +99,10 @@ def index():
 @auth.login_required
 def logs():
     logs = []
-    # TODO: Move this to log module and remove log_file as input to run
-    with open(log_file) as f:
-        for line in f:
-            log_parts = re.search('(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\s-\s(\S+)\s+-\s(.+)', line)
-            if log_parts:
-                logs.append({'time': log_parts.group(1),
-                             'tag': log_parts.group(2),
-                             'msg': log_parts.group(3)})
+    for log_line in log.get_logs():
+        logs.append({'time': log_line[0],
+            'tag': log_line[1],
+            'msg': log_line[2]})
 
     return render_template('logs.html', logs=logs)
 
