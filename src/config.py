@@ -15,8 +15,8 @@ def init(config_path):
     # Settings
     cfg.init('webui.host', '0.0.0.0')
     cfg.init('webui.port', '3467')
-    cfg.init('webui.user', 'admin')
-    cfg.init('webui.pass', 'password')
+    cfg.init('webui.username', None, type=str)
+    cfg.init('webui.password', None, type=str)
 
     cfg.init('log.to_file', True)
     cfg.init('log.to_console', True)
@@ -70,7 +70,12 @@ def validate_config():
         valid = False
 
     for section in cfg.sections():
-        if section.name in base_sections:
+        if section.name == "webui":
+            if bool(section.get("username")) != bool(section.get("password")):
+                logger.error("%s: Must set none or both 'username' and 'password'", section.name)
+                valid = False
+            continue
+        elif section.name in base_sections:
             continue
 
         for mandatory in mandatory_tracker_fields:
@@ -107,7 +112,7 @@ def validate_config():
 
     for section in cfg:
         if len(str(cfg[section])) == 0:
-            logger.error("%s: Empty value in configuration not allowed", section)
+            logger.error("%s: Empty value in configuration not allowed. Remove instead.", section)
             valid = False
     return valid
 
@@ -120,8 +125,16 @@ def webui_host():
 def webui_port():
     return cfg['webui.port']
 
-def webui_user():
-    return cfg['webui.user']
+def login_required():
+    if cfg['webui.username'] is None:
+        return False
+    else:
+        return True
 
-def webui_pass():
-    return cfg['webui.pass']
+def login(username, password):
+    if cfg['webui.username'] is None:
+        return True
+    elif (cfg['webui.username'] == username and
+            cfg['webui.password'] == password):
+        return True
+    return False

@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>Arrnounced - Login</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+  <nav class="navbar navbar-default" style="margin-bottom:0.5cm;">
+      <div class="container-fluid">
+          <div class="navbar-header"><a class="navbar-brand navbar-link" href="/"><i
+                  class="glyphicon glyphicon-transfer"></i>Announced</a>
+              <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span
+                      class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span
+                      class="icon-bar"></span></button>
+          </div>
+          <div class="collapse navbar-collapse" id="navcol-1">
+              <ul class="nav navbar-nav navbar-right">
+                  <li role="presentation"><a href="/logs">Logs </a></li>
+              </ul>
+          </div>
+      </div>
+  </nav>
+    <div class="container-fluid">
+      <br>
+      <div class=col-sm-3>
+        <form action="" method="post">
+          <input type="text" placeholder="Username" name="username" class="form-control"
+              style="margin-bottom:0.2cm;" autofocus="autofocus" value="{{request.form.username }}">
+           <input type="password" placeholder="Password" name="password" class="form-control"
+              style="margin-bottom:0.2cm;">
+          <input class="btn btn-primary btn-sm pull-right" type="submit" value="Login">
+        </form>
+        {% if error %}
+        <p class="text-danger">{{ error }} </p>
+        {% endif %}
+      </div>
+      <div class=col-sm-6>
+      </div>
+    </div>
+  </body>
+</html>

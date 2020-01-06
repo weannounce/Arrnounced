@@ -4,11 +4,16 @@ import os
 import requests
 from flask import abort
 from flask import Flask
+from flask import redirect
 from flask import render_template
 from flask import request
 from flask import send_file
 from flask import send_from_directory
-from flask_httpauth import HTTPBasicAuth
+from flask import url_for
+from flask_login import LoginManager
+from flask_login import login_user, logout_user
+from flask_login import login_required
+from flask_login import UserMixin
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -20,10 +25,21 @@ from backend import notify_sonarr, notify_radarr, notify_lidarr
 
 logger = logging.getLogger("WEB-UI")
 
+class User(UserMixin):
+    def get_id(self):
+        return 1
+
 # Template directory is the current ([0]) stack object's ([1]) directory + templates
 templates_dir = Path(os.path.dirname(os.path.abspath(inspect.stack()[0][1]))).joinpath("templates")
 app = Flask("Arrnounced", template_folder=templates_dir)
-auth = HTTPBasicAuth()
+# This will invalidate logins on each restart of Arrnounced
+# But I'm too lazy to think of something else at the moment
+app.secret_key = os.urandom(16)
+
+login_manager = LoginManager(app=app)
+login_manager.login_view = 'login'
+user = User()
+
 trackers = None
 
 def run(loaded_trackers):
@@ -32,16 +48,35 @@ def run(loaded_trackers):
     app.run(debug=False, host=config.webui_host(),
             port=int(config.webui_port()), use_reloader=False)
 
-
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
 
+@login_manager.user_loader
+def load_user(id):
+    return user
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST' or not config.login_required():
+        if config.login(request.form.get('username'), request.form.get('password')):
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            error = "Invalid credentials"
+    return render_template('login.html', error=error)
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 # mitm tracker torrent route
 @app.route('/mitm/<tracker>/<torrent_id>/<torrent_name>')
+@login_required
 def serve_torrent(tracker, torrent_id, torrent_name):
     global trackers
     found_tracker = None
@@ -71,32 +106,21 @@ def serve_torrent(tracker, torrent_id, torrent_name):
 
     return abort(404)
 
-
-# panel routes
-@auth.get_password
-def get_pw(username):
-    if not username == config.webui_user():
-        return None
-    else:
-        return config.webui_pass()
-    return None
-
-
 @app.route('/assets/<path:path>')
-@auth.login_required
+@login_required
 def send_asset(path):
     return send_from_directory(str(templates_dir) + "/assets/{}".format(os.path.dirname(path)), os.path.basename(path))
 
 
 @app.route("/")
-@auth.login_required
+@login_required
 @db.db_session
 def index():
     return render_template('index.html', snatched=db.Snatched.select().order_by(db.desc(db.Snatched.date)).limit(20),
                            announced=db.Announced.select().order_by(db.desc(db.Announced.date)).limit(20))
 
 @app.route("/logs")
-@auth.login_required
+@login_required
 def logs():
     logs = []
     for log_line in log.get_logs():
@@ -107,7 +131,7 @@ def logs():
     return render_template('logs.html', logs=logs)
 
 @app.route("/<pvr_name>/check", methods=['POST'])
-@auth.login_required
+@login_required
 def check(pvr_name):
     try:
         data = request.json
@@ -129,7 +153,7 @@ def check(pvr_name):
 
 
 @app.route("/notify", methods=['POST'])
-@auth.login_required
+@login_required
 @db.db_session
 def notify():
     try:
