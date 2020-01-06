@@ -11,7 +11,7 @@ class Announced(db.Entity):
     title = Required(str)
     indexer = Required(str)
     torrent = Required(str)
-    pvr = Required(str)
+    backend = Required(str)
 
 
 class Snatched(db.Entity):
@@ -19,7 +19,7 @@ class Snatched(db.Entity):
     title = Required(str)
     indexer = Required(str)
     torrent = Required(str)
-    pvr = Required(str)
+    backend = Required(str)
 
 
 def init(destination_dir):

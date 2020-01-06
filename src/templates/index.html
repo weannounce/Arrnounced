@@ -41,7 +41,7 @@
                             <th class="col-xs-2">When</th>
                             <th class="col-xs-2">Indexer</th>
                             <th class="col-xs-8">Title</th>
-                            <th class="col-xs-2">PVR</th>
+                            <th class="col-xs-2">Backend</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -50,7 +50,7 @@
                             <td>{{ format_timestamp(snatch.date) }}</td>
                             <td>{{ snatch.indexer }}</td>
                             <td>{{ snatch.title }}</td>
-                            <td>{{ snatch.pvr }}</td>
+                            <td>{{ snatch.backend }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -66,7 +66,7 @@
                             <th class="col-xs-2">When</th>
                             <th class="col-xs-2">Indexer</th>
                             <th class="col-xs-8">Title</th>
-                            <th class="col-xs-2">PVR</th>
+                            <th class="col-xs-2">Backend</th>
                             <th class="col-xs-1">Actions</th>
                         </tr>
                         </thead>
@@ -76,10 +76,10 @@
                             <td>{{ format_timestamp(release.date) }}</td>
                             <td>{{ release.indexer }}</td>
                             <td>{{ release.title }}</td>
-                            <td>{{ release.pvr }}</td>
-                            <td><a href="javascript:notify_pvr('{{ release.id }}', '{{ release.pvr}}');"><i
+                            <td>{{ release.backend }}</td>
+                            <td><a href="javascript:notify_backend('{{ release.id }}', '{{ release.backend}}');"><i
                                     class="glyphicon glyphicon-transfer" data-bs-hover-animate="swing"
-                                    id="notify" title="Notify {{ release.pvr }}"
+                                    id="notify" title="Notify {{ release.backend }}"
                                     announcement="{{ release.id }}"></i></a><a
                                     href="{{ correct_download(release.torrent) }}"
                                     style="margin-left:2.5mm;"><i

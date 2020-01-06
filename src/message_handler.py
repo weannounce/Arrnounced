@@ -45,7 +45,7 @@ def on_message(tracker_config, source, target, message):
         time.sleep(tracker_config.delay)
 
     db.Announced(date=datetime.datetime.now(), title=announcement.torrent_name,
-            indexer=tracker_config.short_name, torrent=announcement.torrent_url, pvr=backends_string)
+            indexer=tracker_config.short_name, torrent=announcement.torrent_url, backend=backends_string)
     logger.info("Notifying %s of release from %s: %s", backends_string,
                 tracker_config.short_name, announcement.torrent_name)
 
@@ -57,4 +57,4 @@ def on_message(tracker_config, source, target, message):
     else:
         logger.info("%s approved release: %s", backend, announcement.torrent_name)
         snatched = db.Snatched(date=datetime.datetime.now(), title=announcement.torrent_name,
-                indexer=tracker_config.short_name, torrent=announcement.torrent_url, pvr=backend)
+                indexer=tracker_config.short_name, torrent=announcement.torrent_url, backend=backend)
