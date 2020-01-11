@@ -11,7 +11,7 @@ import utils
 from backend import notify, notify_which_backends, backends_to_string, Backend
 from tracker_config import VarType
 
-logger = logging.getLogger("ANNOUNCE_MANAGER")
+logger = logging.getLogger("MESSAGE_HANDLER")
 
 def _is_announcement(source, target, tracker_config):
     return (source == tracker_config.announcer_name and
