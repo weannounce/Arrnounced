@@ -81,12 +81,12 @@ class TrackerXmlConfig:
                 print("\t\t", var.varType, ": ", var.name)
             print("\tLinePatterns")
             for pattern in self.line_patterns:
-                print("\t\t", pattern.regex)
+                print("\t\t", pattern.regex, pattern.optional)
                 for group in pattern.groups:
                     print("\t\t\t", group)
             print("\tMultiLinePattern")
             for pattern in self.multiline_patterns:
-                print("\t\t", pattern.regex)
+                print("\t\t", pattern.regex, pattern.optional)
                 for group in pattern.groups:
                     print("\t\t\t", group)
             print("\tIgnores")
@@ -103,12 +103,14 @@ class TrackerXmlConfig:
         return True
 
     def _parseExtract(self, extract):
+        optional = (False if "optional" not in extract.attrib else
+                     extract.attrib["optional"] == "true")
         regex = extract.findall("./regex")
         groups = extract.findall("./vars/*")
         groupList = []
         for group in groups:
             groupList.append(group.attrib["name"])
-        return Extract(regex[0].attrib["value"], groupList)
+        return Extract(regex[0].attrib["value"], groupList, optional)
 
 class VarType(Enum):
     STRING = 1
@@ -123,9 +125,10 @@ class Var:
         self.name = var[vartype_to_name[self.varType]]
 
 class Extract:
-    def __init__(self, regex, groups):
+    def __init__(self, regex, groups, optional):
         self.regex = regex
         self.groups = groups
+        self.optional = optional
 
 def get_trackers(tracker_config_path):
     xml_configs = parse_xml_configs(tracker_config_path)
