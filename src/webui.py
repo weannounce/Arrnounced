@@ -101,7 +101,7 @@ def serve_torrent(tracker, torrent_id, torrent_name):
     except AttributeError:
         logger.debug("Tracker was not configured correctly for MITM torrent requests! "
                      "Required methods: get_real_torrent_link() and get_cookies()")
-    except Exception as ex:
+    except Exception:
         logger.exception("Unexpected exception occurred at serve_torrent:")
 
     return abort(404)

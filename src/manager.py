@@ -46,7 +46,7 @@ def irc_task(tracker_configs):
         while working:
             try:
                 irc.start(tracker_configs)
-            except Exception as e:
+            except Exception:
                 logger.exception("Exception irc_task START: ")
 
             sleep(30)
@@ -66,7 +66,7 @@ def webui_task(tracker_configs):
         while working:
             try:
                 webui.run(tracker_configs)
-            except Exception as e:
+            except Exception:
                 logger.exception("Exception webui_task START: ")
 
             sleep(30)

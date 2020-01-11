@@ -8,9 +8,9 @@ from pathlib import Path
 logger = logging.getLogger("UTILS")
 
 def strip_irc_color_codes(line):
-    line = re.sub("\x03\d\d?,\d\d?", "", line)
-    line = re.sub("\x03\d\d?", "", line)
-    line = re.sub("[\x01-\x1F]", "", line)
+    line = re.sub(r"\x03\d\d?,\d\d?", "", line)
+    line = re.sub(r"\x03\d\d?", "", line)
+    line = re.sub(r"[\x01-\x1F]", "", line)
     return line
 
 def replace_spaces(text, new):
@@ -83,7 +83,7 @@ def download_torrent(tracker, torrent_id, cookies, url):
 
         return torrent_path
 
-    except Exception as ex:
+    except Exception:
         logger.exception("Exception while download_torrent: %s to %s", url, torrent_path)
 
     return None

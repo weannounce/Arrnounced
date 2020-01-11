@@ -26,6 +26,6 @@ Returns tuple of (time, tag, message).
 def get_logs():
     with open(log_file) as f:
         for line in f:
-            log_parts = re.search('(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\s-\s(\S+)\s+-\s(.+)', line)
+            log_parts = re.search(r'(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\s-\s(\S+)\s+-\s(.+)', line)
             if log_parts:
                 yield log_parts.group(1), log_parts.group(2), log_parts.group(3)

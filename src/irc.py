@@ -69,7 +69,7 @@ clients = []
 def start(tracker_configs):
     global pool, clients
 
-    for tracker_name, tracker_config in tracker_configs.items():
+    for tracker_config in tracker_configs.values():
         logger.info("Connecting to server: %s:%d %s", tracker_config.irc_server,
                 tracker_config.irc_port, tracker_config.irc_channel)
 
@@ -79,10 +79,10 @@ def start(tracker_configs):
         try:
             pool.connect(client, hostname=tracker_config.irc_server, port=tracker_config.irc_port,
                          tls=tracker_config.irc_tls, tls_verify=tracker_config.irc_tls_verify)
-        except Exception as ex:
+        except Exception:
             logger.exception("Error while connecting to: %s", tracker_config.irc_server)
 
     try:
         pool.handle_forever()
-    except Exception as ex:
+    except Exception:
         logger.exception("Exception pool.handle_forever:")

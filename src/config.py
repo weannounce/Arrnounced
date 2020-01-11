@@ -60,7 +60,6 @@ mandatory_tracker_fields = [ "nick" ]
 
 def validate_config():
     global cfg
-    global tracker_fields
     valid = True
 
     if not (cfg.get("sonarr.apikey") or
