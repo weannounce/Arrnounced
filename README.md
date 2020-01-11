@@ -8,12 +8,6 @@ configuration from
 [autodl-trackers](https://github.com/autodl-community/autodl-trackers) (used by
 [autodl-irssi](https://github.com/autodl-community/autodl-irssi))
 
-## Requirements
-1. Python3. Only tested with 3.8 though.
-2. pip3
-
-or Docker
-
 ## Supported Trackers
 All single line pattern trackers from [this
 repository](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
@@ -22,6 +16,10 @@ are supported.
 However, only a few of them are tested at the moment. There are likely issues. Feel free to report them.
 
 [Multiline patterns](https://github.com/autodl-community/autodl-trackers/blob/cf392143eff916971d0627aa5827e4bc28bf8aad/trackers/AceHD.tracker#L47) are not supported yet.
+
+## Requirements
+
+Docker or Python3 (only tested with 3.8 though)
 
 # Configuration
 
