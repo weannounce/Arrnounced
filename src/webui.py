@@ -107,7 +107,6 @@ def serve_torrent(tracker, torrent_id, torrent_name):
     return abort(404)
 
 @app.route('/assets/<path:path>')
-@login_required
 def send_asset(path):
     return send_from_directory(str(templates_dir) + "/assets/{}".format(os.path.dirname(path)), os.path.basename(path))
 
