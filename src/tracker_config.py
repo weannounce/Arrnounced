@@ -140,8 +140,6 @@ def get_trackers(tracker_config_path):
             continue
         elif user_config.name not in xml_configs:
             logger.error("Tracker '%s' from configuration is not supported", user_config.name)
-        elif len(xml_configs[user_config.name].multiline_patterns) > 0:
-            logger.error("%s: Multiline announcements are not supported yet!", user_config.name)
         elif _are_settings_configured(user_config, xml_configs[user_config.name].settings):
             trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
 
