@@ -1,3 +1,4 @@
+import datetime
 import logging
 import re
 import urllib.parse
@@ -21,17 +22,20 @@ def _ignore_message(ignores, message):
     return False
 
 def parse(tracker_config, message):
-    if _ignore_message(tracker_config.ignores, message):
-        logger.debug("%s: Message ignored: %s", tracker_config.short_name, message)
-        return None
-
+    pattern_groups = {}
     if len(tracker_config.line_patterns) > 0:
         pattern_groups = _parse_line_patterns(tracker_config, message)
     elif len(tracker_config.multiline_patterns) > 0:
         pattern_groups = _parse_multiline_patterns(tracker_config, message)
+        if pattern_groups is None:
+            logger.warning("%s: Not final line", tracker_config.short_name)
+            return None
 
     if len(pattern_groups) == 0:
-        logger.warning("%s: No match found for '%s'", tracker_config.short_name, message)
+        if _ignore_message(tracker_config.ignores, message):
+            logger.debug("%s: Message ignored: %s", tracker_config.short_name, message)
+        else:
+            logger.warning("%s: No match found for '%s'", tracker_config.short_name, message)
         return None
 
     torrent_url = _get_torrent_link(tracker_config, pattern_groups)
@@ -52,8 +56,64 @@ def _parse_line_patterns(tracker_config, message):
     return pattern_groups
 
 
+class MultilineMatch:
+    def __init__(self):
+        self.time = datetime.datetime.now()
+        self.pattern_groups = {}
+        self.lines_matched = 1
+
+
+# TODO: Thread safe global
+multiline_matches = {}
+def _get_multiline_match(tracker_name, patterns, match_number):
+    global multiline_matches
+    if tracker_name not in multiline_matches:
+        multiline_matches[tracker_name] = []
+
+    if match_number == 0:
+        multiline_match = MultilineMatch()
+        multiline_matches[tracker_name].append(multiline_match)
+        return multiline_match
+
+    for i, multiline_match in enumerate(multiline_matches[tracker_name]):
+        logger.debug("lines_matched: %d", multiline_match.lines_matched)
+        logger.debug("Checking line %d", match_number)
+        if multiline_match.lines_matched == match_number - 1:
+            logger.debug("Was the next one")
+            if match_number + 1 == len(patterns):
+                del multiline_matches[tracker_name][i]
+            return multiline_match
+        elif multiline_match.lines_matched < match_number:
+            for j in range(multiline_match.lines_matched - 1, match_number):
+                if j == match_number:
+                    if j + 1 == len(patterns):
+                        del multiline_matches[tracker_name][i]
+                    return multiline_match
+                elif not patterns[j].optional:
+                    break
+
+    return None
+
+
 def _parse_multiline_patterns(tracker_config, message):
-    logger.error("Multi line announcements are not supported yet!")
+    logger.debug("%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message)
+    for i, pattern in enumerate(tracker_config.multiline_patterns, start=0):
+        match = re.search(pattern.regex, message)
+        if match:
+            multiline_match = _get_multiline_match(tracker_config.short_name,
+                    tracker_config.multiline_patterns, i)
+            if multiline_match  is None:
+                logger.debug("Did not find it")
+            else:
+                logger.debug("Found it")
+                multiline_match.lines_matched = i
+                for j, group in enumerate(pattern.groups, start=1):
+                    multiline_match.pattern_groups[group] = match.group(j)
+                # Or if ends with optional. And remove from list
+                if i + 1 == len(tracker_config.multiline_patterns):
+                    return multiline_match.pattern_groups
+
+            return None
     return {}
 
 
@@ -62,7 +122,7 @@ def _get_torrent_link(tracker_config, pattern_groups):
     for var in tracker_config.torrent_url:
         if var.varType is VarType.STRING:
             url = url + var.name
-        elif var.varType is VarType.VAR :
+        elif var.varType is VarType.VAR:
             if var.name.startswith("$"):
                 url = url + pattern_groups[var.name]
             else:
