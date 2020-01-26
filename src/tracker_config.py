@@ -28,16 +28,18 @@ def parse_xml_configs(tracker_config_path):
     return xml_configs
 
 class TrackerXmlConfig:
-    def parse_config(self, root):
-        self.tracker_info = root.attrib
-        # TODO: Workaround for profig handling periods as subsections
-        self.tracker_info["type"] = self.tracker_info["type"].replace('.', '_')
+    def __init__(self):
         self.settings = []
         self.servers = []
         self.torrent_url = []
         self.line_patterns = []
         self.multiline_patterns = []
         self.ignores = []
+
+    def parse_config(self, root):
+        self.tracker_info = root.attrib
+        # TODO: Workaround for profig handling periods as subsections
+        self.tracker_info["type"] = self.tracker_info["type"].replace('.', '_')
 
         for setting in root.findall("./settings/*"):
             if "description" not in setting.tag:
