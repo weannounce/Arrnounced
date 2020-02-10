@@ -94,9 +94,8 @@ def _notify(backend, title, torrent_url, indexer):
                 headers=headers, json=params).json()
         if 'approved' in resp:
             approved = resp['approved']
-    except ConnectionRefusedError:
-        logger.error("%s refused connection", backend['name'])
-    except:
+    except requests.exceptions.RequestException as e:
         logger.error("Unable to connect to %s", backend['name'])
+        logger.error("%s", e)
 
     return approved
