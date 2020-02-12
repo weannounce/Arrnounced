@@ -3,12 +3,15 @@ import os
 import re
 import xml.etree.ElementTree as ET
 from enum import Enum
+from collections import namedtuple
 
 import config
 from backend import Backend
 
 logger = logging.getLogger("TRACKER_CONF")
 debug = False
+
+Server = namedtuple('Server', 'names channels announcers')
 
 def parse_xml_configs(tracker_config_path):
     xml_configs = {}
@@ -20,6 +23,7 @@ def parse_xml_configs(tracker_config_path):
             xml_configs[tracker.tracker_info["type"]] =  tracker
         else:
             logger.error("Could not parse tracker XML config: %s", trackerFile)
+
     return xml_configs
 
 class TrackerXmlConfig:
@@ -28,7 +32,7 @@ class TrackerXmlConfig:
         # TODO: Workaround for profig handling periods as subsections
         self.tracker_info["type"] = self.tracker_info["type"].replace('.', '_')
         self.settings = []
-        self.server = None
+        self.servers = []
         self.torrent_url = []
         self.line_patterns = []
         self.multiline_patterns = []
@@ -39,7 +43,10 @@ class TrackerXmlConfig:
                 self.settings.append(re.sub('^(gazelle_|cookie_)', '', setting.tag))
 
         for server in root.findall("./servers/*"):
-            self.server = server.attrib
+            self.servers.append(Server(
+                server.attrib["serverNames"].lower().split(','),
+                server.attrib["channelNames"].lower().split(','),
+                server.attrib["announcerNames"].split(',')))
 
         for extract in root.findall("./parseinfo/linepatterns/*"):
             self.line_patterns.append(self._parseExtract(extract))
@@ -64,8 +71,10 @@ class TrackerXmlConfig:
             for setting in self.settings:
                 print('\t\t', setting)
             print("\tServer")
-            for key in self.server:
-                print('\t\t', key, self.server[key])
+            for server in self.servers:
+                print('\t\tnames:', server.names)
+                print('\t\tchannels', server.channels)
+                print('\t\tannouncers', server.announcers)
             print("\tTorrentUrl")
             for var in self.torrent_url:
                 print('\t\t', var.varType, ": ", var.name)
@@ -85,8 +94,9 @@ class TrackerXmlConfig:
 
         if self.tracker_info is None:
             return False
+        # TODO: maybe not require servers
         elif (0 == len(self.settings) or
-              self.server is None or
+              len(self.servers) == 0  or
               (0 == len(self.line_patterns) and 0 == len(self.multiline_patterns))):
             return False
 
@@ -219,15 +229,15 @@ class TrackerConfig:
 
     @property
     def irc_server(self):
-        return self._xml_config.server["serverNames"]
+        return self._xml_config.servers[0].names[0]
 
     @property
     def irc_channel(self):
-        return self._xml_config.server["channelNames"].lower()
+        return self._xml_config.servers[0].channels[0]
 
     @property
     def announcer_name(self):
-        return self._xml_config.server["announcerNames"]
+        return self._xml_config.servers[0].announcers[0]
 
     @property
     def line_patterns(self):
