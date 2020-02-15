@@ -40,10 +40,10 @@ async def on_message(tracker_config, source, target, message):
     # If backends is empty backends_string is "None"
     backends_string = backends_to_string(backends)
 
-    if tracker_config.delay > 0:
+    if tracker_config.announce_delay > 0:
         logger.debug("%s: Waiting %s seconds to notify %s",
-                tracker_config.short_name, tracker_config.delay, announcement.torrent_name)
-        await asyncio.sleep(tracker_config.delay)
+                tracker_config.short_name, tracker_config.announce_delay, announcement.torrent_name)
+        await asyncio.sleep(tracker_config.announce_delay)
 
     db.Announced(date=datetime.datetime.now(), title=announcement.torrent_name,
             indexer=tracker_config.short_name, torrent=announcement.torrent_url, backend=backends_string)

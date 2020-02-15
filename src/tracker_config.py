@@ -82,7 +82,7 @@ class TrackerXmlConfig:
             for pattern in self.line_patterns:
                 print('\t\t', pattern.regex)
                 for group in pattern.groups:
-                    print('\t\t\þ', group)
+                    print('\t\t\t', group)
             print("\tMultiLinePattern")
             for pattern in self.multiline_patterns:
                 print('\t\t', pattern.regex)
@@ -192,32 +192,32 @@ class TrackerConfig:
         return self._user_config["irc_port"]
 
     @property
-    def irc_nick(self):
-        return self._user_config["nick"] if "nick" in self._user_config else None
+    def irc_nickname(self):
+        return self._user_config["irc_nickname"]
 
     @property
     def irc_tls(self):
-        return self._user_config["tls"]
+        return self._user_config["irc_tls"]
 
     @property
     def irc_tls_verify(self):
-        return self._user_config["tls_verify"]
+        return self._user_config["irc_tls_verify"]
 
     @property
-    def nick_pass(self):
-        return self._user_config["nick_pass"]
+    def irc_ident_password(self):
+        return self._user_config["irc_ident_password"]
 
     @property
-    def inviter(self):
-        return self._user_config["inviter"]
+    def irc_inviter(self):
+        return self._user_config["irc_inviter"]
 
     @property
-    def invite_cmd(self):
-        return self._user_config["invite_cmd"]
+    def irc_invite_cmd(self):
+        return self._user_config["irc_invite_cmd"]
 
     @property
-    def delay(self):
-        return self._user_config["delay"]
+    def announce_delay(self):
+        return self._user_config["announce_delay"]
 
     @property
     def notify_backends(self):
