@@ -34,16 +34,16 @@ def init(config_path):
         if section.name in base_sections:
             continue
         # Init mandatory tracker values
-        section.init('nick', None, type=str)
+        section.init('irc_nickname', None, type=str)
 
         # Init optional tracker values
         section.init('irc_port', 6667)
-        section.init('tls', False)
-        section.init('tls_verify', False)
-        section.init('nick_pass', None, type=str)
-        section.init('inviter', None, type=str)
-        section.init('invite_cmd', None, type=str)
-        section.init('delay', 0)
+        section.init('irc_tls', False)
+        section.init('irc_tls_verify', False)
+        section.init('irc_ident_password', None, type=str)
+        section.init('irc_inviter', None, type=str)
+        section.init('irc_invite_cmd', None, type=str)
+        section.init('announce_delay', 0)
         section.init('notify_sonarr', False)
         section.init('notify_radarr', False)
         section.init('notify_lidarr', False)
@@ -51,12 +51,11 @@ def init(config_path):
         section.init('category_radarr', None, type=str)
         section.init('category_lidarr', None, type=str)
 
-
     #for s in cfg.sections():
     #    print(s)
     return cfg
 
-mandatory_tracker_fields = [ "nick" ]
+mandatory_tracker_fields = [ "irc_nickname" ]
 
 def validate_config():
     global cfg
@@ -82,8 +81,8 @@ def validate_config():
                 logger.error("%s: Must set '%s'", section.name, mandatory)
                 valid = False
 
-        if bool(section.get("inviter")) != bool(section.get("invite_cmd")):
-            logger.error("%s: Must set both 'inviter' and 'invite_cmd'", section.name)
+        if bool(section.get("irc_inviter")) != bool(section.get("irc_invite_cmd")):
+            logger.error("%s: Must set both 'irc_inviter' and 'irc_invite_cmd'", section.name)
             valid = False
 
         if ((section.get("notify_sonarr") or section.get("category_sonarr") is not None)

@@ -14,7 +14,7 @@ class IRC(BotBase):
     RECONNECT_MAX_ATTEMPTS = None
 
     def __init__(self, tracker_config):
-        super().__init__(tracker_config.irc_nick)
+        super().__init__(tracker_config.irc_nickname)
         self.tracker_config = tracker_config
 
     async def connect(self, *args, **kwargs):
@@ -25,22 +25,22 @@ class IRC(BotBase):
 
     # Request channel invite or join channel
     async def attempt_join_channel(self):
-        if self.tracker_config.invite_cmd is None:
+        if self.tracker_config.irc_invite_cmd is None:
             logger.info("Joining %s", self.tracker_config.irc_channel)
             await self.join(self.tracker_config.irc_channel)
         else:
             logger.info("Requesting invite to %s", self.tracker_config.irc_channel)
-            await self.message(self.tracker_config.inviter, self.tracker_config.invite_cmd)
+            await self.message(self.tracker_config.irc_inviter, self.tracker_config.irc_invite_cmd)
 
     async def on_connect(self):
         logger.info("Connected to: %s", self.tracker_config.irc_server)
         await super().on_connect()
 
-        if self.tracker_config.nick_pass is None:
+        if self.tracker_config.irc_ident_password is None:
             await self.attempt_join_channel()
         else:
             logger.info("Identifying with NICKSERV")
-            await self.rawmsg('NICKSERV', 'IDENTIFY', self.tracker_config.nick_pass)
+            await self.rawmsg('NICKSERV', 'IDENTIFY', self.tracker_config.irc_ident_password)
 
     async def on_raw(self, message):
         await super().on_raw(message)
