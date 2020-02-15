@@ -35,9 +35,11 @@ def init(config_path):
             continue
         # Init mandatory tracker values
         section.init("irc_nickname", None, type=str)
+        section.init("irc_server", None, type=str)
+        section.init("irc_port", None, type=int)
+        section.init("irc_channels", None, type=str)
 
         # Init optional tracker values
-        section.init("irc_port", 6667)
         section.init("irc_tls", False)
         section.init("irc_tls_verify", False)
         section.init("irc_ident_password", None, type=str)
@@ -55,7 +57,7 @@ def init(config_path):
     #    print(s)
     return cfg
 
-mandatory_tracker_fields = [ "irc_nickname" ]
+mandatory_tracker_fields = [ "irc_nickname", "irc_server", "irc_port", "irc_channels" ]
 
 def validate_config():
     global cfg
