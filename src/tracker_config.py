@@ -11,7 +11,7 @@ from backend import Backend
 logger = logging.getLogger("TRACKER_CONF")
 debug = False
 
-Server = namedtuple('Server', 'names channels announcers')
+Server = namedtuple("Server", "names channels announcers")
 
 def parse_xml_configs(tracker_config_path):
     xml_configs = {}
@@ -40,7 +40,7 @@ class TrackerXmlConfig:
 
         for setting in root.findall("./settings/*"):
             if "description" not in setting.tag:
-                self.settings.append(re.sub('^(gazelle_|cookie_)', '', setting.tag))
+                self.settings.append(re.sub("^(gazelle_|cookie_)", '', setting.tag))
 
         for server in root.findall("./servers/*"):
             self.servers.append(Server(
@@ -59,9 +59,9 @@ class TrackerXmlConfig:
 
         for ignore in root.findall("./parseinfo/ignore/*"):
             self.ignores.append(
-                    (ignore.attrib['value'],
+                    (ignore.attrib["value"],
                      ("expected" not in ignore.attrib or
-                         ignore.attrib['expected'] == "true")))
+                         ignore.attrib["expected"] == "true")))
 
 
         if debug:
@@ -69,28 +69,28 @@ class TrackerXmlConfig:
                 print(info, root.attrib[info])
             print("\tSettings")
             for setting in self.settings:
-                print('\t\t', setting)
+                print("\t\t", setting)
             print("\tServer")
             for server in self.servers:
-                print('\t\tnames:', server.names)
-                print('\t\tchannels', server.channels)
-                print('\t\tannouncers', server.announcers)
+                print("\t\tnames:", server.names)
+                print("\t\tchannels", server.channels)
+                print("\t\tannouncers", server.announcers)
             print("\tTorrentUrl")
             for var in self.torrent_url:
-                print('\t\t', var.varType, ": ", var.name)
+                print("\t\t", var.varType, ": ", var.name)
             print("\tLinePatterns")
             for pattern in self.line_patterns:
-                print('\t\t', pattern.regex)
+                print("\t\t", pattern.regex)
                 for group in pattern.groups:
-                    print('\t\t\t', group)
+                    print("\t\t\t", group)
             print("\tMultiLinePattern")
             for pattern in self.multiline_patterns:
-                print('\t\t', pattern.regex)
+                print("\t\t", pattern.regex)
                 for group in pattern.groups:
-                    print('\t\t\t', group)
+                    print("\t\t\t", group)
             print("\tIgnores")
             for ignore in self.ignores:
-                print('\t\t', ignore)
+                print("\t\t", ignore)
 
         if self.tracker_info is None:
             return False
@@ -107,8 +107,8 @@ class TrackerXmlConfig:
         groups = extract.findall("./vars/*")
         groupList = []
         for group in groups:
-            groupList.append(group.attrib['name'])
-        return Extract(regex[0].attrib['value'], groupList)
+            groupList.append(group.attrib["name"])
+        return Extract(regex[0].attrib["value"], groupList)
 
 class VarType(Enum):
     STRING = 1
