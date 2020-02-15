@@ -13,43 +13,43 @@ def init(config_path):
     cfg.read()
 
     # Settings
-    cfg.init('webui.host', '0.0.0.0')
-    cfg.init('webui.port', '3467')
-    cfg.init('webui.username', None, type=str)
-    cfg.init('webui.password', None, type=str)
+    cfg.init("webui.host", "0.0.0.0")
+    cfg.init("webui.port", "3467")
+    cfg.init("webui.username", None, type=str)
+    cfg.init("webui.password", None, type=str)
 
-    cfg.init('log.to_file', True)
-    cfg.init('log.to_console', True)
+    cfg.init("log.to_file", True)
+    cfg.init("log.to_console", True)
 
-    cfg.init('sonarr.apikey', None, type=str)
-    cfg.init('sonarr.url', 'http://localhost:8989')
+    cfg.init("sonarr.apikey", None, type=str)
+    cfg.init("sonarr.url", "http://localhost:8989")
 
-    cfg.init('radarr.apikey', None, type=str)
-    cfg.init('radarr.url', 'http://localhost:7878')
+    cfg.init("radarr.apikey", None, type=str)
+    cfg.init("radarr.url", "http://localhost:7878")
 
-    cfg.init('lidarr.apikey', None, type=str)
-    cfg.init('lidarr.url', 'http://localhost:8686')
+    cfg.init("lidarr.apikey", None, type=str)
+    cfg.init("lidarr.url", "http://localhost:8686")
 
     for section in cfg.sections():
         if section.name in base_sections:
             continue
         # Init mandatory tracker values
-        section.init('irc_nickname', None, type=str)
+        section.init("irc_nickname", None, type=str)
 
         # Init optional tracker values
-        section.init('irc_port', 6667)
-        section.init('irc_tls', False)
-        section.init('irc_tls_verify', False)
-        section.init('irc_ident_password', None, type=str)
-        section.init('irc_inviter', None, type=str)
-        section.init('irc_invite_cmd', None, type=str)
-        section.init('announce_delay', 0)
-        section.init('notify_sonarr', False)
-        section.init('notify_radarr', False)
-        section.init('notify_lidarr', False)
-        section.init('category_sonarr', None, type=str)
-        section.init('category_radarr', None, type=str)
-        section.init('category_lidarr', None, type=str)
+        section.init("irc_port", 6667)
+        section.init("irc_tls", False)
+        section.init("irc_tls_verify", False)
+        section.init("irc_ident_password", None, type=str)
+        section.init("irc_inviter", None, type=str)
+        section.init("irc_invite_cmd", None, type=str)
+        section.init("announce_delay", 0)
+        section.init("notify_sonarr", False)
+        section.init("notify_radarr", False)
+        section.init("notify_lidarr", False)
+        section.init("category_sonarr", None, type=str)
+        section.init("category_radarr", None, type=str)
+        section.init("category_lidarr", None, type=str)
 
     #for s in cfg.sections():
     #    print(s)
@@ -118,21 +118,21 @@ def sections():
     return cfg.sections()
 
 def webui_host():
-    return cfg['webui.host']
+    return cfg["webui.host"]
 
 def webui_port():
-    return cfg['webui.port']
+    return cfg["webui.port"]
 
 def login_required():
-    if cfg['webui.username'] is None:
+    if cfg["webui.username"] is None:
         return False
     else:
         return True
 
 def login(username, password):
-    if cfg['webui.username'] is None:
+    if cfg["webui.username"] is None:
         return True
-    elif (cfg['webui.username'] == username and
-            cfg['webui.password'] == password):
+    elif (cfg["webui.username"] == username and
+            cfg["webui.password"] == password):
         return True
     return False
