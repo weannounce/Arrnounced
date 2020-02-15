@@ -57,9 +57,14 @@ class IRC(BotBase):
         await message_handler.on_message(self.tracker_config, source, target.lower(), message)
 
     async def on_invite(self, channel, by):
+        logger.info("%s invited us to join %s", by, channel)
         if channel == self.tracker_config.irc_channel:
             await self.join(self.tracker_config.irc_channel)
-            logger.info("%s invited us to join %s", by, channel)
+        else:
+            # TODO: Make sure this works
+            logger.warning("%s is not in irc_channels list or specified in XML tracker configuration. Skipping join",
+                    channel)
+
 
 
 pool = pydle.ClientPool()
