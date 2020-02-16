@@ -196,6 +196,10 @@ class TrackerConfig:
         return self._user_config["irc_nickname"]
 
     @property
+    def irc_server(self):
+        return self._user_config["irc_server"]
+
+    @property
     def irc_tls(self):
         return self._user_config["irc_tls"]
 
@@ -226,10 +230,6 @@ class TrackerConfig:
     @property
     def short_name(self):
         return self._xml_config.tracker_info["shortName"]
-
-    @property
-    def irc_server(self):
-        return self._xml_config.servers[0].names[0]
 
     @property
     def irc_channel(self):
