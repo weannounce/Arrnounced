@@ -236,8 +236,10 @@ class TrackerConfig:
         return self._xml_config.servers[0].channels[0]
 
     @property
-    def announcer_name(self):
-        return self._xml_config.servers[0].announcers[0]
+    def announcer_names(self):
+        for server in self._xml_config.servers:
+            for announcer in server.announcers:
+                yield announcer
 
     @property
     def line_patterns(self):
