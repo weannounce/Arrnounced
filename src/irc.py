@@ -26,10 +26,11 @@ class IRC(BotBase):
     # Request channel invite or join channel
     async def attempt_join_channel(self):
         if self.tracker_config.irc_invite_cmd is None:
-            logger.info("Joining %s", self.tracker_config.irc_channel)
-            await self.join(self.tracker_config.irc_channel)
+            for channel in self.tracker_config.user_channels:
+                logger.info("Joining %s", channel)
+                await self.join(channel)
         else:
-            logger.info("Requesting invite to %s", self.tracker_config.irc_channel)
+            logger.info("%s: Requesting invite", self.tracker_config.short_name)
             await self.message(self.tracker_config.irc_inviter, self.tracker_config.irc_invite_cmd)
 
     async def on_connect(self):
@@ -58,11 +59,10 @@ class IRC(BotBase):
 
     async def on_invite(self, channel, by):
         logger.info("%s invited us to join %s", by, channel)
-        if channel == self.tracker_config.irc_channel:
-            await self.join(self.tracker_config.irc_channel)
+        if channel in self.tracker_config.irc_channels:
+            await self.join(channel)
         else:
-            # TODO: Make sure this works
-            logger.warning("%s is not in irc_channels list or specified in XML tracker configuration. Skipping join",
+            logger.warning("Skipping join. %s is not in irc_channels list or specified in XML tracker configuration.",
                     channel)
 
 
@@ -76,7 +76,7 @@ def start(tracker_configs):
 
     for tracker_config in tracker_configs.values():
         logger.info("Connecting to server: %s:%d %s", tracker_config.irc_server,
-                tracker_config.irc_port, tracker_config.irc_channel)
+                tracker_config.irc_port, ", ".join(tracker_config.user_channels))
 
         client = IRC(tracker_config)
 

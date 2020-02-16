@@ -232,8 +232,18 @@ class TrackerConfig:
         return self._xml_config.tracker_info["shortName"]
 
     @property
-    def irc_channel(self):
-        return self._xml_config.servers[0].channels[0]
+    def user_channels(self):
+        return [x.strip() for x in self._user_config["irc_channels"].split(',')]
+
+    # Return both channels from XML and user config
+    @property
+    def irc_channels(self):
+        for server in self._xml_config.servers:
+            for channel in server.channels:
+                yield channel
+
+        for channel in self.user_channels:
+            yield channel
 
     @property
     def announcer_names(self):
