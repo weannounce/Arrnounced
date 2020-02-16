@@ -15,7 +15,7 @@ logger = logging.getLogger("MESSAGE_HANDLER")
 
 def _is_announcement(source, target, tracker_config):
     return (source in tracker_config.announcer_names and
-        target == tracker_config.irc_channel)
+        target in tracker_config.irc_channels)
 
 def _sanitize_message(message):
     message = utils.strip_irc_color_codes(message)
