@@ -13,10 +13,10 @@ class Announcement:
         self.category = category
 
 def _ignore_message(ignores, message):
-    for ignore_regex, expected in ignores:
+    for ignore in ignores:
         # If message matches an expected regex it will be ignord
         # If it's not expected it works as an inverse, ignore everything which doesn't match.
-        if bool(re.search(ignore_regex, message)) == expected:
+        if bool(re.search(ignore.regex, message)) == ignore.expected:
             return True
     return False
 

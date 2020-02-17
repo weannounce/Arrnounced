@@ -12,6 +12,7 @@ logger = logging.getLogger("TRACKER_CONF")
 debug = False
 
 Server = namedtuple("Server", "names channels announcers")
+Ignore = namedtuple("Ignore", "regex expected")
 
 def parse_xml_configs(tracker_config_path):
     xml_configs = {}
@@ -59,7 +60,7 @@ class TrackerXmlConfig:
 
         for ignore in root.findall("./parseinfo/ignore/*"):
             self.ignores.append(
-                    (ignore.attrib["value"],
+                    Ignore(ignore.attrib["value"],
                      ("expected" not in ignore.attrib or
                          ignore.attrib["expected"] == "true")))
 
@@ -90,7 +91,7 @@ class TrackerXmlConfig:
                     print("\t\t\t", group)
             print("\tIgnores")
             for ignore in self.ignores:
-                print("\t\t", ignore)
+                print("\t\t", ignore.regex, "-", ignore.expected)
 
         if self.tracker_info is None:
             return False
