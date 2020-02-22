@@ -95,7 +95,6 @@ class TrackerXmlConfig:
 
         if self.tracker_info is None:
             return False
-        # TODO: maybe not require servers
         elif (0 == len(self.settings) or
               len(self.servers) == 0  or
               (0 == len(self.line_patterns) and 0 == len(self.multiline_patterns))):
