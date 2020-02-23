@@ -142,8 +142,28 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann, None, "No match should return None")
 
         ann = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
+        self.assertNotEqual(ann, None, "Announcement is None")
         self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g3_text", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Categroy was not None")
+
+    def test_multi_line_pattern_optional_at_end(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_multi_regex(regex = r"Row1 name: (.*)",
+                regex_groups = ["torrentName"])
+        tc_helper.insert_multi_regex(regex = r"Row2 g2: (.*)",
+                regex_groups = ["$g2"])
+        tc_helper.insert_multi_regex(regex = r"Row3 g3: (.*)",
+                regex_groups = ["$g3"], optional = True)
+        tc_helper.insert_url_var(VarType.VAR, "$g2")
+
+        ann = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        self.assertEqual(ann, None, "No match should return None")
+
+        ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        self.assertNotEqual(ann, None, "Announcement is None")
+        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "g2_text", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
 if __name__ == "__main__":
