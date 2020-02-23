@@ -28,7 +28,7 @@ def parse(tracker_config, message):
     elif len(tracker_config.multiline_patterns) > 0:
         pattern_groups = _parse_multiline_patterns(tracker_config, message)
         if pattern_groups is None:
-            logger.warning("%s: Not final line", tracker_config.short_name)
+            print("%s: Not final line", tracker_config.short_name)
             return None
 
     if len(pattern_groups) == 0:
@@ -78,13 +78,14 @@ def _get_multiline_match(tracker_name, patterns, match_number):
     for i, multiline_match in enumerate(multiline_matches[tracker_name]):
         logger.debug("lines_matched: %d", multiline_match.lines_matched)
         logger.debug("Checking line %d", match_number)
-        if multiline_match.lines_matched == match_number - 1:
+        if multiline_match.lines_matched == match_number:
             logger.debug("Was the next one")
             if match_number + 1 == len(patterns):
                 del multiline_matches[tracker_name][i]
             return multiline_match
         elif multiline_match.lines_matched < match_number:
-            for j in range(multiline_match.lines_matched - 1, match_number):
+            print(str(multiline_match.lines_matched) + " < "  + str(match_number))
+            for j in range(multiline_match.lines_matched, match_number + 1):
                 if j == match_number:
                     if j + 1 == len(patterns):
                         del multiline_matches[tracker_name][i]
@@ -103,14 +104,17 @@ def _parse_multiline_patterns(tracker_config, message):
             multiline_match = _get_multiline_match(tracker_config.short_name,
                     tracker_config.multiline_patterns, i)
             if multiline_match  is None:
-                logger.debug("Did not find it")
+                print("Did not find it")
             else:
-                logger.debug("Found it")
-                multiline_match.lines_matched = i
+                print("Found it")
+                multiline_match.lines_matched = i + 1
                 for j, group in enumerate(pattern.groups, start=1):
                     multiline_match.pattern_groups[group] = match.group(j)
                 # Or if ends with optional. And remove from list
-                if i + 1 == len(tracker_config.multiline_patterns):
+                print(i)
+                print(tracker_config.multiline_patterns[i+1:])
+                if (i + 1 == len(tracker_config.multiline_patterns) or
+                        all(pattern.optional for pattern in tracker_config.multiline_patterns[i+1:])):
                     return multiline_match.pattern_groups
 
             return None
