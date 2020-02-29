@@ -3,15 +3,12 @@ import logging
 import re
 import urllib.parse
 
+from collections import namedtuple
 from tracker_config import VarType
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
 
-class Announcement:
-    def __init__(self, torrent_name, torrent_url, category):
-        self.torrent_name = torrent_name
-        self.torrent_url = torrent_url
-        self.category = category
+Announcement = namedtuple("Announcement", "torrent_name torrent_url category")
 
 def parse(tracker_config, message):
     pattern_groups = {}
