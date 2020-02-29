@@ -100,7 +100,7 @@ def _parse_multiline_patterns(tracker_config, message):
 
     is_last_pattern = _is_last_multiline_pattern(tracker_config.multiline_patterns, match_index)
 
-    multiline_match = _get_multiline_match(tracker_config.short_name,
+    multiline_match = _get_multiline_match(tracker_config.type,
             tracker_config.multiline_patterns, match_index, is_last_pattern)
 
     if multiline_match is None:
@@ -138,20 +138,20 @@ def _is_last_multiline_pattern(multiline_patterns, match_index):
     return (match_index + 1 == len(multiline_patterns) or
             all(pattern.optional for pattern in multiline_patterns[match_index+1:]))
 
-def _get_multiline_match(tracker_name, patterns, match_index, last_pattern):
+def _get_multiline_match(tracker_type, patterns, match_index, last_pattern):
     global multiline_matches
-    if tracker_name not in multiline_matches:
-        multiline_matches[tracker_name] = []
+    if tracker_type not in multiline_matches:
+        multiline_matches[tracker_type] = []
 
     if match_index == 0:
         multiline_match = MultilineMatch()
-        multiline_matches[tracker_name].append(multiline_match)
+        multiline_matches[tracker_type].append(multiline_match)
         return multiline_match
 
-    for i, multiline_match in enumerate(multiline_matches[tracker_name]):
+    for i, multiline_match in enumerate(multiline_matches[tracker_type]):
         if _is_valid_next_index(multiline_match.matched_index, match_index, patterns):
             if last_pattern:
-                del multiline_matches[tracker_name][i]
+                del multiline_matches[tracker_type][i]
             return multiline_match
 
     return None
