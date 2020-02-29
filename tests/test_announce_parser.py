@@ -16,13 +16,13 @@ class HelperVar:
 def multi_post_condition(func):
     def func_wrapper(self):
         func(self)
-        self.assertEqual(len(announce_parser.multiline_matches["trackername"]), 0)
+        self.assertEqual(len(announce_parser.multiline_matches["trackertype"]), 0)
     return func_wrapper
 
 
 class TrackerConfigHelper(tracker_config.TrackerConfig):
     def __init__(self, regex = None, regex_groups = [], url_vars = [],
-            tracker_name = "trackername"):
+            tracker_name = "trackername", tracker_type = "trackertype"):
         self._user_config = {}
         self._user_config["notify_sonarr"] = False
         self._user_config["notify_radarr"] = False
@@ -32,7 +32,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         self._user_config["category_lidarr"] = False
 
         self._xml_config = tracker_config.TrackerXmlConfig()
-        self._xml_config.tracker_info = {"shortName": tracker_name}
+        self._xml_config.tracker_info = {"shortName": tracker_name, "type": tracker_type}
         self._xml_config.line_patterns = []
         self._xml_config.multiline_patterns = []
         self._xml_config.torrent_url = []

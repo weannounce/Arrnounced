@@ -235,6 +235,10 @@ class TrackerConfig:
         return self._xml_config.tracker_info["shortName"]
 
     @property
+    def type(self):
+        return self._xml_config.tracker_info["type"]
+
+    @property
     def user_channels(self):
         return [x.strip() for x in self._user_config["irc_channels"].split(',')]
 
