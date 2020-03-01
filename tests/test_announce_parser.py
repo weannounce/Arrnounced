@@ -4,6 +4,8 @@ from src import announce_parser, tracker_config
 from tracker_config import VarType
 from unittest import mock
 
+# TODO: Test ignored lines
+
 class LinePattern:
     def __init__(self, regex, groups, optional = False):
         self.regex = regex
