@@ -1,6 +1,8 @@
 import unittest
+
 from src import announce_parser, tracker_config
 from tracker_config import VarType
+from unittest import mock
 
 class LinePattern:
     def __init__(self, regex, groups, optional = False):
@@ -279,6 +281,44 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann.torrent_name, "another_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g3_text2g4_text2", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
+
+    @mock.patch('time.time', mock.MagicMock(side_effect=[0,15]))
+    @multi_post_condition
+    def test_multi_line_pattern_announcement_completed_just_in_time(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_multi_regex(regex = r"Row1 name: (.*)",
+                regex_groups = ["torrentName"])
+        tc_helper.insert_multi_regex(regex = r"Row2 g2: (.*)",
+                regex_groups = ["$g2"])
+        tc_helper.insert_url_var(VarType.VAR, "$g2")
+
+        ann = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        self.assertEqual(ann, None, "No match should return None")
+
+        ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        self.assertNotEqual(ann, None, "Announcement is None")
+        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "g2_text", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Categroy was not None")
+
+    # First two mock values are for time comparions
+    # Second two values are for logger
+    @mock.patch('time.time', mock.MagicMock(side_effect=[0,15.1,0,0]))
+    @multi_post_condition
+    def test_multi_line_pattern_discard_too_old(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_multi_regex(regex = r"Row1 name: (.*)",
+                regex_groups = ["torrentName"])
+        tc_helper.insert_multi_regex(regex = r"Row2 g2: (.*)",
+                regex_groups = ["$g2"])
+        tc_helper.insert_url_var(VarType.VAR, "$g2")
+
+        ann = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        self.assertEqual(ann, None, "No match should return None")
+
+        ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        self.assertEqual(ann, None, "Announcement should be discarded for being too old")
+
 
 if __name__ == "__main__":
     unittest.main()
