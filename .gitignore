@@ -30,3 +30,6 @@ __pycache__/
 # Coverage data and report
 .coverage
 coverage/*
+
+# Tracker repository
+autodl-trackers/*
