@@ -1,9 +1,10 @@
-import datetime
+import time
 import logging
 import re
 import urllib.parse
 
 from collections import namedtuple
+from itertools import filterfalse
 from tracker_config import VarType
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
@@ -81,14 +82,17 @@ def _parse_line_patterns(tracker_config, message):
 ######################
 
 # TODO: Thread safe global
-# TODO: Clean old matches with timestamp
 multiline_matches = {}
 
 class MultilineMatch:
     def __init__(self):
-        self.time = datetime.datetime.now()
+        self.time = time.time()
         self.pattern_groups = {}
-        self.matched_index = 1
+        self.matched_index = -1
+
+    # Returns true if more than 15 seconds has passed since instantiated
+    def too_old(self):
+        return (time.time() - self.time) > 15
 
 def _parse_multiline_patterns(tracker_config, message):
     logger.debug("%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message)
@@ -143,6 +147,8 @@ def _get_multiline_match(tracker_type, patterns, match_index, last_pattern):
     if tracker_type not in multiline_matches:
         multiline_matches[tracker_type] = []
 
+    _clean_old_multi_announcements(multiline_matches[tracker_type])
+
     if match_index == 0:
         multiline_match = MultilineMatch()
         multiline_matches[tracker_type].append(multiline_match)
@@ -156,3 +162,8 @@ def _get_multiline_match(tracker_type, patterns, match_index, last_pattern):
 
     return None
 
+def _clean_old_multi_announcements(matches):
+    removes = list(filterfalse(lambda x: not x.too_old(), matches))
+    for remove in removes:
+        logger.warning("Announcement is too old, discarding: %s", list(remove.pattern_groups.values()))
+        matches.remove(remove)
