@@ -19,7 +19,7 @@ def parse(tracker_config, message):
     elif len(tracker_config.multiline_patterns) > 0:
         pattern_groups = _parse_multiline_patterns(tracker_config, message)
         if pattern_groups is None:
-            print("Not final line", tracker_config.short_name)
+            logger.debug("%s: Messages in announcement still remaining", tracker_config.short_name)
             return None
 
     if len(pattern_groups) == 0:
@@ -95,9 +95,10 @@ class MultilineMatch:
     def too_old(self):
         return (time.time() - self.time) > 15
 
+# Returning None means the message matched but still waiting for remaning messages.
+# Returning an empty dictionary means the message did not match anything.
 def _parse_multiline_patterns(tracker_config, message):
     logger.debug("%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message)
-    print(message)
     match_index, match_groups = _find_matching_pattern(tracker_config, message)
 
     if match_index == -1:
