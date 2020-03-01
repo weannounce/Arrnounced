@@ -5,6 +5,7 @@ import urllib.parse
 
 from collections import namedtuple
 from itertools import filterfalse
+from multiprocessing import Lock
 from tracker_config import VarType
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
@@ -81,8 +82,8 @@ def _parse_line_patterns(tracker_config, message):
 # Multi line patterns
 ######################
 
-# TODO: Thread safe global
 multiline_matches = {}
+mutex = Lock()
 
 class MultilineMatch:
     def __init__(self):
@@ -104,14 +105,15 @@ def _parse_multiline_patterns(tracker_config, message):
 
     is_last_pattern = _is_last_multiline_pattern(tracker_config.multiline_patterns, match_index)
 
-    multiline_match = _get_multiline_match(tracker_config.type,
-            tracker_config.multiline_patterns, match_index, is_last_pattern)
+    with mutex:
+        multiline_match = _get_multiline_match(tracker_config.type,
+                tracker_config.multiline_patterns, match_index, is_last_pattern)
 
-    if multiline_match is None:
-        return {}
+        if multiline_match is None:
+            return {}
 
-    multiline_match.matched_index = match_index
-    multiline_match.pattern_groups.update(match_groups)
+        multiline_match.matched_index = match_index
+        multiline_match.pattern_groups.update(match_groups)
 
     if is_last_pattern:
         return multiline_match.pattern_groups
