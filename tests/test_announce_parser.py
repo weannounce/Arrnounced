@@ -303,7 +303,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann.torrent_url, "g2_text", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
-    # First two mock values are for time comparions
+    # First two mock values are for time comparisons
     # Second two values are for logger
     @mock.patch('time.time', mock.MagicMock(side_effect=[0,15.1,0,0]))
     @multi_post_condition
@@ -321,6 +321,28 @@ class ParserTest(unittest.TestCase):
         ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
         self.assertEqual(ann, None, "Announcement should be discarded for being too old")
 
+    # Mock value: (insert1), (check1, insert2), (check1, log warning, check2)
+    @mock.patch('time.time', mock.MagicMock(side_effect=[0, 10, 10, 16, 16, 16]))
+    @multi_post_condition
+    def test_multi_line_pattern_parallell_first_too_old(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_multi_regex(regex = r"Row1 name: (.*)",
+                regex_groups = ["torrentName"])
+        tc_helper.insert_multi_regex(regex = r"Row2 g2: (.*)",
+                regex_groups = ["$g2"])
+        tc_helper.insert_url_var(VarType.VAR, "$g2")
+
+        ann = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        self.assertEqual(ann, None, "No match should return None")
+
+        ann = announce_parser.parse(tc_helper, "Row1 name: two_name")
+        self.assertEqual(ann, None, "No match should return None")
+
+        ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text1")
+        self.assertNotEqual(ann, None, "Announcement is None")
+        self.assertEqual(ann.torrent_name, "two_name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "g2_text1", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Categroy was not None")
 
 if __name__ == "__main__":
     unittest.main()
