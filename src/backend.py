@@ -3,6 +3,8 @@ import logging
 import re
 import requests
 from enum import Enum
+from json.decoder import JSONDecodeError
+from requests.exceptions import HTTPError, RequestException
 
 import config
 import utils
@@ -76,8 +78,6 @@ def notify_lidarr(title, download_link, indexer):
     return _notify(_backend_data[Backend.LIDARR], title, download_link, indexer)
 
 def _notify(backend, title, torrent_url, indexer):
-    approved = False
-
     headers = {'X-Api-Key': backend['apikey']}
     params = {
         'title': title,
@@ -89,13 +89,27 @@ def _notify(backend, title, torrent_url, indexer):
     if backend['use_indexer']:
         params['indexer'] = indexer
 
+    http_response = None
     try:
-        resp = requests.post(url="{}{}".format(backend['url'], backend['api_path']),
-                headers=headers, json=params).json()
-        if 'approved' in resp:
-            approved = resp['approved']
-    except requests.exceptions.RequestException as e:
-        logger.error("Unable to connect to %s", backend['name'])
+        http_response = requests.post(url="{}{}".format(backend["url"], backend["api_path"]),
+                headers=headers, json=params)
+        http_response.raise_for_status()
+    except HTTPError as e:
+        logger.warning("Bad response from %s", backend["name"])
+        logger.warning("%s", e)
+        return False
+    except RequestException as e:
+        logger.error("Unable to connect to %s", backend["name"])
         logger.error("%s", e)
+        return False
+
+    approved = False
+    try:
+        json_response = http_response.json()
+        if "approved" in json_response:
+            approved = json_response["approved"]
+    except JSONDecodeError as e:
+        logger.warning("Could not parse response from %s: %s", backend["name"], http_response.content)
+
 
     return approved
