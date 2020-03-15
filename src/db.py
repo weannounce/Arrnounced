@@ -1,6 +1,7 @@
 import datetime
 import logging
 from pony.orm import *
+import os
 
 logger = logging.getLogger("DB")
 
@@ -23,5 +24,5 @@ class Snatched(db.Entity):
 
 
 def init(destination_dir):
-    db.bind('sqlite', destination_dir + '/brain.db', create_db=True)
+    db.bind('sqlite', os.path.join(os.path.realpath(destination_dir), "brain.db"), create_db=True)
     db.generate_mapping(create_tables=True)
