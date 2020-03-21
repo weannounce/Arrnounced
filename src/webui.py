@@ -115,8 +115,8 @@ def send_asset(path):
 @login_required
 @db.db_session
 def index():
-    return render_template('index.html', snatched=db.Snatched.select().order_by(db.desc(db.Snatched.date)).limit(20),
-                           announced=db.Announced.select().order_by(db.desc(db.Announced.date)).limit(20),
+    return render_template('index.html', snatched=db.get_snatched(limit=20, page=0),
+                           announced=db.get_announced(limit=20, page=0),
                            backends=get_configured_backends())
 
 @app.route("/logs")
@@ -160,7 +160,7 @@ def notify():
         data = request.json
         if 'id' in data and 'backend_name' in data:
             # Request to check this torrent again
-            announcement = db.Announced.get(id=data.get('id'))
+            announcement = db.get_announcement(data.get('id'))
             if announcement is not None and len(announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", announcement.title)
 
@@ -169,6 +169,7 @@ def notify():
 
                 if approved:
                     logger.debug(backend_name + " accepted the torrent this time!")
+                    db.insert_snatched(announcement, backend_name)
                     return "OK"
 
                 logger.debug(backend_name + " still refused this torrent...")

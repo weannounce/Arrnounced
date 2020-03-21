@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import html
 import logging
 import re
@@ -45,8 +44,7 @@ async def on_message(tracker_config, source, target, message):
                 tracker_config.short_name, tracker_config.announce_delay, announcement.torrent_name)
         await asyncio.sleep(tracker_config.announce_delay)
 
-    db.Announced(date=datetime.datetime.now(), title=announcement.torrent_name,
-            indexer=tracker_config.short_name, torrent=announcement.torrent_url, backend=backends_string)
+    db_announced = db.insert_announcement(announcement, tracker_config.short_name, backends_string)
     logger.info("Notifying %s of release from %s: %s", backends_string,
                 tracker_config.short_name, announcement.torrent_name)
 
@@ -57,5 +55,4 @@ async def on_message(tracker_config, source, target, message):
         logger.debug("Release was rejected: %s", announcement.torrent_name)
     else:
         logger.info("%s approved release: %s", backend, announcement.torrent_name)
-        snatched = db.Snatched(date=datetime.datetime.now(), title=announcement.torrent_name,
-                indexer=tracker_config.short_name, torrent=announcement.torrent_url, backend=backend)
+        db.insert_snatched(db_announced, backend)

@@ -47,10 +47,10 @@
                         <tbody>
                         {% for snatch in snatched %}
                         <tr>
-                            <td>{{ format_timestamp(snatch.date) }}</td>
-                            <td>{{ snatch.indexer }}</td>
-                            <td>{{ snatch.title }}</td>
-                            <td>{{ snatch.backend }}</td>
+                            <td>{{ format_timestamp(snatch[1]) }}</td>
+                            <td>{{ snatch[2] }}</td>
+                            <td>{{ snatch[3] }}</td>
+                            <td>{{ snatch[4] }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>

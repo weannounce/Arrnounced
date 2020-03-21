@@ -49,7 +49,6 @@ def _string_to_backend(backend_name):
             return backend
     return None
 
-
 def backends_to_string(backends):
     return "/".join(_backend_data[x]['name'] for x in backends) if len(backends) > 0 else "None"
 
