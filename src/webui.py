@@ -21,7 +21,7 @@ import config
 import db
 import log
 import utils
-from backend import notify_sonarr, notify_radarr, notify_lidarr
+from backend import notify_sonarr, notify_radarr, notify_lidarr, get_configured_backends
 
 logger = logging.getLogger("WEB-UI")
 
@@ -116,7 +116,8 @@ def send_asset(path):
 @db.db_session
 def index():
     return render_template('index.html', snatched=db.Snatched.select().order_by(db.desc(db.Snatched.date)).limit(20),
-                           announced=db.Announced.select().order_by(db.desc(db.Announced.date)).limit(20))
+                           announced=db.Announced.select().order_by(db.desc(db.Announced.date)).limit(20),
+                           backends=get_configured_backends())
 
 @app.route("/logs")
 @login_required

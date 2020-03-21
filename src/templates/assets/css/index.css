@@ -8,3 +8,10 @@ tr td {
   text-overflow:ellipsis;
 }
 
+.action_td {
+  overflow:visible;
+}
+
+.dropdown-menu {
+  position:absolute;
+}
