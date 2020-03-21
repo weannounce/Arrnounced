@@ -43,6 +43,13 @@ def init(config):
         _backend_data[Backend.LIDARR]['url'] = config['lidarr.url']
 
 
+def _string_to_backend(backend_name):
+    for backend in _backend_data.keys():
+        if _backend_data[backend]['name'] == backend_name:
+            return backend
+    return None
+
+
 def backends_to_string(backends):
     return "/".join(_backend_data[x]['name'] for x in backends) if len(backends) > 0 else "None"
 
@@ -74,14 +81,13 @@ def notify(announcement, backends, tracker_name):
 
     return None
 
-def notify_sonarr(title, download_link, indexer):
-    return _notify(_backend_data[Backend.SONARR], title, download_link, indexer)
+def renotify(backend_name, title, download_link, indexer):
+    backend = _string_to_backend(backend_name)
+    if backend is None:
+        logger.warning("Unknown backend %s", backend_name)
+        return False
 
-def notify_radarr(title, download_link, indexer):
-    return _notify(_backend_data[Backend.RADARR], title, download_link, indexer)
-
-def notify_lidarr(title, download_link, indexer):
-    return _notify(_backend_data[Backend.LIDARR], title, download_link, indexer)
+    return _notify(_backend_data[backend], title, download_link, indexer)
 
 def _notify(backend, title, torrent_url, indexer):
     headers = {'X-Api-Key': backend['apikey']}

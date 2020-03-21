@@ -21,7 +21,7 @@ import config
 import db
 import log
 import utils
-from backend import notify_sonarr, notify_radarr, notify_lidarr, get_configured_backends
+from backend import renotify, get_configured_backends
 
 logger = logging.getLogger("WEB-UI")
 
@@ -158,26 +158,20 @@ def check(pvr_name):
 def notify():
     try:
         data = request.json
-        if 'id' in data and 'pvr_name' in data:
+        if 'id' in data and 'backend_name' in data:
             # Request to check this torrent again
             announcement = db.Announced.get(id=data.get('id'))
             if announcement is not None and len(announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", announcement.title)
 
-                # TODO: Move this  to backend.py.
-                for backend in data.get('pvr_name').split("/"):
-                    if backend == "Sonarr":
-                        approved = notify_sonarr(announcement.title, announcement.torrent, announcement.indexer)
-                    elif backend == "Radarr":
-                        approved = notify_radarr(announcement.title, announcement.torrent, announcement.indexer)
-                    elif backend == "Lidarr":
-                        approved = notify_lidarr(announcement.title, announcement.torrent, announcement.indexer)
+                backend_name = data.get('backend_name')
+                approved = renotify(backend_name, announcement.title, announcement.torrent, announcement.indexer)
 
-                    if approved:
-                        logger.debug(backend + " accepted the torrent this time!")
-                        return "OK"
+                if approved:
+                    logger.debug(backend_name + " accepted the torrent this time!")
+                    return "OK"
 
-                logger.debug(data.get('pvr_name') + " still refused this torrent...")
+                logger.debug(backend_name + " still refused this torrent...")
                 return "ERR"
 
     except Exception as ex:
