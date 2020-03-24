@@ -107,11 +107,10 @@ def _notify(backend, title, torrent_url, indexer):
                 headers=headers, json=params)
         http_response.raise_for_status()
     except HTTPError as e:
-        logger.warning("Bad response from %s", backend["name"])
-        logger.warning("%s", e)
+        logger.warning("%s: %s", backend["name"], e)
         return False
     except RequestException as e:
-        logger.error("Unable to connect to %s", backend["name"])
+        logger.error("%s connection problem", backend["name"])
         logger.error("%s", e)
         return False
 
