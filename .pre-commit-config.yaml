@@ -1,0 +1,27 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/psf/black
+    rev: 19.10b0
+    hooks:
+    -   id: black
+-   repo: https://github.com/PyCQA/bandit
+    rev: 1.6.2
+    hooks:
+    -   id: bandit
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.7.9
+    hooks:
+    -   id: flake8
+-   repo: local
+    hooks:
+    -   id: unit-tests
+        name: unit tests
+        entry: ./run_tests.py
+        language: python
+        types: [python]
+        additional_dependencies: ['defusedxml==0.6.0', 'coverage==5.0.3', 'profig==0.5.1', 'requests==2.22.0']
