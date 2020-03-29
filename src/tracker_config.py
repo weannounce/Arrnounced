@@ -1,7 +1,7 @@
 import logging
 import os
 import re
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 from enum import Enum
 from collections import namedtuple
 
