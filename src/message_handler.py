@@ -12,9 +12,13 @@ from tracker_config import VarType
 
 logger = logging.getLogger("MESSAGE_HANDLER")
 
+
 def _is_announcement(source, target, tracker_config):
-    return (source in tracker_config.announcer_names and
-        target in tracker_config.irc_channels)
+    return (
+        source in tracker_config.announcer_names
+        and target in tracker_config.irc_channels
+    )
+
 
 def _sanitize_message(message):
     message = utils.strip_irc_color_codes(message)
@@ -40,13 +44,23 @@ async def on_message(tracker_config, source, target, message):
     backends_string = backends_to_string(backends)
 
     if tracker_config.announce_delay > 0:
-        logger.debug("%s: Waiting %s seconds to notify %s",
-                tracker_config.short_name, tracker_config.announce_delay, announcement.torrent_name)
+        logger.debug(
+            "%s: Waiting %s seconds to notify %s",
+            tracker_config.short_name,
+            tracker_config.announce_delay,
+            announcement.torrent_name,
+        )
         await asyncio.sleep(tracker_config.announce_delay)
 
-    db_announced = db.insert_announcement(announcement, tracker_config.short_name, backends_string)
-    logger.info("Notifying %s of release from %s: %s", backends_string,
-                tracker_config.short_name, announcement.torrent_name)
+    db_announced = db.insert_announcement(
+        announcement, tracker_config.short_name, backends_string
+    )
+    logger.info(
+        "Notifying %s of release from %s: %s",
+        backends_string,
+        tracker_config.short_name,
+        announcement.torrent_name,
+    )
 
     backend = notify(announcement, backends, tracker_config.short_name)
 

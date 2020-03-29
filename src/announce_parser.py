@@ -12,6 +12,7 @@ logger = logging.getLogger("ANNOUNCE_PARSER")
 
 Announcement = namedtuple("Announcement", "torrent_name torrent_url category")
 
+
 def parse(tracker_config, message):
     pattern_groups = {}
     if len(tracker_config.line_patterns) > 0:
@@ -19,20 +20,27 @@ def parse(tracker_config, message):
     elif len(tracker_config.multiline_patterns) > 0:
         pattern_groups = _parse_multiline_patterns(tracker_config, message)
         if pattern_groups is None:
-            logger.debug("%s: Messages in announcement still remaining", tracker_config.short_name)
+            logger.debug(
+                "%s: Messages in announcement still remaining",
+                tracker_config.short_name,
+            )
             return None
 
     if len(pattern_groups) == 0:
         if _ignore_message(tracker_config.ignores, message):
             logger.debug("%s: Message ignored: %s", tracker_config.short_name, message)
         else:
-            logger.warning("%s: No match found for '%s'", tracker_config.short_name, message)
+            logger.warning(
+                "%s: No match found for '%s'", tracker_config.short_name, message
+            )
         return None
 
     torrent_url = _get_torrent_link(tracker_config, pattern_groups)
 
-    return Announcement(pattern_groups["torrentName"], torrent_url,
-            pattern_groups.get('category'))
+    return Announcement(
+        pattern_groups["torrentName"], torrent_url, pattern_groups.get("category")
+    )
+
 
 def _get_torrent_link(tracker_config, pattern_groups):
     url = ""
@@ -54,6 +62,7 @@ def _get_torrent_link(tracker_config, pattern_groups):
     logger.debug("Torrent URL: %s", url)
     return url
 
+
 def _ignore_message(ignores, message):
     for ignore in ignores:
         # If message matches an expected regex it will be ignord
@@ -62,9 +71,11 @@ def _ignore_message(ignores, message):
             return True
     return False
 
+
 ######################
 # Single line patterns
 ######################
+
 
 def _parse_line_patterns(tracker_config, message):
     logger.debug("%s: Parsing annoucement '%s'", tracker_config.short_name, message)
@@ -78,12 +89,14 @@ def _parse_line_patterns(tracker_config, message):
 
     return pattern_groups
 
+
 ######################
 # Multi line patterns
 ######################
 
 multiline_matches = {}
 mutex = Lock()
+
 
 class MultilineMatch:
     def __init__(self):
@@ -95,20 +108,29 @@ class MultilineMatch:
     def too_old(self):
         return (time.time() - self.time) > 15
 
+
 # Returning None means the message matched but still waiting for remaning messages.
 # Returning an empty dictionary means the message did not match anything.
 def _parse_multiline_patterns(tracker_config, message):
-    logger.debug("%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message)
+    logger.debug(
+        "%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message
+    )
     match_index, match_groups = _find_matching_pattern(tracker_config, message)
 
     if match_index == -1:
         return {}
 
-    is_last_pattern = _is_last_multiline_pattern(tracker_config.multiline_patterns, match_index)
+    is_last_pattern = _is_last_multiline_pattern(
+        tracker_config.multiline_patterns, match_index
+    )
 
     with mutex:
-        multiline_match = _get_multiline_match(tracker_config.type,
-                tracker_config.multiline_patterns, match_index, is_last_pattern)
+        multiline_match = _get_multiline_match(
+            tracker_config.type,
+            tracker_config.multiline_patterns,
+            match_index,
+            is_last_pattern,
+        )
 
         if multiline_match is None:
             return {}
@@ -134,16 +156,21 @@ def _find_matching_pattern(tracker_config, message):
 
 
 def _is_valid_next_index(matched_index, next_index, patterns):
-    return ((next_index - matched_index) == 1 or # Next match
-            (next_index - matched_index > 1 and # Or optionals in between
-                all(pattern.optional for pattern in patterns[matched_index+1:next_index])))
+    return (next_index - matched_index) == 1 or (  # Next match
+        next_index - matched_index > 1
+        and all(  # Or optionals in between
+            pattern.optional for pattern in patterns[matched_index + 1 : next_index]
+        )
+    )
 
 
 # Returns True if match_index is the last pattern in the announcement
 # OR if the remaining patterns are optional
 def _is_last_multiline_pattern(multiline_patterns, match_index):
-    return (match_index + 1 == len(multiline_patterns) or
-            all(pattern.optional for pattern in multiline_patterns[match_index+1:]))
+    return match_index + 1 == len(multiline_patterns) or all(
+        pattern.optional for pattern in multiline_patterns[match_index + 1 :]
+    )
+
 
 def _get_multiline_match(tracker_type, patterns, match_index, last_pattern):
     global multiline_matches
@@ -165,8 +192,12 @@ def _get_multiline_match(tracker_type, patterns, match_index, last_pattern):
 
     return None
 
+
 def _clean_old_multi_announcements(matches):
     removes = list(filterfalse(lambda x: not x.too_old(), matches))
     for remove in removes:
-        logger.warning("Announcement is too old, discarding: %s", list(remove.pattern_groups.values()))
+        logger.warning(
+            "Announcement is too old, discarding: %s",
+            list(remove.pattern_groups.values()),
+        )
         matches.remove(remove)
