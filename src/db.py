@@ -1,6 +1,6 @@
 import datetime
 import logging
-from pony.orm import *
+from pony.orm import Database, desc, pony, Required, Set
 import os
 
 logger = logging.getLogger("DB")

@@ -38,7 +38,7 @@ class TrackerXmlConfig:
         self.multiline_patterns = []
         self.ignores = []
 
-    def parse_config(self, root):
+    def parse_config(self, root):  # noqa: C901
         self.tracker_info = root.attrib
         # TODO: Workaround for profig handling periods as subsections
         self.tracker_info["type"] = self.tracker_info["type"].replace(".", "_")
