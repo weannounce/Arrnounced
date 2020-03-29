@@ -9,6 +9,7 @@ BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSuppo
 
 logger = logging.getLogger("IRC")
 
+
 class IRC(BotBase):
     tracker_config = None
     RECONNECT_MAX_ATTEMPTS = None
@@ -31,7 +32,9 @@ class IRC(BotBase):
                 await self.join(channel)
         else:
             logger.info("%s: Requesting invite", self.tracker_config.short_name)
-            await self.message(self.tracker_config.irc_inviter, self.tracker_config.irc_invite_cmd)
+            await self.message(
+                self.tracker_config.irc_inviter, self.tracker_config.irc_invite_cmd
+            )
 
     async def on_connect(self):
         logger.info("Connected to: %s", self.tracker_config.irc_server)
@@ -41,12 +44,14 @@ class IRC(BotBase):
             await self.attempt_join_channel()
         else:
             logger.info("Identifying with NICKSERV")
-            await self.rawmsg('NICKSERV', 'IDENTIFY', self.tracker_config.irc_ident_password)
+            await self.rawmsg(
+                "NICKSERV", "IDENTIFY", self.tracker_config.irc_ident_password
+            )
 
     async def on_raw(self, message):
         await super().on_raw(message)
 
-        if message.command == 221 and '+r' in message._raw:
+        if message.command == 221 and "+r" in message._raw:
             logger.info("Identified with NICKSERV (221)")
             await self.attempt_join_channel()
 
@@ -55,16 +60,19 @@ class IRC(BotBase):
         await self.attempt_join_channel()
 
     async def on_message(self, target, source, message):
-        await message_handler.on_message(self.tracker_config, source, target.lower(), message)
+        await message_handler.on_message(
+            self.tracker_config, source, target.lower(), message
+        )
 
     async def on_invite(self, channel, by):
         logger.info("%s invited us to join %s", by, channel)
         if channel in self.tracker_config.irc_channels:
             await self.join(channel)
         else:
-            logger.warning("Skipping join. %s is not in irc_channels list or specified in XML tracker configuration.",
-                    channel)
-
+            logger.warning(
+                "Skipping join. %s is not in irc_channels list or specified in XML tracker configuration.",
+                channel,
+            )
 
 
 pool = pydle.ClientPool()
@@ -75,15 +83,24 @@ def start(tracker_configs):
     global pool, clients
 
     for tracker_config in tracker_configs.values():
-        logger.info("Connecting to server: %s:%d %s", tracker_config.irc_server,
-                tracker_config.irc_port, ", ".join(tracker_config.user_channels))
+        logger.info(
+            "Connecting to server: %s:%d %s",
+            tracker_config.irc_server,
+            tracker_config.irc_port,
+            ", ".join(tracker_config.user_channels),
+        )
 
         client = IRC(tracker_config)
 
         clients.append(client)
         try:
-            pool.connect(client, hostname=tracker_config.irc_server, port=tracker_config.irc_port,
-                         tls=tracker_config.irc_tls, tls_verify=tracker_config.irc_tls_verify)
+            pool.connect(
+                client,
+                hostname=tracker_config.irc_server,
+                port=tracker_config.irc_port,
+                tls=tracker_config.irc_tls,
+                tls_verify=tracker_config.irc_tls_verify,
+            )
         except Exception:
             logger.exception("Error while connecting to: %s", tracker_config.irc_server)
 

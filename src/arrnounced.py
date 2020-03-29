@@ -11,11 +11,13 @@ import db
 import log
 import manager
 
+
 def is_file(path):
     if os.path.isfile(path):
         return path
     else:
         raise FileNotFoundError("Error: '" + path + "' is not a valid file")
+
 
 def is_dir(path):
     if os.path.isdir(path):
@@ -23,20 +25,35 @@ def is_dir(path):
     else:
         raise NotADirectoryError("Error: '" + path + "' is not a valid directory")
 
+
 ############################################################
 # MAIN ENTRY
 ############################################################
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Arrnounced - Listen for IRC announcements")
-    parser.add_argument("-d", "--data", type=is_dir,
-            help="Data directory for storing logs and database. Default ~/.arrnounced",
-            default=str(Path.home().joinpath(".arrnounced")))
-    parser.add_argument("-c", "--config", type=is_file,
-            help="Configuration file. Default ~/.arrnounced/settings.cfg",
-            default=str(Path.home().joinpath(".arrnounced", "settings.cfg")))
-    parser.add_argument("-t", "--trackers", type=is_dir,
-            help="XML tracker config path. Default ~/.arrnounced/autodl-trackers/trackers",
-            default=str(Path.home().joinpath(".arrnounced", "autodl-trackers", "trackers")))
+    parser = argparse.ArgumentParser(
+        description="Arrnounced - Listen for IRC announcements"
+    )
+    parser.add_argument(
+        "-d",
+        "--data",
+        type=is_dir,
+        help="Data directory for storing logs and database. Default ~/.arrnounced",
+        default=str(Path.home().joinpath(".arrnounced")),
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=is_file,
+        help="Configuration file. Default ~/.arrnounced/settings.cfg",
+        default=str(Path.home().joinpath(".arrnounced", "settings.cfg")),
+    )
+    parser.add_argument(
+        "-t",
+        "--trackers",
+        type=is_dir,
+        help="XML tracker config path. Default ~/.arrnounced/autodl-trackers/trackers",
+        default=str(Path.home().joinpath(".arrnounced", "autodl-trackers", "trackers")),
+    )
     parser.add_argument("-v", "--verbose", help="Verbose logging", action="store_true")
 
     try:

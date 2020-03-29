@@ -7,15 +7,13 @@ import coverage
 sys.path.append("src/")
 
 cov = coverage.coverage(
-        branch=True,
-        include='src/*',
-        omit=['*/__init__.py', '*/config/*']
-    )
+    branch=True, include="src/*", omit=["*/__init__.py", "*/config/*"]
+)
 
 if __name__ == "__main__":
     cov.start()
 
-    suite = unittest.TestLoader().discover('.', pattern="test_*.py")
+    suite = unittest.TestLoader().discover(".", pattern="test_*.py")
     result = unittest.TextTestRunner(verbosity=2).run(suite)
 
     cov.stop()

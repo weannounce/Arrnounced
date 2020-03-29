@@ -23,8 +23,8 @@ def run(tracker_config_path):
     thread_irc = irc_task(tracker_configs)
     thread_webui = webui_task(tracker_configs)
 
-    thread_irc.fire('START')
-    thread_webui.fire('START')
+    thread_irc.fire("START")
+    thread_webui.fire("START")
 
     thread_irc.wait_thread(thread_irc)
     thread_webui.wait_thread(thread_webui)
@@ -35,6 +35,7 @@ def run(tracker_config_path):
 ############################################################
 # Tasks
 ############################################################
+
 
 def irc_task(tracker_configs):
     worker = Worker()

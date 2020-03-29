@@ -2,8 +2,9 @@ import logging
 import profig
 
 cfg = None
-base_sections = [ "webui", "log", "sonarr", "radarr", "lidarr" ]
+base_sections = ["webui", "log", "sonarr", "radarr", "lidarr"]
 logger = logging.getLogger("CONFIG")
+
 
 def init(config_path):
     global cfg
@@ -53,26 +54,30 @@ def init(config_path):
         section.init("category_radarr", None, type=str)
         section.init("category_lidarr", None, type=str)
 
-    #for s in cfg.sections():
+    # for s in cfg.sections():
     #    print(s)
     return cfg
 
-mandatory_tracker_fields = [ "irc_nickname", "irc_server", "irc_port", "irc_channels" ]
+
+mandatory_tracker_fields = ["irc_nickname", "irc_server", "irc_port", "irc_channels"]
+
 
 def validate_config():
     global cfg
     valid = True
 
-    if not (cfg.get("sonarr.apikey") or
-            cfg.get("radarr.apikey") or
-            cfg.get("lidarr.apikey")):
+    if not (
+        cfg.get("sonarr.apikey") or cfg.get("radarr.apikey") or cfg.get("lidarr.apikey")
+    ):
         logger.error("Must specify at least one backend (Sonarr/Radarr/Lidarr)")
         valid = False
 
     for section in cfg.sections():
         if section.name == "webui":
             if bool(section.get("username")) != bool(section.get("password")):
-                logger.error("%s: Must set none or both 'username' and 'password'", section.name)
+                logger.error(
+                    "%s: Must set none or both 'username' and 'password'", section.name
+                )
                 valid = False
             continue
         elif section.name in base_sections:
@@ -84,46 +89,72 @@ def validate_config():
                 valid = False
 
         if bool(section.get("irc_inviter")) != bool(section.get("irc_invite_cmd")):
-            logger.error("%s: Must set both 'irc_inviter' and 'irc_invite_cmd'", section.name)
+            logger.error(
+                "%s: Must set both 'irc_inviter' and 'irc_invite_cmd'", section.name
+            )
             valid = False
 
-        if ((section.get("notify_sonarr") or section.get("category_sonarr") is not None)
-                and cfg.get("sonarr.apikey") is None):
-            logger.error("%s: Must configure sonarr to use 'notify_sonarr' or 'category_sonarr'", section.name)
+        if (
+            section.get("notify_sonarr") or section.get("category_sonarr") is not None
+        ) and cfg.get("sonarr.apikey") is None:
+            logger.error(
+                "%s: Must configure sonarr to use 'notify_sonarr' or 'category_sonarr'",
+                section.name,
+            )
             valid = False
-        if ((section.get("notify_radarr") or section.get("category_radarr") is not None)
-                and cfg.get("radarr.apikey") is None):
-            logger.error("%s: Must configure radarr to use 'notify_radarr' or 'category_radarr'", section.name)
+        if (
+            section.get("notify_radarr") or section.get("category_radarr") is not None
+        ) and cfg.get("radarr.apikey") is None:
+            logger.error(
+                "%s: Must configure radarr to use 'notify_radarr' or 'category_radarr'",
+                section.name,
+            )
             valid = False
-        if ((section.get("notify_lidarr") or section.get("category_lidarr") is not None)
-                and cfg.get("lidarr.apikey") is None):
-            logger.error("%s: Must configure lidarr to use 'notify_lidarr' or 'category_lidarr'", section.name)
+        if (
+            section.get("notify_lidarr") or section.get("category_lidarr") is not None
+        ) and cfg.get("lidarr.apikey") is None:
+            logger.error(
+                "%s: Must configure lidarr to use 'notify_lidarr' or 'category_lidarr'",
+                section.name,
+            )
             valid = False
 
         if section.get("notify_sonarr") and section.get("category_sonarr") is not None:
-            logger.error("%s: Cannot use both notify_sonarr and cateogry_sonarr", section.name)
+            logger.error(
+                "%s: Cannot use both notify_sonarr and cateogry_sonarr", section.name
+            )
             valid = False
         if section.get("notify_radarr") and section.get("category_radarr") is not None:
-            logger.error("%s: Cannot use both notify_radarr and cateogry_radarr", section.name)
+            logger.error(
+                "%s: Cannot use both notify_radarr and cateogry_radarr", section.name
+            )
             valid = False
         if section.get("notify_lidarr") and section.get("category_lidarr") is not None:
-            logger.error("%s: Cannot use both notify_lidarr and cateogry_lidarr", section.name)
+            logger.error(
+                "%s: Cannot use both notify_lidarr and cateogry_lidarr", section.name
+            )
             valid = False
 
     for section in cfg:
         if len(str(cfg[section])) == 0:
-            logger.error("%s: Empty value in configuration not allowed. Remove instead.", section)
+            logger.error(
+                "%s: Empty value in configuration not allowed. Remove instead.", section
+            )
             valid = False
     return valid
+
 
 def sections():
     return cfg.sections()
 
+
 def webui_host():
     return cfg["webui.host"]
 
+
 def webui_port():
     return cfg["webui.port"]
+
 
 def login_required():
     if cfg["webui.username"] is None:
@@ -131,10 +162,10 @@ def login_required():
     else:
         return True
 
+
 def login(username, password):
     if cfg["webui.username"] is None:
         return True
-    elif (cfg["webui.username"] == username and
-            cfg["webui.password"] == password):
+    elif cfg["webui.username"] == username and cfg["webui.password"] == password:
         return True
     return False

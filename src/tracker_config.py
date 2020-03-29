@@ -14,6 +14,7 @@ debug = False
 Server = namedtuple("Server", "names channels announcers")
 Ignore = namedtuple("Ignore", "regex expected")
 
+
 def parse_xml_configs(tracker_config_path):
     xml_configs = {}
     for trackerFile in sorted(os.listdir(tracker_config_path)):
@@ -21,11 +22,12 @@ def parse_xml_configs(tracker_config_path):
         tracker = TrackerXmlConfig()
 
         if tracker.parse_config(tree.getroot()):
-            xml_configs[tracker.tracker_info["type"]] =  tracker
+            xml_configs[tracker.tracker_info["type"]] = tracker
         else:
             logger.error("Could not parse tracker XML config: %s", trackerFile)
 
     return xml_configs
+
 
 class TrackerXmlConfig:
     def __init__(self):
@@ -39,17 +41,20 @@ class TrackerXmlConfig:
     def parse_config(self, root):
         self.tracker_info = root.attrib
         # TODO: Workaround for profig handling periods as subsections
-        self.tracker_info["type"] = self.tracker_info["type"].replace('.', '_')
+        self.tracker_info["type"] = self.tracker_info["type"].replace(".", "_")
 
         for setting in root.findall("./settings/*"):
             if "description" not in setting.tag:
-                self.settings.append(re.sub("^(gazelle_|cookie_)", '', setting.tag))
+                self.settings.append(re.sub("^(gazelle_|cookie_)", "", setting.tag))
 
         for server in root.findall("./servers/*"):
-            self.servers.append(Server(
-                server.attrib["serverNames"].lower().split(','),
-                server.attrib["channelNames"].lower().split(','),
-                server.attrib["announcerNames"].split(',')))
+            self.servers.append(
+                Server(
+                    server.attrib["serverNames"].lower().split(","),
+                    server.attrib["channelNames"].lower().split(","),
+                    server.attrib["announcerNames"].split(","),
+                )
+            )
 
         for extract in root.findall("./parseinfo/linepatterns/*"):
             self.line_patterns.append(self._parseExtract(extract))
@@ -62,10 +67,14 @@ class TrackerXmlConfig:
 
         for ignore in root.findall("./parseinfo/ignore/*"):
             self.ignores.append(
-                    Ignore(ignore.attrib["value"],
-                     ("expected" not in ignore.attrib or
-                         ignore.attrib["expected"] == "true")))
-
+                Ignore(
+                    ignore.attrib["value"],
+                    (
+                        "expected" not in ignore.attrib
+                        or ignore.attrib["expected"] == "true"
+                    ),
+                )
+            )
 
         if debug:
             for info in self.tracker_info:
@@ -97,16 +106,21 @@ class TrackerXmlConfig:
 
         if self.tracker_info is None:
             return False
-        elif (0 == len(self.settings) or
-              len(self.servers) == 0  or
-              (0 == len(self.line_patterns) and 0 == len(self.multiline_patterns))):
+        elif (
+            0 == len(self.settings)
+            or len(self.servers) == 0
+            or (0 == len(self.line_patterns) and 0 == len(self.multiline_patterns))
+        ):
             return False
 
         return True
 
     def _parseExtract(self, extract):
-        optional = (False if "optional" not in extract.attrib else
-                     extract.attrib["optional"] == "true")
+        optional = (
+            False
+            if "optional" not in extract.attrib
+            else extract.attrib["optional"] == "true"
+        )
         regex = extract.findall("./regex")
         groups = extract.findall("./vars/*")
         groupList = []
@@ -114,23 +128,28 @@ class TrackerXmlConfig:
             groupList.append(group.attrib["name"])
         return Extract(regex[0].attrib["value"], groupList, optional)
 
+
 class VarType(Enum):
     STRING = 1
     VAR = 2
     VARENC = 3
 
-vartype_to_name = { VarType.STRING: "value", VarType.VAR: "name", VarType.VARENC: "name" }
+
+vartype_to_name = {VarType.STRING: "value", VarType.VAR: "name", VarType.VARENC: "name"}
+
 
 class Var:
     def __init__(self, varType, var):
         self.varType = VarType[varType.upper()]
         self.name = var[vartype_to_name[self.varType]]
 
+
 class Extract:
     def __init__(self, regex, groups, optional):
         self.regex = regex
         self.groups = groups
         self.optional = optional
+
 
 def get_trackers(tracker_config_path):
     xml_configs = parse_xml_configs(tracker_config_path)
@@ -139,15 +158,20 @@ def get_trackers(tracker_config_path):
         if user_config.name in config.base_sections:
             continue
         elif user_config.name not in xml_configs:
-            logger.error("Tracker '%s' from configuration is not supported", user_config.name)
-        elif _are_settings_configured(user_config, xml_configs[user_config.name].settings):
-            trackers[user_config.name] = TrackerConfig(user_config, xml_configs[user_config.name])
+            logger.error(
+                "Tracker '%s' from configuration is not supported", user_config.name
+            )
+        elif _are_settings_configured(
+            user_config, xml_configs[user_config.name].settings
+        ):
+            trackers[user_config.name] = TrackerConfig(
+                user_config, xml_configs[user_config.name]
+            )
 
     return trackers
 
-"""
-Check that all setting from the XML tracker config is configured in the user config.
-"""
+
+# Check that all setting from the XML tracker config is configured in the user config.
 def _are_settings_configured(user_config, required_settings):
     configured = True
     for setting in required_settings:
@@ -156,9 +180,10 @@ def _are_settings_configured(user_config, required_settings):
             configured = False
     return configured
 
+
 def parse_bool(string):
-    true_strings = [ "true", "True", "yes", "Yes", "1" ]
-    false_strings = [ "false", "False", "no", "No", "0" ]
+    true_strings = ["true", "True", "yes", "Yes", "1"]
+    false_strings = ["false", "False", "no", "No", "0"]
     if string in true_strings:
         return True
     elif string in false_strings:
@@ -240,7 +265,7 @@ class TrackerConfig:
 
     @property
     def user_channels(self):
-        return [x.strip() for x in self._user_config["irc_channels"].split(',')]
+        return [x.strip() for x in self._user_config["irc_channels"].split(",")]
 
     # Return both channels from XML and user config
     @property
@@ -263,13 +288,13 @@ class TrackerConfig:
         return self._xml_config.line_patterns
 
     @property
-    def multiline_patterns (self):
+    def multiline_patterns(self):
         return self._xml_config.multiline_patterns
 
     @property
-    def ignores (self):
+    def ignores(self):
         return self._xml_config.ignores
 
     @property
-    def torrent_url (self):
+    def torrent_url(self):
         return self._xml_config.torrent_url
