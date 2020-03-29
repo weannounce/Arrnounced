@@ -2,7 +2,6 @@ import logging
 import pydle
 import socket
 
-import config
 import message_handler
 
 BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSupport)

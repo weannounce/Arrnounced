@@ -1,14 +1,11 @@
 import asyncio
 import html
 import logging
-import re
-import time
 
 import announce_parser
 import db
 import utils
-from backend import notify, notify_which_backends, backends_to_string, Backend
-from tracker_config import VarType
+from backend import notify, notify_which_backends, backends_to_string
 
 logger = logging.getLogger("MESSAGE_HANDLER")
 

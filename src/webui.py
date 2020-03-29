@@ -180,7 +180,8 @@ def check(pvr_name):
             if "error" not in resp:
                 return "OK"
 
-    except Exception as ex:
+    # TODO: Catch more specific types
+    except Exception:
         logger.exception("Exception while checking " + pvr_name + " apikey:")
 
     return "ERR"
@@ -214,7 +215,8 @@ def notify():
                 logger.debug(backend_name + " still refused this torrent...")
                 return "ERR"
 
-    except Exception as ex:
+    # TODO: Catch more specific types
+    except Exception:
         logger.exception("Exception while notifying announcement:")
 
     return "ERR"
