@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import datetime
-import logging
-from pony.orm import *
+from pony.orm import Database, db_session, Required, select, Set
 import os
 import sys
 

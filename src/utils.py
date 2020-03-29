@@ -42,7 +42,10 @@ def human_datetime(date_time):
     days, hours, minutes = int(days), int(hours), int(minutes)
     datelets = []
     years, months, xdays = None, None, None
-    plural = lambda x: "s" if x != 1 else ""
+
+    def plural(x):
+        return "s" if x != 1 else ""
+
     if days >= 365:
         years = int(days / 365)
         datelets.append("%d year%s" % (years, plural(years)))

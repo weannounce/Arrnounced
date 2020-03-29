@@ -62,7 +62,7 @@ def init(config_path):
 mandatory_tracker_fields = ["irc_nickname", "irc_server", "irc_port", "irc_channels"]
 
 
-def validate_config():
+def validate_config():  # noqa: C901
     global cfg
     valid = True
 

@@ -6,8 +6,6 @@ from enum import Enum
 from json.decoder import JSONDecodeError
 from requests.exceptions import HTTPError, RequestException
 
-import config
-import utils
 
 logger = logging.getLogger("BACKEND")
 
@@ -35,6 +33,7 @@ _backend_data = {
         "use_indexer": False,
     },
 }
+
 
 # TODO: Make this looks nicer if possible. E.g. some for-loop
 def init(config):
@@ -154,5 +153,6 @@ def _notify(backend, title, torrent_url, indexer):
             backend["name"],
             http_response.content,
         )
+        logger.warning(e)
 
     return approved
