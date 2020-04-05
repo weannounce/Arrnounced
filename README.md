@@ -13,7 +13,7 @@ The database design is updated in [v0.3](https://github.com/weannounce/arrnounce
 ([ef931ee](https://github.com/weannounce/arrnounced/commit/ef931eef27348f82254d601f96d094a7b9f147bb)).
 If you used Arrnounced prior to this or used one of its predecessors you have two
 options.
-* Concert your old database using [convert_db.py](https://github.com/weannounce/arrnounced/blob/master/convert_db.py)
+* Convert your old database using [convert_db.py](https://github.com/weannounce/arrnounced/blob/master/convert_db.py)
 * Move the old database file for safe keeping.
 
 The database file is called `brain.db` and Arrnounced keep it in `~/.arrnounced`
