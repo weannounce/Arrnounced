@@ -3,7 +3,7 @@ Flask==1.1.1
 Flask-Login==0.4.1
 pony==0.7.11
 profig==0.5.1
-pydle==0.9.3
+pydle==0.9.4rc1
 requests==2.22.0
 pythreadworker==0.9.0
 
