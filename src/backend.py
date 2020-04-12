@@ -111,7 +111,7 @@ def renotify(backend_name, title, download_link, indexer):
         logger.warning("Unknown backend %s", backend_name)
         return False
 
-    return _notify(_backend_data[backend], title, download_link, indexer)
+    return _notify(_backend_data[backend], title, download_link, "Irc" + indexer)
 
 
 def _notify(backend, title, torrent_url, indexer):

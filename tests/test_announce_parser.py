@@ -102,8 +102,9 @@ class ParserTest(unittest.TestCase):
         tc_helper["g4"] = "g4_text&"
         tc_helper["g5"] = "g5_text&"
 
+        # torrentName has extra whitespace added
         ann = announce_parser.parse(
-            tc_helper, "Test name: the_name g2: g2_text& g3: g3_text&"
+            tc_helper, "Test name:  the_name  g2: g2_text& g3: g3_text&"
         )
         self.assertEqual(ann.torrent_name, "the_name", "Name did not match")
         self.assertEqual(
@@ -144,7 +145,8 @@ class ParserTest(unittest.TestCase):
         ann = announce_parser.parse(tc_helper, "Row2 g2: g2_error")
         self.assertEqual(ann, None, "Should return None if matched rows not in order")
 
-        ann = announce_parser.parse(tc_helper, "Row1 name: the_name")
+        # torrentName has extra whitespace added
+        ann = announce_parser.parse(tc_helper, "Row1 name:  the_name")
         self.assertEqual(ann, None, "No match should return None")
 
         ann = announce_parser.parse(tc_helper, "Row3 g3: g3_error")

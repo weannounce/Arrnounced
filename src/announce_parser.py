@@ -84,7 +84,7 @@ def _parse_line_patterns(tracker_config, message):
         match = re.search(pattern.regex, message)
         if match:
             for i, group in enumerate(pattern.groups, start=1):
-                pattern_groups[group] = match.group(i)
+                pattern_groups[group] = match.group(i).strip()
             break
 
     return pattern_groups
@@ -150,7 +150,7 @@ def _find_matching_pattern(tracker_config, message):
         if match:
             match_groups = {}
             for j, group_name in enumerate(pattern.groups, start=1):
-                match_groups[group_name] = match.group(j)
+                match_groups[group_name] = match.group(j).strip()
             return i, match_groups
     return -1, {}
 
