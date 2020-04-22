@@ -8,16 +8,6 @@ configuration from
 [autodl-trackers](https://github.com/autodl-community/autodl-trackers) (used by
 [autodl-irssi](https://github.com/autodl-community/autodl-irssi))
 
-## Database design update :warning:
-The database design is updated in [v0.3](https://github.com/weannounce/arrnounced/releases/tag/v0.3)
-([ef931ee](https://github.com/weannounce/arrnounced/commit/ef931eef27348f82254d601f96d094a7b9f147bb)).
-If you used Arrnounced prior to this or used one of its predecessors you have two
-options.
-* Convert your old database using [convert_db.py](https://github.com/weannounce/arrnounced/blob/master/convert_db.py)
-* Move the old database file for safe keeping.
-
-The database file is called `brain.db` and Arrnounced keep it in `~/.arrnounced`
-
 ## Supported Trackers
 All trackers from [this
 repository](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
@@ -28,6 +18,16 @@ However, only a few of them are tested at the moment. There are likely issues. F
 ## Requirements
 
 Docker or Python3 (only tested with 3.8 though)
+
+## Database design update
+The database design was updated in [v0.3](https://github.com/weannounce/arrnounced/releases/tag/v0.3)
+([ef931ee](https://github.com/weannounce/arrnounced/commit/ef931eef27348f82254d601f96d094a7b9f147bb)).
+If you used Arrnounced prior to this or used one of its predecessors you have two
+options.
+* Convert your old database using [convert_db.py](https://github.com/weannounce/arrnounced/blob/master/convert_db.py)
+* Move the old database file for safe keeping and let Arrnounced create a new file.
+
+The database file is called `brain.db` and Arrnounced keep it in `~/.arrnounced`
 
 # Configuration
 
