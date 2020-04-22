@@ -46,19 +46,19 @@ The default XML tracker configuration is `~/.arrnounced/autodl-trackers/trackers
 
 ```bash
 # Default example
-docker run -v path/to/settings:/config \
+docker run -v /path/to/settings:/config \
            --user 1000 \
-           -p 3467:3467 weannounce:arrnounced:latest
+           -p 3467:3467 weannounce/arrnounced:latest
 ```
 
 The docker image comes with a snapshot of XML tracker configurations located under `/trackers`. If you prefer your own version you can mount over it.
 
 ```bash
 # Example with custom XML tracker configs
-docker run -v path/to/settings:/config \
-           -v path/to/trackers:/trackers \
+docker run -v /path/to/settings:/config \
+           -v /path/to/trackers:/trackers \
            --user 1000 \
-           -p 3467:3467 weannounce:arrnounced:latest
+           -p 3467:3467 weannounce/arrnounced:latest
 ```
 
 ## Manual
