@@ -67,9 +67,8 @@ Configuration files path as well as log and database location may be changed wit
 ## Database design update
 The database design was updated in [v0.3](https://github.com/weannounce/arrnounced/releases/tag/v0.3)
 ([ef931ee](https://github.com/weannounce/arrnounced/commit/ef931eef27348f82254d601f96d094a7b9f147bb)).
-If you used Arrnounced prior to this or used one of its predecessors you have two
-options.
+If you used Arrnounced prior to this or used its predecessor you have two options.
 * Convert your old database using [convert_db.py](https://github.com/weannounce/arrnounced/blob/master/convert_db.py)
 * Move the old database file for safe keeping and let Arrnounced create a new file.
 
-The database file default path is `~/.arrnounced/brain.db`
+The default path to the database is `~/.arrnounced/brain.db`
