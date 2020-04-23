@@ -1,7 +1,7 @@
-FROM python:3.8.1-alpine3.11
+FROM python:3.8.2-slim
 
 RUN addgroup --system arrnounced && \
-    adduser --system --no-create-home --shell /bin/false arrnounced arrnounced && \
+    adduser --system --no-create-home --shell /bin/false --ingroup arrnounced arrnounced && \
     mkdir /config /trackers /arrnounced
 
 VOLUME /config
