@@ -7,17 +7,19 @@ configuration from
 [autodl-trackers](https://github.com/autodl-community/autodl-trackers) (used by
 [autodl-irssi](https://github.com/autodl-community/autodl-irssi))
 
-## Supported Trackers
-All trackers from [this
-repository](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
+## Features
+* All trackers from
+[autodl-trackers](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
 are supported.
+* Web UI to list announcements and accepted notifications
+* Notify based on announcement category
+* Configurable delay between IRC announcement and notification
 
-However, only a few of them are tested at the moment. There are likely issues. Feel free to report them.
-
-## Requirements
-Docker or Python3 (only tested with 3.8 though)
+Only a few of the supported trackers are tested at the moment. Please report any issues you find.
 
 # Setup
+
+Docker or Python >=3.6 is required to run Arrnounced.
 
 ## Configuration
 The default configuration path is `~/.arrnounced/settings.cfg`.
@@ -31,7 +33,7 @@ The default XML tracker configuration path is `~/.arrnounced/autodl-trackers/tra
 ### Docker
 * You must provide `settings.cfg` in `/config`. This is also where logs and the database will be stored.
 * To access the web UI using bridged network the webui host in settings.cfg must be `0.0.0.0`.
-* As Arrnounced runs as a non-root user by deafult it is recommended to specify your own user to handle write access to `/config`.
+* As Arrnounced runs as a non-root user by default it is recommended to specify your own user to handle write access to `/config`.
 
 ```bash
 # Default example
