@@ -55,7 +55,7 @@ docker run -v /path/to/settings:/config \
 ### Manual
 1. `mkdir ~/.arrnounced`
 2. `git clone https://github.com/autodl-community/autodl-trackers.git ~/.arrnounced/`
-3. Create ~/.arrnounced/settings.cfg with
+3. Create `~/.arrnounced/settings.cfg` with
    [example.cfg](https://github.com/weannounce/arrnounced/blob/master/example.cfg)
    as guide and your [choice of
    trackers](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
