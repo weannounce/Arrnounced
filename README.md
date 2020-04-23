@@ -60,7 +60,10 @@ docker run -v /path/to/settings:/config \
    as guide and your [choice of
    trackers](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
 4. `git clone https://github.com/weannounce/arrnounced.git` in you location of choice
-5. Inside arrnounced directory: `pip install --user -r requirements.txt`
+5. Inside arrnounced directory: `pip install --user -r requirements.txt`.
+   Preferably do this in a [virtual
+   environment](https://docs.python.org/3/tutorial/venv.html) as to not end up
+   with dependency conflicts.
 
 Start with `<path to arrnounced>/src/arrnounced.py`.
 
