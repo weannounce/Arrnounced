@@ -53,7 +53,7 @@ def run(loaded_trackers):
     app.run(
         debug=False,
         host=config.webui_host(),
-        port=int(config.webui_port()),
+        port=config.webui_port(),
         use_reloader=False,
     )
 

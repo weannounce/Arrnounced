@@ -15,7 +15,7 @@ def init(config_path):
 
     # Settings
     cfg.init("webui.host", "0.0.0.0")
-    cfg.init("webui.port", "3467")
+    cfg.init("webui.port", 3467)
     cfg.init("webui.username", None, type=str)
     cfg.init("webui.password", None, type=str)
 
