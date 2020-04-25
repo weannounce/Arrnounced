@@ -1,10 +1,8 @@
 import unittest
 
 from src import announce_parser, tracker_config
-from tracker_config import VarType
+from tracker_config import VarType, Ignore
 from unittest import mock
-
-# TODO: Test ignored lines
 
 
 class LinePattern:
@@ -52,6 +50,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         }
         self._xml_config.line_patterns = []
         self._xml_config.multiline_patterns = []
+        self._xml_config.ignores = []
         self._xml_config.torrent_url = []
 
     def insert_regex(self, regex, regex_groups):
@@ -61,6 +60,9 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         self._xml_config.multiline_patterns.append(
             LinePattern(regex, regex_groups, optional)
         )
+
+    def insert_ignore(self, regex, expected):
+        self._xml_config.ignores.append(Ignore(regex, expected))
 
     def insert_url_var(self, vartype, name):
         self._xml_config.torrent_url.append(HelperVar(vartype, name))
@@ -128,6 +130,42 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g2_text", "Torrent URL did not match")
         self.assertEqual(ann.category, "this_is_category", "Incorrect category")
+
+    def test_single_line_ignore_expected(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_regex(
+            regex=r"(.*) - (.*)", regex_groups=["torrentName", "$g2"],
+        )
+        tc_helper.insert_url_var(VarType.VAR, "$g2")
+        tc_helper.insert_ignore(r"cond1 (.*)", True)
+        tc_helper.insert_ignore(r"cond2 (.*)", True)
+
+        ann = announce_parser.parse(tc_helper, "cond1 something else")
+        self.assertEqual(ann, None, "Should return None when ignored match")
+
+        ann = announce_parser.parse(tc_helper, "cond2 something else")
+        self.assertEqual(ann, None, "Should return None when ignored match")
+
+        ann = announce_parser.parse(tc_helper, "a_name - a_group")
+        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "a_group", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Category not None")
+
+    def test_single_line_ignore_unexpected(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_regex(
+            regex=r"(.*) / (.*)", regex_groups=["torrentName", "$g2"],
+        )
+        tc_helper.insert_url_var(VarType.VAR, "$g2")
+        tc_helper.insert_ignore(r".*/.*", False)
+
+        ann = announce_parser.parse(tc_helper, "something else")
+        self.assertEqual(ann, None, "Should return None when ignored match")
+
+        ann = announce_parser.parse(tc_helper, "a_name / a_group")
+        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "a_group", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Category not None")
 
     @multi_post_condition
     def test_multi_line_pattern_simple(self):
