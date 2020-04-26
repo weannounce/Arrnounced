@@ -18,9 +18,7 @@ RUN chown -R arrnounced:arrnounced /config /trackers /arrnounced
 WORKDIR /arrnounced
 USER arrnounced
 
-# TODO: Control verbose via env
 CMD ["./arrnounced.py", \
     "--data", "/config", \
     "--config", "/config/settings.cfg", \
-    "--trackers", "/trackers", \
-    "--verbose"]
+    "--trackers", "/trackers"]

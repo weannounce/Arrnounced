@@ -48,9 +48,10 @@ docker run -v /path/to/settings:/config \
 The docker image comes with a snapshot of XML tracker configurations located under `/trackers`. If you prefer your own version you can mount over it.
 
 ```bash
-# Example with custom XML tracker configs
+# Example with custom XML tracker configs and verbose logging
 docker run -v /path/to/settings:/config \
            -v /path/to/autodl-trackers/trackers:/trackers \
+           -e VERBOSE=Y \
            --user 1000 \
            -p 3467:3467 weannounce/arrnounced:latest
 ```

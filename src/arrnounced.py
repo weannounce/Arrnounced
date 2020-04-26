@@ -26,9 +26,6 @@ def is_dir(path):
         raise NotADirectoryError("Error: '" + path + "' is not a valid directory")
 
 
-############################################################
-# MAIN ENTRY
-############################################################
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Arrnounced - Listen for IRC announcements"
@@ -65,7 +62,7 @@ if __name__ == "__main__":
     cfg = config.init(args.config)
 
     log_level = logging.INFO
-    if args.verbose:
+    if args.verbose or bool(os.getenv("VERBOSE")):
         log_level = logging.DEBUG
 
     log_file = Path(args.data).joinpath("arrnounced.log")
