@@ -2,12 +2,10 @@ import inspect
 import logging
 import os
 import requests
-from flask import abort
 from flask import Flask
 from flask import redirect
 from flask import render_template
 from flask import request
-from flask import send_file
 from flask import send_from_directory
 from flask import url_for
 from flask_login import LoginManager
@@ -44,12 +42,8 @@ login_manager = LoginManager(app=app)
 login_manager.login_view = "login"
 user = User()
 
-trackers = None
 
-
-def run(loaded_trackers):
-    global trackers
-    trackers = loaded_trackers
+def run():
     app.run(
         debug=False,
         host=config.webui_host(),
@@ -86,45 +80,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
-
-
-# mitm tracker torrent route
-@app.route("/mitm/<tracker>/<torrent_id>/<torrent_name>")
-@login_required
-def serve_torrent(tracker, torrent_id, torrent_name):
-    global trackers
-    found_tracker = None
-
-    logger.debug(
-        "Requested MITM: %s (%s) from tracker: %s", torrent_name, torrent_id, tracker
-    )
-    try:
-        found_tracker = trackers.get_tracker(tracker)
-        if found_tracker is not None:
-            # ask tracker for torrent url
-            download_url = found_tracker.get_real_torrent_link(torrent_id, torrent_name)
-            # ask tracker for cookies
-            cookies = found_tracker.get_cookies()
-
-            if download_url is not None and cookies is not None:
-                # download torrent
-                torrent_path = utils.download_torrent(
-                    tracker, torrent_id, cookies, download_url
-                )
-                if torrent_path is not None:
-                    # serve torrent
-                    logger.debug("Serving torrent: %s", torrent_path)
-                    return send_file(filename_or_fp=torrent_path.__str__())
-
-    except AttributeError:
-        logger.debug(
-            "Tracker was not configured correctly for MITM torrent requests! "
-            "Required methods: get_real_torrent_link() and get_cookies()"
-        )
-    except Exception:
-        logger.exception("Unexpected exception occurred at serve_torrent:")
-
-    return abort(404)
 
 
 @app.route("/assets/<path:path>")

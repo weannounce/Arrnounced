@@ -21,7 +21,7 @@ def run(tracker_config_path):
         sys.exit(1)
 
     thread_irc = irc_task(tracker_configs)
-    thread_webui = webui_task(tracker_configs)
+    thread_webui = webui_task()
 
     thread_irc.fire("START")
     thread_webui.fire("START")
@@ -57,7 +57,7 @@ def irc_task(tracker_configs):
     return worker.start()
 
 
-def webui_task(tracker_configs):
+def webui_task():
     worker = Worker()
     working = True
 
@@ -66,7 +66,7 @@ def webui_task(tracker_configs):
         logger.debug("Start WebUI Task signaled")
         while working:
             try:
-                webui.run(tracker_configs)
+                webui.run()
             except Exception:
                 logger.exception("Exception webui_task START: ")
 
