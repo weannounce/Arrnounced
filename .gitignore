@@ -32,4 +32,4 @@ __pycache__/
 coverage/*
 
 # Tracker repository
-autodl-trackers/*
+autodl-trackers
