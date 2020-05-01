@@ -18,6 +18,7 @@ from pathlib import Path
 
 import config
 import db
+import irc
 import log
 import utils
 from backend import renotify, get_configured_backends
@@ -58,11 +59,16 @@ def run():
         logger.error("Error starting webserver: %s", e)
 
 
-def shutdown_server():
+@app.route("/shutdown", methods=["GET", "POST"])
+@login_required
+def shutdown():
+    logger.info("Shutting down Arrnounced",)
+    irc.stop()
     func = request.environ.get("werkzeug.server.shutdown")
     if func is None:
         raise RuntimeError("Not running with the Werkzeug Server")
     func()
+    return "Shutting down..."
 
 
 @login_manager.user_loader

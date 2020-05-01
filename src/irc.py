@@ -1,6 +1,8 @@
+from asyncio import all_tasks, run_coroutine_threadsafe
 import logging
 import pydle
 import socket
+import time
 
 import message_handler
 
@@ -78,7 +80,23 @@ pool = pydle.ClientPool()
 clients = []
 
 
-def start(tracker_configs):
+def stop():
+    logger.info("Stopping IRC client(s)")
+    global pool, clients
+    for client in clients:
+        # pool.disconnect(client)
+        run_coroutine_threadsafe(client.disconnect(expected=True), pool.eventloop)
+
+    while len(all_tasks(pool.eventloop)) != 0:
+        time.sleep(1)
+    pool.eventloop.call_soon_threadsafe(pool.eventloop.stop)
+
+    while pool.eventloop.is_running():
+        time.sleep(1)
+    pool.eventloop.close()
+
+
+def run(tracker_configs):
     global pool, clients
 
     for tracker_config in tracker_configs.values():
