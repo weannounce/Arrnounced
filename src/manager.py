@@ -1,7 +1,6 @@
 import logging
 import sys
-from time import sleep
-from worker import Worker
+import threading
 
 import irc
 import tracker_config
@@ -20,58 +19,31 @@ def run(tracker_config_path):
         logger.error("No trackers configured, exiting...")
         sys.exit(1)
 
-    thread_irc = irc_task(tracker_configs)
-    thread_webui = webui_task()
+    thread_irc = threading.Thread(target=irc_task, args=(tracker_configs,))
+    thread_webui = threading.Thread(target=webui_task)
 
-    thread_irc.fire("START")
-    thread_webui.fire("START")
+    thread_irc.start()
+    thread_webui.start()
 
-    thread_irc.wait_thread(thread_irc)
-    thread_webui.wait_thread(thread_webui)
-
-    logger.debug("Finished waiting for irc & webui threads")
-
-
-############################################################
-# Tasks
-############################################################
+    thread_irc.join()
+    thread_webui.join()
 
 
 def irc_task(tracker_configs):
-    worker = Worker()
-    working = True
+    logger.debug("Start IRC thread")
+    try:
+        irc.start(tracker_configs)
+    except Exception:
+        logger.exception("Exception in irc_task START: ")
 
-    @worker.listen("START")
-    def _(event):
-        logger.debug("Start IRC Task signaled")
-        while working:
-            try:
-                irc.start(tracker_configs)
-            except Exception:
-                logger.exception("Exception irc_task START: ")
-
-            sleep(30)
-
-        logger.debug("IRC Task finished")
-
-    return worker.start()
+    logger.debug("IRC thread finished")
 
 
 def webui_task():
-    worker = Worker()
-    working = True
+    logger.debug("Start WebUI thread")
+    try:
+        webui.run()
+    except Exception:
+        logger.exception("Exception in WebUI thread")
 
-    @worker.listen("START")
-    def _(event):
-        logger.debug("Start WebUI Task signaled")
-        while working:
-            try:
-                webui.run()
-            except Exception:
-                logger.exception("Exception webui_task START: ")
-
-            sleep(30)
-
-        logger.debug("WebUI Task finished")
-
-    return worker.start()
+    logger.debug("WebUI thread finished")

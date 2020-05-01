@@ -13,8 +13,8 @@ class IRC(BotBase):
     tracker_config = None
     RECONNECT_MAX_ATTEMPTS = None
 
-    def __init__(self, tracker_config):
-        super().__init__(tracker_config.irc_nickname)
+    def __init__(self, tracker_config, event_loop):
+        super().__init__(tracker_config.irc_nickname, eventloop=event_loop)
         self.tracker_config = tracker_config
 
     async def connect(self, *args, **kwargs):
@@ -89,7 +89,7 @@ def start(tracker_configs):
             ", ".join(tracker_config.user_channels),
         )
 
-        client = IRC(tracker_config)
+        client = IRC(tracker_config, pool.eventloop)
 
         clients.append(client)
         try:
