@@ -44,12 +44,15 @@ user = User()
 
 
 def run():
-    app.run(
-        debug=False,
-        host=config.webui_host(),
-        port=config.webui_port(),
-        use_reloader=False,
-    )
+    try:
+        app.run(
+            debug=False,
+            host=config.webui_host(),
+            port=config.webui_port(),
+            use_reloader=False,
+        )
+    except OSError as e:
+        logger.error("Error starting webserver: %s", e)
 
 
 def shutdown_server():
