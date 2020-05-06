@@ -6,6 +6,15 @@ import re
 logger = logging.getLogger("UTILS")
 
 
+class Announcement:
+    def __init__(self, title, url, category=None, date=None, indexer=None):
+        self.title = title
+        self.torrent_url = url
+        self.category = category
+        self.date = date
+        self.indexer = indexer
+
+
 def strip_irc_color_codes(line):
     line = re.sub(r"\x03\d\d?,\d\d?", "", line)
     line = re.sub(r"\x03\d\d?", "", line)

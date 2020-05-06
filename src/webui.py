@@ -20,6 +20,7 @@ import db
 import log
 import utils
 from backend import renotify, get_configured_backends
+from utils import Announcement
 
 logger = logging.getLogger("WEB-UI")
 
@@ -153,21 +154,22 @@ def notify():
         data = request.json
         if "id" in data and "backend_name" in data:
             # Request to check this torrent again
-            announcement = db.get_announcement(data.get("id"))
-            if announcement is not None and len(announcement.title) > 0:
-                logger.debug("Checking announcement again: %s", announcement.title)
+            db_announcement = db.get_announcement(data.get("id"))
+            if db_announcement is not None and len(db_announcement.title) > 0:
+                logger.debug("Checking announcement again: %s", db_announcement.title)
 
                 backend_name = data.get("backend_name")
-                approved = renotify(
-                    backend_name,
-                    announcement.title,
-                    announcement.torrent,
-                    announcement.indexer,
+                announcement = Announcement(
+                    db_announcement.title,
+                    db_announcement.torrent,
+                    indexer=db_announcement.indexer,
+                    date=db_announcement.date,
                 )
+                approved = renotify(announcement, backend_name,)
 
                 if approved:
                     logger.debug(backend_name + " accepted the torrent this time!")
-                    db.insert_snatched(announcement, backend_name)
+                    db.insert_snatched(db_announcement, backend_name)
                     return "OK"
 
                 logger.debug(backend_name + " still refused this torrent...")

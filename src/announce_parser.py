@@ -3,14 +3,12 @@ import logging
 import re
 import urllib.parse
 
-from collections import namedtuple
 from itertools import filterfalse
 from multiprocessing import Lock
 from tracker_config import VarType
+from utils import Announcement
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
-
-Announcement = namedtuple("Announcement", "torrent_name torrent_url category")
 
 
 def parse(tracker_config, message):

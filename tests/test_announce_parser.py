@@ -108,7 +108,7 @@ class ParserTest(unittest.TestCase):
         ann = announce_parser.parse(
             tc_helper, "Test name:  the_name  g2: g2_text& g3: g3_text&"
         )
-        self.assertEqual(ann.torrent_name, "the_name", "Name did not match")
+        self.assertEqual(ann.title, "the_name", "Name did not match")
         self.assertEqual(
             ann.torrent_url,
             "Start g2_text& g3_text%26 g4_text& g5_text%26",
@@ -127,7 +127,7 @@ class ParserTest(unittest.TestCase):
         ann = announce_parser.parse(
             tc_helper, "Test name: a_name g2: g2_text category: this_is_category"
         )
-        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g2_text", "Torrent URL did not match")
         self.assertEqual(ann.category, "this_is_category", "Incorrect category")
 
@@ -147,7 +147,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann, None, "Should return None when ignored match")
 
         ann = announce_parser.parse(tc_helper, "a_name - a_group")
-        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "a_group", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Category not None")
 
@@ -163,7 +163,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann, None, "Should return None when ignored match")
 
         ann = announce_parser.parse(tc_helper, "a_name / a_group")
-        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "a_group", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Category not None")
 
@@ -194,7 +194,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann, None, "Announcement is None")
 
         ann = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
-        self.assertEqual(ann.torrent_name, "the_name", "Name did not match")
+        self.assertEqual(ann.title, "the_name", "Name did not match")
         self.assertEqual(
             ann.torrent_url, "Start g2_text g3_text", "Torrent URL did not match"
         )
@@ -215,12 +215,12 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann, None, "No match should return None")
 
         ann = announce_parser.parse(tc_helper, "Row2 g2: first_g2")
-        self.assertEqual(ann.torrent_name, "first_name", "Name did not match")
+        self.assertEqual(ann.title, "first_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "first_g2", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
         ann = announce_parser.parse(tc_helper, "Row2 g2: second_g2")
-        self.assertEqual(ann.torrent_name, "second_name", "Name did not match")
+        self.assertEqual(ann.title, "second_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "second_g2", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
@@ -241,7 +241,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g3_text", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
@@ -262,7 +262,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "another_name", "Name did not match")
+        self.assertEqual(ann.title, "another_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g2_text", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
@@ -288,7 +288,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "another_name", "Name did not match")
+        self.assertEqual(ann.title, "another_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g3_text", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
@@ -317,7 +317,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "another_name", "Name did not match")
+        self.assertEqual(ann.title, "another_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g3_text", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
@@ -354,7 +354,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row4 g4: g4_text1")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
         self.assertEqual(
             ann.torrent_url, "g3_text1g4_text1", "Torrent URL did not match"
         )
@@ -362,7 +362,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row4 g4: g4_text2")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "another_name", "Name did not match")
+        self.assertEqual(ann.title, "another_name", "Name did not match")
         self.assertEqual(
             ann.torrent_url, "g3_text2g4_text2", "Torrent URL did not match"
         )
@@ -383,7 +383,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "a_name", "Name did not match")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g2_text", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 
@@ -426,7 +426,7 @@ class ParserTest(unittest.TestCase):
 
         ann = announce_parser.parse(tc_helper, "Row2 g2: g2_text1")
         self.assertNotEqual(ann, None, "Announcement is None")
-        self.assertEqual(ann.torrent_name, "two_name", "Name did not match")
+        self.assertEqual(ann.title, "two_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g2_text1", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
 

@@ -1,6 +1,7 @@
 import asyncio
 import html
 import logging
+from datetime import datetime
 
 import announce_parser
 import db
@@ -35,6 +36,9 @@ async def on_message(tracker_config, source, target, message):
     if announcement is None:
         return
 
+    announcement.date = datetime.now()
+    announcement.indexer = tracker_config.short_name
+
     backends = notify_which_backends(tracker_config, announcement.category)
 
     # If backends is empty backends_string is "None"
@@ -45,25 +49,23 @@ async def on_message(tracker_config, source, target, message):
             "%s: Waiting %s seconds to notify %s",
             tracker_config.short_name,
             tracker_config.announce_delay,
-            announcement.torrent_name,
+            announcement.title,
         )
         await asyncio.sleep(tracker_config.announce_delay)
 
-    db_announced = db.insert_announcement(
-        announcement, tracker_config.short_name, backends_string
-    )
+    db_announced = db.insert_announcement(announcement, backends_string)
     logger.info(
         "Notifying %s of release from %s: %s",
         backends_string,
         tracker_config.short_name,
-        announcement.torrent_name,
+        announcement.title,
     )
 
-    backend = notify(announcement, backends, tracker_config.short_name)
+    backend = notify(announcement, backends)
 
     if backend is None:
         # TODO Print rejection reason
-        logger.debug("Release was rejected: %s", announcement.torrent_name)
+        logger.debug("Release was rejected: %s", announcement.title)
     else:
-        logger.info("%s approved release: %s", backend, announcement.torrent_name)
+        logger.info("%s approved release: %s", backend, announcement.title)
         db.insert_snatched(db_announced, backend)

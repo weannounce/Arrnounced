@@ -59,12 +59,12 @@ def get_announcement(id):
     return Announced.get(id=id)
 
 
-def insert_announcement(announcement, indexer, backends):
+def insert_announcement(announcement, backends):
     return Announced(
-        date=datetime.datetime.now(),
-        title=announcement.torrent_name,
+        date=announcement.date,
+        title=announcement.title,
         torrent=announcement.torrent_url,
-        indexer=indexer,
+        indexer=announcement.indexer,
         backend=backends,
     )
 

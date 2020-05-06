@@ -1,4 +1,3 @@
-import datetime
 import logging
 import re
 import requests
@@ -92,39 +91,34 @@ def notify_which_backends(tracker_config, announced_category):
     return backends
 
 
-def notify(announcement, backends, tracker_name):
+def notify(announcement, backends):
     for backend in backends:
-        if _notify(
-            _backend_data[backend],
-            announcement.torrent_name,
-            announcement.torrent_url,
-            "Irc" + tracker_name,
-        ):
+        if _notify(announcement, _backend_data[backend],):
             return _backend_data[backend]["name"]
 
     return None
 
 
-def renotify(backend_name, title, download_link, indexer):
+def renotify(announcement, backend_name):
     backend = _string_to_backend(backend_name)
     if backend is None:
         logger.warning("Unknown backend %s", backend_name)
         return False
 
-    return _notify(_backend_data[backend], title, download_link, "Irc" + indexer)
+    return _notify(announcement, _backend_data[backend])
 
 
-def _notify(backend, title, torrent_url, indexer):
+def _notify(announcement, backend):
     headers = {"X-Api-Key": backend["apikey"]}
     params = {
-        "title": title,
-        "downloadUrl": torrent_url,
+        "title": announcement.title,
+        "downloadUrl": announcement.torrent_url,
         "protocol": "Torrent",
-        "publishDate": datetime.datetime.now().isoformat(),
+        "publishDate": announcement.date.isoformat(),
     }
 
     if backend["use_indexer"]:
-        params["indexer"] = indexer
+        params["indexer"] = "Irc" + announcement.indexer
 
     http_response = None
     try:
