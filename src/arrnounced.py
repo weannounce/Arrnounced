@@ -76,6 +76,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     backend.init(cfg)
-    db.init(args.data)
+    if not db.init(args.data):
+        sys.exit(1)
 
     manager.run(args.trackers)

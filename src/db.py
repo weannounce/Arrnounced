@@ -35,12 +35,20 @@ class Snatched(db.Entity):
 
 
 def init(destination_dir):
-    db.bind(
-        "sqlite",
-        os.path.join(os.path.realpath(destination_dir), "brain.db"),
-        create_db=True,
-    )
-    db.generate_mapping(create_tables=True)
+    try:
+        db.bind(
+            "sqlite",
+            os.path.join(os.path.realpath(destination_dir), "brain.db"),
+            create_db=True,
+        )
+        db.generate_mapping(create_tables=True)
+    except pony.orm.dbapiprovider.OperationalError as e:
+        logger.error(
+            "Could not initiate database: %s", e,
+        )
+        return False
+
+    return True
 
 
 def snatched_to_dict(snatched, transform_date):
