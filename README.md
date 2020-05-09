@@ -50,7 +50,7 @@ The docker image comes with a snapshot of XML tracker configurations located und
 ```bash
 # Example with custom XML tracker configs
 docker run -v /path/to/settings:/config \
-           -v /path/to/trackers:/trackers \
+           -v /path/to/autodl-trackers/trackers:/trackers \
            --user 1000 \
            -p 3467:3467 weannounce/arrnounced:latest
 ```
