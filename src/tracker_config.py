@@ -105,12 +105,15 @@ class TrackerXmlConfig:
                 print("\t\t", ignore.regex, "-", ignore.expected)
 
         if self.tracker_info is None:
+            logger.error("No 'tracker_info' found")
             return False
-        elif (
-            0 == len(self.settings)
-            or len(self.servers) == 0
-            or (0 == len(self.line_patterns) and 0 == len(self.multiline_patterns))
-        ):
+        elif 0 == len(self.line_patterns) and 0 == len(self.multiline_patterns):
+            logger.error("No announcement patterns found")
+        elif len(self.servers) == 0:
+            logger.error("No servers found")
+            return False
+        elif len(self.torrent_url) == 0:
+            logger.error("No items to build URL")
             return False
 
         return True
