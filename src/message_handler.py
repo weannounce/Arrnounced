@@ -49,7 +49,7 @@ async def on_message(tracker_config, source, target, message):
             "%s: Waiting %s seconds to notify %s",
             tracker_config.short_name,
             tracker_config.announce_delay,
-            announcement.title,
+            backends_string,
         )
         await asyncio.sleep(tracker_config.announce_delay)
 
