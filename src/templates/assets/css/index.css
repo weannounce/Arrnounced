@@ -15,3 +15,7 @@ tr td {
 .dropdown-menu {
   position:absolute;
 }
+
+#announced_torrents {
+  overflow:visible;
+}
