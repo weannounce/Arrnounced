@@ -84,16 +84,16 @@
                                      title="Notify backend">
                                   </i>
                                 </a>
-                              <ul class="dropdown-menu dropdown-menu-right">
-                                <li class="dropdown-header">Notify backend</li> {% for backend in backends %}
-                                <li><a href="javascript:notify_backend('{{ release.id }}', '{{ backend }}');">{{backend}}</a></li> {% endfor %}
-                              </ul>
-                              <a href="{{ correct_download(release.torrent) }}" style="margin-left:2.5mm;">
-                                <i class="glyphicon glyphicon-download-alt" data-bs-hover-animate="tada" title="Download torrent">
-                                </i>
-                              </a>
-                            </div>
-                          </td>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                  <li class="dropdown-header">Notify backend</li> {% for backend in backends %}
+                                  <li><a href="javascript:notify_backend('{{ release.id }}', '{{ backend }}');">{{backend}}</a></li> {% endfor %}
+                                </ul>
+                                <a href="{{ correct_download(release.torrent) }}" style="margin-left:2.5mm;" id="torrent_url">
+                                  <i class="glyphicon glyphicon-download-alt" data-bs-hover-animate="tada" title="Download torrent">
+                                  </i>
+                                </a>
+                              </div>
+                            </td>
                         </tr> {% endfor %}
                         </tbody>
                         <caption class="text-center text-primary bg-info">Announced Releases</caption>
