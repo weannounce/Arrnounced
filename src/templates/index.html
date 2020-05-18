@@ -45,14 +45,6 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for snatch in snatched %}
-                        <tr>
-                            <td>{{ format_timestamp(snatch[1]) }}</td>
-                            <td>{{ snatch[2] }}</td>
-                            <td>{{ snatch[3] }}</td>
-                            <td>{{ snatch[4] }}</td>
-                        </tr>
-                        {% endfor %}
                         </tbody>
                         <caption class="text-center text-success bg-success">Snatched Torrents</caption>
                     </table>
@@ -70,31 +62,7 @@
                             <th class="col-xs-1">Actions</th>
                         </tr>
                         </thead>
-                        <tbody> {% for release in announced %}
-                        <tr>
-                            <td>{{ format_timestamp(release.date) }}</td>
-                            <td>{{ release.indexer }}</td>
-                            <td>{{ release.title }}</td>
-                            <td>{{ release.backend }}</td>
-                            <td class="action_td">
-                              <div class="dropdown">
-                                <a href="#" data-toggle="dropdown">
-                                  <i class="glyphicon glyphicon-transfer" style="color:#3399f3"
-                                     data-bs-hover-animate="swing"
-                                     title="Notify backend">
-                                  </i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-right">
-                                  <li class="dropdown-header">Notify backend</li> {% for backend in backends %}
-                                  <li><a href="javascript:notify_backend('{{ release.id }}', '{{ backend }}');">{{backend}}</a></li> {% endfor %}
-                                </ul>
-                                <a href="{{ correct_download(release.torrent) }}" style="margin-left:2.5mm;" id="torrent_url">
-                                  <i class="glyphicon glyphicon-download-alt" data-bs-hover-animate="tada" title="Download torrent">
-                                  </i>
-                                </a>
-                              </div>
-                            </td>
-                        </tr> {% endfor %}
+                        <tbody>
                         </tbody>
                         <caption class="text-center text-primary bg-info">Announced Releases</caption>
                     </table>

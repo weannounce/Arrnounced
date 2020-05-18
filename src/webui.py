@@ -13,7 +13,6 @@ from flask_login import login_user, logout_user
 from flask_login import login_required
 from flask_login import UserMixin
 from pathlib import Path
-from urllib.parse import urlparse
 
 import config
 import db
@@ -100,9 +99,8 @@ def send_asset(path):
 def index():
     return render_template(
         "index.html",
-        snatched=db.get_snatched(limit=20, page=0),
-        announced=db.get_announced(limit=20, page=0),
-        backends=get_configured_backends(),
+        announcement_pages=ceil(db.get_announced_count() / table_row_count),
+        snatch_pages=ceil(db.get_snatched_count() / table_row_count),
     )
 
 
@@ -182,19 +180,5 @@ def notify():
     return "ERR"
 
 
-@app.context_processor
-def utility_processor():
-    def format_timestamp(timestamp):
-        formatted = utils.human_datetime(timestamp)
-        return formatted
 
-    def correct_download(link):
-        formatted = link
-        if "localhost" in link:
-            parts = urlparse(request.url)
-            if parts.hostname is not None:
-                formatted = formatted.replace("localhost", parts.hostname)
 
-        return formatted
-
-    return dict(format_timestamp=format_timestamp, correct_download=correct_download)
