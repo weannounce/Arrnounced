@@ -17,6 +17,16 @@ class Announced(db.Entity):
     backend = Required(str)
     snatched = Set("Snatched")
 
+    def serialize(self, transform_date):
+        return {
+            "id": self.id,
+            "date": transform_date(self.date),
+            "title": self.title,
+            "indexer": self.indexer,
+            "torrent": self.torrent,
+            "backend": self.backend,
+        }
+
 
 class Snatched(db.Entity):
     date = Required(datetime.datetime)
@@ -51,7 +61,7 @@ def get_announced(limit, page):
     return (
         Announced.select()
         .order_by(desc(Announced.id))
-        .limit(limit, offset=page * limit)
+        .limit(limit, offset=(page - 1) * limit)
     )
 
 
@@ -71,3 +81,7 @@ def insert_announcement(announcement, backends):
 
 def insert_snatched(announcement, backend):
     Snatched(date=datetime.datetime.now(), announced=announcement, backend=backend)
+
+
+def get_announced_count():
+    return pony.orm.count(a for a in Announced)

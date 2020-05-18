@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html>
+  <script>
+    var announcement_pages = {{ announcement_pages }};
+  </script>
 
 <head>
     <meta charset="utf-8">
@@ -69,11 +72,38 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-6">
+              <div class="row-md-5">
+                <ul id="snatched-pagination" class="pagination-sm"></ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row-md-5">
+                <ul id="announced-pagination" class="pagination-sm"></ul>
+              </div>
+            </div>
+        </div>
     </div>
 </div>
+<div style="display: none" class="dropdown" id="action_div">
+  <a href="#" data-toggle="dropdown">
+    <i class="glyphicon glyphicon-transfer" style="color:#3399f3"
+       data-bs-hover-animate="swing"
+       title="Notify backend">
+    </i>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-right">
+    <li class="dropdown-header">Notify backend</li>
+  </ul>
+  <a style="margin-left:2.5mm;" id="torrent_url">
+    <i class="glyphicon glyphicon-download-alt" data-bs-hover-animate="tada" title="Download torrent">
+    </i>
+  </a>
+</div>
 <script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.twbsPagination.min.js"></script>
 <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-<script src="assets/js/bs-animation.js"></script>
 <script src="assets/js/common.js"></script>
 <script src="assets/js/index.js"></script>
 <script src="assets/js/logs.js"></script>

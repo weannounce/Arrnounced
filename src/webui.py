@@ -1,8 +1,10 @@
 import inspect
 import logging
+from math import ceil
 import os
 import requests
 from flask import Flask
+from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -22,6 +24,7 @@ from backend import renotify, get_configured_backends
 from utils import Announcement
 
 logger = logging.getLogger("WEB-UI")
+table_row_count = 20
 
 
 class User(UserMixin):
@@ -180,5 +183,21 @@ def notify():
     return "ERR"
 
 
+@app.route("/announced", methods=["POST"])
+@login_required
+@db.db_session
+def announced():
+    page_nr = 1
+    if "page_nr" in request.json:
+        page_nr = request.json["page_nr"]
+
+    announced = jsonify(
+        announces=[
+            e.serialize(utils.human_datetime)
+            for e in db.get_announced(limit=table_row_count, page=page_nr)
+        ],
+        backends=get_configured_backends(),
+    )
+    return announced
 
 

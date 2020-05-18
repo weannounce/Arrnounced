@@ -23,3 +23,65 @@ function notify_backend(announcement_id, backend_name) {
             toastr.error("Error notfying " +backend_name + " of this announcement??");
         });
 }
+
+function animate_actions() {
+  $('[data-bs-hover-animate]')
+    .mouseenter( function(){ var elem = $(this); elem.addClass('animated ' + elem.attr('data-bs-hover-animate')) })
+    .mouseleave( function(){ var elem = $(this); elem.removeClass('animated ' + elem.attr('data-bs-hover-animate')) });
+}
+
+$('#announced-pagination').twbsPagination({
+    totalPages: announcement_pages,
+    visiblePages: 7,
+    hideOnlyOnePage: true,
+    onPageClick: function (event, page) {
+      alite({
+            url: '/announced',
+            method: 'POST',
+            data: {
+              page_nr: page
+            },
+        }).then(function (result) {
+          function add_row(tbody, item, index, backends) {
+            var newRow = tbody.insertRow();
+            var keys = ['date', 'indexer', 'title', 'backend']
+            for(var key in keys) {
+              var newCell = newRow.insertCell();
+              var newText = document.createTextNode(item[keys[key]])
+              newCell.appendChild(newText)
+            }
+            action = document.getElementById('action_div').cloneNode(true);
+            action.removeAttribute('id');
+            action.querySelector('#torrent_url').href = item['torrent']
+            ul = action.querySelector('ul')
+
+            for(var b in backends) {
+              var li_item = $("<li />").appendTo(ul);
+
+              var a_b = $("<a />", {
+                href: "javascript:notify_backend('" + item['id'] + "', '" + backends[b] + "');",
+                text: backends[b]
+              }).appendTo(li_item);
+            }
+
+            action.style.display = "block";
+            var newCell = newRow.insertCell();
+            newCell.setAttribute("class", "action_td");
+            newCell.appendChild(action)
+          }
+
+          var new_tbody = document.createElement('tbody');
+          var old_tbody = document.getElementById('announced_torrents').getElementsByTagName('tbody')[0];
+          result.announces.forEach(function(item, index) {
+            add_row(new_tbody, item, index, result.backends)
+          });
+          old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+
+          animate_actions();
+
+        }).catch(function (err) {
+            toastr.error("Error getting announments ");
+        });
+    }
+});
+
