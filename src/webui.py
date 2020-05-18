@@ -201,3 +201,18 @@ def announced():
     return announced
 
 
+@app.route("/snatched", methods=["POST"])
+@login_required
+@db.db_session
+def snatched():
+    page_nr = 1
+    if "page_nr" in request.json:
+        page_nr = request.json["page_nr"]
+
+    snatched = jsonify(
+        snatches=[
+            db.snatched_to_dict(e, utils.human_datetime)
+            for e in db.get_snatched(limit=table_row_count, page=page_nr)
+        ]
+    )
+    return snatched

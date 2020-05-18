@@ -85,3 +85,38 @@ $('#announced-pagination').twbsPagination({
     }
 });
 
+$('#snatched-pagination').twbsPagination({
+    totalPages: snatch_pages,
+    visiblePages: 7,
+    hideOnlyOnePage: true,
+    onPageClick: function (event, page) {
+      alite({
+            url: '/snatched',
+            method: 'POST',
+            data: {
+              page_nr: page
+            },
+        }).then(function (result) {
+          function add_row(tbody, item, index) {
+            var newRow = tbody.insertRow();
+            var keys = ['date', 'indexer', 'title', 'backend']
+            for(var key in keys) {
+              var newCell = newRow.insertCell();
+              var newText = document.createTextNode(item[keys[key]])
+              newCell.appendChild(newText)
+            }
+          }
+
+          var new_tbody = document.createElement('tbody');
+          var old_tbody = document.getElementById('snatched_torrents').getElementsByTagName('tbody')[0];
+          result.snatches.forEach(function(item, index) {
+            add_row(new_tbody, item, index)
+          });
+          old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+
+
+        }).catch(function (err) {
+            toastr.error("Error getting announments ");
+        });
+    }
+});

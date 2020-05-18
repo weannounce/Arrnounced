@@ -43,6 +43,15 @@ def init(destination_dir):
     db.generate_mapping(create_tables=True)
 
 
+def snatched_to_dict(snatched, transform_date):
+    return {
+        "date": transform_date(snatched[1]),
+        "indexer": snatched[2],
+        "title": snatched[3],
+        "backend": snatched[4],
+    }
+
+
 def get_snatched(limit, page):
     # Order by first attribute in tuple i.e. s.id
     ss = (
@@ -52,7 +61,7 @@ def get_snatched(limit, page):
             for a in s.announced
         )
         .order_by(desc(1))
-        .limit(limit, offset=page * limit)
+        .limit(limit, offset=(page - 1) * limit)
     )
     return ss
 
@@ -85,3 +94,7 @@ def insert_snatched(announcement, backend):
 
 def get_announced_count():
     return pony.orm.count(a for a in Announced)
+
+
+def get_snatched_count():
+    return pony.orm.count(s for s in Snatched)
