@@ -19,3 +19,15 @@ tr td {
 #announced_torrents {
   overflow:visible;
 }
+
+#snatched-pagination {
+  margin: 0 auto;
+}
+
+#announced-pagination {
+  margin: 0 auto;
+}
+
+.page_div {
+  text-align: center
+}
