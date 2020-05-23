@@ -104,6 +104,7 @@ def index():
         "index.html",
         announcement_pages=ceil(db.get_announced_count() / table_row_count),
         snatch_pages=ceil(db.get_snatched_count() / table_row_count),
+        login_required=config.login_required(),
     )
 
 
