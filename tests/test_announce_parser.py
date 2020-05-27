@@ -167,6 +167,25 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann.torrent_url, "a_group", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Category not None")
 
+    def test_single_non_capture_group(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_regex(
+            regex=r"(.*) /(?: (.*))?", regex_groups=["torrentName", "$g2"],
+        )
+        tc_helper.insert_url_var(VarType.VARENC, "torrentName")
+
+        ann = announce_parser.parse(tc_helper, "name /")
+        self.assertNotEqual(ann, None, "Announcement is None")
+        self.assertEqual(ann.title, "name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "name", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Category not None")
+
+        ann = announce_parser.parse(tc_helper, "name / group")
+        self.assertNotEqual(ann, None, "Announcement is None")
+        self.assertEqual(ann.title, "name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "name", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Category not None")
+
     @multi_post_condition
     def test_multi_line_pattern_simple(self):
         tc_helper = TrackerConfigHelper()
@@ -429,6 +448,31 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann.title, "two_name", "Name did not match")
         self.assertEqual(ann.torrent_url, "g2_text1", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Categroy was not None")
+
+    @multi_post_condition
+    def test_multi_non_capture_group(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_multi_regex(
+            regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
+        )
+        tc_helper.insert_multi_regex(regex=r"Row2 g2:(?: (.*))?", regex_groups=["$g2"])
+        tc_helper.insert_url_var(VarType.VARENC, "torrentName")
+
+        ann = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        self.assertEqual(ann, None, "First row in multi should return None")
+        ann = announce_parser.parse(tc_helper, "Row2 g2:")
+        self.assertNotEqual(ann, None, "Announcement is None")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "a_name", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Category not None")
+
+        ann = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        self.assertEqual(ann, None, "First row in multi should return None")
+        ann = announce_parser.parse(tc_helper, "Row2 g2: a_group")
+        self.assertNotEqual(ann, None, "Announcement is None")
+        self.assertEqual(ann.title, "a_name", "Name did not match")
+        self.assertEqual(ann.torrent_url, "a_name", "Torrent URL did not match")
+        self.assertEqual(ann.category, None, "Category not None")
 
 
 if __name__ == "__main__":

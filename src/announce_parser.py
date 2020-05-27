@@ -14,7 +14,9 @@ logger = logging.getLogger("ANNOUNCE_PARSER")
 def parse(tracker_config, message):
     pattern_groups = {}
     if len(tracker_config.line_patterns) > 0:
-        pattern_groups = _parse_line_patterns(tracker_config, message)
+        _, pattern_groups = _find_matching_pattern(
+            tracker_config.line_patterns, message
+        )
     elif len(tracker_config.multiline_patterns) > 0:
         pattern_groups = _parse_multiline_patterns(tracker_config, message)
         if pattern_groups is None:
@@ -70,22 +72,17 @@ def _ignore_message(ignores, message):
     return False
 
 
-######################
-# Single line patterns
-######################
-
-
-def _parse_line_patterns(tracker_config, message):
-    logger.debug("%s: Parsing annoucement '%s'", tracker_config.short_name, message)
-    pattern_groups = {}
-    for pattern in tracker_config.line_patterns:
+def _find_matching_pattern(pattern_list, message):
+    for i, pattern in enumerate(pattern_list, start=0):
         match = re.search(pattern.regex, message)
         if match:
-            for i, group in enumerate(pattern.groups, start=1):
-                pattern_groups[group] = match.group(i).strip()
-            break
-
-    return pattern_groups
+            match_groups = {}
+            for j, group_name in enumerate(pattern.groups, start=1):
+                # Filter out missing non-capturing groups
+                if match.group(j) is not None:
+                    match_groups[group_name] = match.group(j).strip()
+            return i, match_groups
+    return -1, {}
 
 
 ######################
@@ -113,7 +110,9 @@ def _parse_multiline_patterns(tracker_config, message):
     logger.debug(
         "%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message
     )
-    match_index, match_groups = _find_matching_pattern(tracker_config, message)
+    match_index, match_groups = _find_matching_pattern(
+        tracker_config.multiline_patterns, message
+    )
 
     if match_index == -1:
         return {}
@@ -140,17 +139,6 @@ def _parse_multiline_patterns(tracker_config, message):
         return multiline_match.pattern_groups
 
     return None
-
-
-def _find_matching_pattern(tracker_config, message):
-    for i, pattern in enumerate(tracker_config.multiline_patterns, start=0):
-        match = re.search(pattern.regex, message)
-        if match:
-            match_groups = {}
-            for j, group_name in enumerate(pattern.groups, start=1):
-                match_groups[group_name] = match.group(j).strip()
-            return i, match_groups
-    return -1, {}
 
 
 def _is_valid_next_index(matched_index, next_index, patterns):
