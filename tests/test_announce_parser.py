@@ -186,6 +186,19 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(ann.torrent_url, "name", "Torrent URL did not match")
         self.assertEqual(ann.category, None, "Category not None")
 
+    def test_single_empty_groups(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_regex(
+            regex=r"(.*) / (.*)", regex_groups=["torrentName", "$g2"],
+        )
+        tc_helper.insert_url_var(VarType.VAR, "$g2")
+
+        ann = announce_parser.parse(tc_helper, "  / the_group")
+        self.assertEqual(ann, None, "Announcement is None")
+
+        ann = announce_parser.parse(tc_helper, "a_name /  ")
+        self.assertEqual(ann, None, "Announcement is None")
+
     @multi_post_condition
     def test_multi_line_pattern_simple(self):
         tc_helper = TrackerConfigHelper()

@@ -14,9 +14,7 @@ logger = logging.getLogger("ANNOUNCE_PARSER")
 def parse(tracker_config, message):
     pattern_groups = {}
     if len(tracker_config.line_patterns) > 0:
-        _, pattern_groups = _find_matching_pattern(
-            tracker_config.line_patterns, message
-        )
+        _, pattern_groups = _parse_message(tracker_config.line_patterns, message)
     elif len(tracker_config.multiline_patterns) > 0:
         pattern_groups = _parse_multiline_patterns(tracker_config, message)
         if pattern_groups is None:
@@ -26,6 +24,29 @@ def parse(tracker_config, message):
             )
             return None
 
+    if not _is_parsing_ok(tracker_config, pattern_groups, message):
+        return None
+
+    return _create_annoucement(tracker_config, pattern_groups)
+
+
+def _create_annoucement(tracker_config, pattern_groups):
+    try:
+        torrent_url = _get_torrent_link(tracker_config, pattern_groups)
+    except KeyError as e:
+        logger.warning("Missing variable when building URL: %s", e)
+        return None
+
+    if pattern_groups.get("torrentName") is None:
+        logger.warning("Missing torrent name")
+        return None
+
+    return Announcement(
+        pattern_groups["torrentName"], torrent_url, pattern_groups.get("category")
+    )
+
+
+def _is_parsing_ok(tracker_config, pattern_groups, message):
     if len(pattern_groups) == 0:
         if _ignore_message(tracker_config.ignores, message):
             logger.debug("%s: Message ignored: %s", tracker_config.short_name, message)
@@ -33,13 +54,9 @@ def parse(tracker_config, message):
             logger.warning(
                 "%s: No match found for '%s'", tracker_config.short_name, message
             )
-        return None
+        return False
 
-    torrent_url = _get_torrent_link(tracker_config, pattern_groups)
-
-    return Announcement(
-        pattern_groups["torrentName"], torrent_url, pattern_groups.get("category")
-    )
+    return True
 
 
 def _get_torrent_link(tracker_config, pattern_groups):
@@ -72,14 +89,15 @@ def _ignore_message(ignores, message):
     return False
 
 
-def _find_matching_pattern(pattern_list, message):
+def _parse_message(pattern_list, message):
     for i, pattern in enumerate(pattern_list, start=0):
         match = re.search(pattern.regex, message)
         if match:
             match_groups = {}
             for j, group_name in enumerate(pattern.groups, start=1):
                 # Filter out missing non-capturing groups
-                if match.group(j) is not None:
+                group = match.group(j)
+                if group is not None and not group.isspace():
                     match_groups[group_name] = match.group(j).strip()
             return i, match_groups
     return -1, {}
@@ -110,7 +128,7 @@ def _parse_multiline_patterns(tracker_config, message):
     logger.debug(
         "%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message
     )
-    match_index, match_groups = _find_matching_pattern(
+    match_index, match_groups = _parse_message(
         tracker_config.multiline_patterns, message
     )
 
