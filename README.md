@@ -12,7 +12,7 @@ configuration from
 [autodl-trackers](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
 are supported.
 * Web UI to list announcements and accepted notifications
-    * Pagination and ability to search remains to be implemented though
+    * Ability to search among the announcements remains to be implemented though
 * Notify based on announcement category
 * Configurable delay between IRC announcement and notification
 
