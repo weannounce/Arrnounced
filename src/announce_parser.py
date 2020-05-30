@@ -1,12 +1,9 @@
 import time
 import logging
 import re
-import urllib.parse
 
 from itertools import filterfalse
 from multiprocessing import Lock
-from tracker_config import VarType
-from utils import Announcement
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
 
@@ -27,23 +24,7 @@ def parse(tracker_config, message):
     if not _is_parsing_ok(tracker_config, pattern_groups, message):
         return None
 
-    return _create_annoucement(tracker_config, pattern_groups)
-
-
-def _create_annoucement(tracker_config, pattern_groups):
-    try:
-        torrent_url = _get_torrent_link(tracker_config, pattern_groups)
-    except KeyError as e:
-        logger.warning("Missing variable when building URL: %s", e)
-        return None
-
-    if pattern_groups.get("torrentName") is None:
-        logger.warning("Missing torrent name")
-        return None
-
-    return Announcement(
-        pattern_groups["torrentName"], torrent_url, pattern_groups.get("category")
-    )
+    return pattern_groups
 
 
 def _is_parsing_ok(tracker_config, pattern_groups, message):
@@ -57,27 +38,6 @@ def _is_parsing_ok(tracker_config, pattern_groups, message):
         return False
 
     return True
-
-
-def _get_torrent_link(tracker_config, pattern_groups):
-    url = ""
-    for var in tracker_config.torrent_url:
-        if var.varType is VarType.STRING:
-            url = url + var.name
-        elif var.varType is VarType.VAR:
-            if var.name.startswith("$"):
-                url = url + pattern_groups[var.name]
-            else:
-                url = url + tracker_config[var.name]
-        elif var.varType is VarType.VARENC:
-            if var.name in pattern_groups:
-                var_value = pattern_groups[var.name]
-            else:
-                var_value = tracker_config[var.name]
-            url = url + urllib.parse.quote_plus(var_value)
-
-    logger.debug("Torrent URL: %s", url)
-    return url
 
 
 def _ignore_message(ignores, message):

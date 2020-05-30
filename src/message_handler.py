@@ -1,11 +1,11 @@
 import asyncio
 import html
 import logging
-from datetime import datetime
 
 import announce_parser
 import db
 import utils
+from announcement import create_announcement
 from backend import notify, notify_which_backends, backends_to_string
 
 logger = logging.getLogger("MESSAGE_HANDLER")
@@ -32,12 +32,14 @@ async def on_message(tracker_config, source, target, message):
 
     message = _sanitize_message(message)
 
-    announcement = announce_parser.parse(tracker_config, message)
-    if announcement is None:
+    variables = announce_parser.parse(tracker_config, message)
+    if variables is None:
         return
 
-    announcement.date = datetime.now()
-    announcement.indexer = tracker_config.short_name
+    announcement = create_announcement(tracker_config, variables)
+
+    if announcement is None:
+        return
 
     backends = notify_which_backends(tracker_config, announcement.category)
 

@@ -2,11 +2,21 @@ import logging
 import os
 import re
 import defusedxml.ElementTree as ET
-from enum import Enum
 from collections import namedtuple
 
 import config
 from backend import Backend
+from announcement import (
+    Var,
+    Http,
+    Extract,
+    ExtractOne,
+    ExtractTags,
+    VarReplace,
+    SetRegex,
+    If,
+)
+
 
 logger = logging.getLogger("TRACKER_CONF")
 debug = False
@@ -29,11 +39,55 @@ def parse_xml_configs(tracker_config_path):
     return xml_configs
 
 
+def var_creator(element):
+    return Var(element.attrib["name"], element.findall("./*"))
+
+
+def http_creator(element):
+    return Http()
+
+
+def extract_creator(element):
+    return Extract()
+
+
+def extract_one_creator(element):
+    return ExtractOne()
+
+
+def extract_tags_creator(element):
+    return ExtractTags()
+
+
+def var_replace_creator(element):
+    return VarReplace
+
+
+def set_regex_creator(element):
+    return SetRegex()
+
+
+def if_creator(element):
+    return If()
+
+
+_line_match_creators = {
+    "var": var_creator,
+    "http": http_creator,
+    "extract": extract_creator,
+    "extractone": extract_one_creator,
+    "extracttags": extract_tags_creator,
+    "varreplace": var_replace_creator,
+    "setregex": set_regex_creator,
+    "if": if_creator,
+}
+
+
 class TrackerXmlConfig:
     def __init__(self):
         self.settings = []
         self.servers = []
-        self.torrent_url = []
+        self.line_matched = []
         self.line_patterns = []
         self.multiline_patterns = []
         self.ignores = []
@@ -62,8 +116,8 @@ class TrackerXmlConfig:
         for extract in root.findall("./parseinfo/multilinepatterns/*"):
             self.multiline_patterns.append(self._parseExtract(extract))
 
-        for var in root.findall("./parseinfo/linematched/var[@name='torrentUrl']/*"):
-            self.torrent_url.append(Var(var.tag, var.attrib))
+        for element in root.findall("./parseinfo/linematched/*"):
+            self.line_matched.append(_line_match_creators[element.tag](element))
 
         for ignore in root.findall("./parseinfo/ignore/*"):
             self.ignores.append(
@@ -88,7 +142,7 @@ class TrackerXmlConfig:
                 print("\t\tchannels", server.channels)
                 print("\t\tannouncers", server.announcers)
             print("\tTorrentUrl")
-            for var in self.torrent_url:
+            for var in self.line_matched:
                 print("\t\t", var.varType, ": ", var.name)
             print("\tLinePatterns")
             for pattern in self.line_patterns:
@@ -112,7 +166,7 @@ class TrackerXmlConfig:
         elif len(self.servers) == 0:
             logger.error("No servers found")
             return False
-        elif len(self.torrent_url) == 0:
+        elif len(self.line_matched) == 0:
             logger.error("No items to build URL")
             return False
 
@@ -129,25 +183,10 @@ class TrackerXmlConfig:
         groupList = []
         for group in groups:
             groupList.append(group.attrib["name"])
-        return Extract(regex[0].attrib["value"], groupList, optional)
+        return AnnouncementExtract(regex[0].attrib["value"], groupList, optional)
 
 
-class VarType(Enum):
-    STRING = 1
-    VAR = 2
-    VARENC = 3
-
-
-vartype_to_name = {VarType.STRING: "value", VarType.VAR: "name", VarType.VARENC: "name"}
-
-
-class Var:
-    def __init__(self, varType, var):
-        self.varType = VarType[varType.upper()]
-        self.name = var[vartype_to_name[self.varType]]
-
-
-class Extract:
+class AnnouncementExtract:
     def __init__(self, regex, groups, optional):
         self.regex = regex
         self.groups = groups
@@ -299,5 +338,5 @@ class TrackerConfig:
         return self._xml_config.ignores
 
     @property
-    def torrent_url(self):
-        return self._xml_config.torrent_url
+    def line_matched(self):
+        return self._xml_config.line_matched

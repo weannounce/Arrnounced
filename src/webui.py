@@ -21,7 +21,7 @@ import db
 import log
 import utils
 from backend import renotify, get_configured_backends
-from utils import Announcement
+from announcement import Announcement
 
 logger = logging.getLogger("WEB-UI")
 table_row_count = 20
