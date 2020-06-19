@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import unittest
 import sys
 import coverage
@@ -11,9 +12,20 @@ cov = coverage.coverage(
 )
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run Arrnounced integration tests")
+    parser.add_argument(
+        "test", type=str, help="Which tests to run", nargs="?", default="*"
+    )
+
+    try:
+        args = parser.parse_args()
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
     cov.start()
 
-    suite = unittest.TestLoader().discover(".", pattern="test_*.py")
+    suite = unittest.TestLoader().discover(".", pattern="test_{}.py".format(args.test))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
 
     cov.stop()

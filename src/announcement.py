@@ -47,7 +47,7 @@ class Var:
             if element.var_type is self.Element.Type.STRING:
                 var = var + element.name
             elif element.var_type is self.Element.Type.VAR:
-                if element.name.startswith("$"):
+                if element.name in variables:
                     var = var + variables[element.name]
                 else:
                     var = var + tracker_config[element.name]
