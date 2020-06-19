@@ -64,9 +64,6 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
     def insert_ignore(self, regex, expected):
         self._xml_config.ignores.append(Ignore(regex, expected))
 
-    def __setitem__(self, key, value):
-        self._user_config[key] = value
-
 
 class ParserTest(unittest.TestCase):
     def setUp(self):
