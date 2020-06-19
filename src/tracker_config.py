@@ -39,6 +39,14 @@ def parse_xml_configs(tracker_config_path):
     return xml_configs
 
 
+def _is_optional(element):
+    return (
+        False
+        if "optional" not in element.attrib
+        else element.attrib["optional"] == "true"
+    )
+
+
 def var_creator(element):
     return Var(element.attrib["name"], element.findall("./*"))
 
@@ -48,7 +56,14 @@ def http_creator(element):
 
 
 def extract_creator(element):
-    return Extract()
+    srcvar = element.attrib["srcvar"] if "srcvar" in element.attrib else None
+    optional = _is_optional(element)
+    regex = element.find("./regex")
+    groups = element.findall("./vars/*")
+    groupList = []
+    for group in groups:
+        groupList.append(group.attrib["name"])
+    return Extract(srcvar, regex.attrib["value"], groupList, optional)
 
 
 def extract_one_creator(element):
@@ -111,10 +126,10 @@ class TrackerXmlConfig:
             )
 
         for extract in root.findall("./parseinfo/linepatterns/*"):
-            self.line_patterns.append(self._parseExtract(extract))
+            self.line_patterns.append(extract_creator(extract))
 
         for extract in root.findall("./parseinfo/multilinepatterns/*"):
-            self.multiline_patterns.append(self._parseExtract(extract))
+            self.multiline_patterns.append(extract_creator(extract))
 
         for element in root.findall("./parseinfo/linematched/*"):
             self.line_matched.append(_line_match_creators[element.tag](element))
@@ -171,26 +186,6 @@ class TrackerXmlConfig:
             return False
 
         return True
-
-    def _parseExtract(self, extract):
-        optional = (
-            False
-            if "optional" not in extract.attrib
-            else extract.attrib["optional"] == "true"
-        )
-        regex = extract.findall("./regex")
-        groups = extract.findall("./vars/*")
-        groupList = []
-        for group in groups:
-            groupList.append(group.attrib["name"])
-        return AnnouncementExtract(regex[0].attrib["value"], groupList, optional)
-
-
-class AnnouncementExtract:
-    def __init__(self, regex, groups, optional):
-        self.regex = regex
-        self.groups = groups
-        self.optional = optional
 
 
 def get_trackers(tracker_config_path):

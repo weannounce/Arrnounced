@@ -85,8 +85,11 @@ class Http:
 
 
 class Extract:
-    def __init__(self):
-        pass
+    def __init__(self, srcvar, regex, groups, optional):
+        self.srcvar = srcvar
+        self.regex = regex
+        self.groups = groups
+        self.optional = optional
 
     def process(self, tracker_config, variables):
         pass
