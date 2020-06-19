@@ -2,10 +2,9 @@ import unittest
 from datetime import datetime
 
 from src import announcement, tracker_config
-from announcement import Var
+from announcement import Var, Extract
 
 #    Http,
-#    Extract,
 #    ExtractOne,
 #    ExtractTags,
 #    VarReplace,
@@ -53,14 +52,16 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
     def insert_var(self, var_name, elements):
         self._xml_config.line_matched.append(Var(var_name, elements))
 
+    def insert_extract(self, srcvar, regex, regex_groups, optional):
+        self._xml_config.line_matched.append(
+            Extract(srcvar, regex, regex_groups, optional)
+        )
+
     def __setitem__(self, key, value):
         self._user_config[key] = value
 
 
 class AnnouncementTest(unittest.TestCase):
-    # def setUp(self):
-    #    announce_parser.multiline_matches = {}
-
     def test_no_torrent_name(self):
         tc_helper = TrackerConfigHelper()
         elements1 = [
@@ -219,7 +220,7 @@ class AnnouncementTest(unittest.TestCase):
         tc_helper.insert_var("torrentUrl", elements2)
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
         announce = announcement.create_announcement(tc_helper, variables)
-        self.assertNotEqual(announce, None, "No match should return None")
+        self.assertNotEqual(announce, None, "Should return match")
         self.assertEqual(
             announce.title,
             "test_stringtestvar1&config_text1%25",
@@ -229,8 +230,111 @@ class AnnouncementTest(unittest.TestCase):
             announce.torrent_url, "testvar2& config_text2%25", "URL does not match"
         )
         self.assertEqual(announce.category, None, "Category should be None")
-        self.assertEqual(announce.indexer, "trackername", "Category should be None")
+        self.assertEqual(announce.indexer, "trackername", "Wrong indexer")
         self.assertTrue(get_time_passed(announce.date) < 0.005, "Date is wrong")
+
+    def test_extract_not_valid(self):
+        tc_helper = TrackerConfigHelper()
+        variables = {"mysrc": "group1  -  group2", "anothersrc": " group3  :  group4"}
+
+        tc_helper.insert_extract("mysrc", "^(.*) - (.*)$", ["g1", "g2"], False)
+        tc_helper.insert_extract("anothersrc", "^(.*) : (.*)$", ["g3", "g4"], False)
+        tc_helper.insert_extract("missing", ">(.*)$", ["g5"], True)
+        announce = announcement.create_announcement(tc_helper, variables)
+        self.assertEqual(announce, None, "No match should return None")
+        self.assertEqual(
+            variables["g1"], "group1", "Variable not correct",
+        )
+        self.assertEqual(
+            variables["g2"], "group2", "Variable not correct",
+        )
+        self.assertEqual(
+            variables["g3"], "group3", "Variable not correct",
+        )
+        self.assertEqual(
+            variables["g4"], "group4", "Variable not correct",
+        )
+        self.assertTrue(
+            "g5" not in variables, "Group should be missing",
+        )
+
+    def test_extract_valid(self):
+        tc_helper = TrackerConfigHelper()
+        variables = {
+            "mysrc": "a title  -  group1",
+            "anothersrc": " an url  :  group2",
+            "present": "> a_category",
+        }
+
+        tc_helper.insert_extract("mysrc", "^(.*) - (.*)$", ["torrentName", "g1"], False)
+        tc_helper.insert_extract(
+            "anothersrc", "^(.*) : (.*)$", ["torrentUrl", "g2"], False
+        )
+        tc_helper.insert_extract("present", ">(.*)$", ["category"], True)
+        announce = announcement.create_announcement(tc_helper, variables)
+        self.assertNotEqual(announce, None, "Should return match")
+        self.assertEqual(
+            announce.title, "a title", "Title does not match",
+        )
+        self.assertEqual(announce.torrent_url, "an url", "URL does not match")
+        self.assertEqual(announce.category, "a_category", "Category should be None")
+        self.assertEqual(announce.indexer, "trackername", "Wrong indexer")
+        self.assertTrue(get_time_passed(announce.date) < 0.005, "Date is wrong")
+        self.assertEqual(
+            variables["g1"], "group1", "Variable not correct",
+        )
+        self.assertEqual(
+            variables["g2"], "group2", "Variable not correct",
+        )
+
+    def test_extract_missing_non_optional(self):
+        tc_helper = TrackerConfigHelper()
+        variables = {
+            "nomatch": "something else",
+        }
+
+        tc_helper.insert_extract(
+            "nomatch", "^(.*) - (.*)$", ["torrentName", "g1"], False
+        )
+        announce = announcement.create_announcement(tc_helper, variables)
+        self.assertEqual(announce, None, "No match should return None")
+        self.assertTrue(
+            "torrentName" not in variables, "Group should be missing",
+        )
+        self.assertTrue(
+            "g1" not in variables, "Group should be missing",
+        )
+
+    def test_extract_missing_non_capture_group(self):
+        tc_helper = TrackerConfigHelper()
+        variables = {
+            "srcvar": " a name  -   ",
+        }
+
+        tc_helper.insert_extract(
+            "srcvar", "^(.*) - (?:(.*))$", ["torrentName", "g1"], False
+        )
+        announce = announcement.create_announcement(tc_helper, variables)
+        self.assertEqual(announce, None, "No match should return None")
+        self.assertEqual(
+            variables["torrentName"], "a name",
+        )
+        self.assertTrue(
+            "g1" not in variables, "Group should be missing",
+        )
+
+    def test_extract_process_string(self):
+        extract = Extract(None, "^(.*) - (.*)$", ["torrentName", "g1"], False)
+        variables = extract.process_string("not matching")
+        self.assertEqual(variables, None, "No match should return None")
+
+        variables = extract.process_string("one title  - groupone")
+        self.assertEqual(
+            variables["torrentName"], "one title",
+        )
+        self.assertEqual(
+            variables["g1"], "groupone",
+        )
 
 
 if __name__ == "__main__":

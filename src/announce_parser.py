@@ -51,14 +51,8 @@ def _ignore_message(ignores, message):
 
 def _parse_message(pattern_list, message):
     for i, pattern in enumerate(pattern_list, start=0):
-        match = re.search(pattern.regex, message)
-        if match:
-            match_groups = {}
-            for j, group_name in enumerate(pattern.groups, start=1):
-                # Filter out missing non-capturing groups
-                group = match.group(j)
-                if group is not None and not group.isspace():
-                    match_groups[group_name] = match.group(j).strip()
+        match_groups = pattern.process_string(message)
+        if match_groups is not None:
             return i, match_groups
     return -1, {}
 

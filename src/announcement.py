@@ -2,6 +2,7 @@ import logging
 import urllib.parse
 from datetime import datetime
 from enum import Enum
+import re
 
 logger = logging.getLogger("ANNOUNCEMENT")
 
@@ -91,8 +92,33 @@ class Extract:
         self.groups = groups
         self.optional = optional
 
+    # Returns None when no match was found
+    def process_string(self, string):
+        match = re.search(self.regex, string)
+        if match:
+            match_groups = {}
+            for j, group_name in enumerate(self.groups, start=1):
+                # Filter out missing non-capturing groups
+                group = match.group(j)
+                if group is not None and not group.isspace():
+                    match_groups[group_name] = match.group(j).strip()
+            return match_groups
+
+        return None
+
     def process(self, tracker_config, variables):
-        pass
+        match_groups = None
+        if self.srcvar in variables:
+            match_groups = self.process_string(variables[self.srcvar])
+
+        if match_groups is not None:
+            variables.update(match_groups)
+        elif not self.optional:
+            logger.warning(
+                "Extract: Variable '%s' did not match regex '%s'",
+                self.srcvar,
+                self.regex,
+            )
 
 
 class ExtractOne:

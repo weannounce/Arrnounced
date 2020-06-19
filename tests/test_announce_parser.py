@@ -1,15 +1,8 @@
 import unittest
 
-from src import announce_parser, tracker_config
+from src import announcement, announce_parser, tracker_config
 from tracker_config import Ignore
 from unittest import mock
-
-
-class LinePattern:
-    def __init__(self, regex, groups, optional=False):
-        self.regex = regex
-        self.groups = groups
-        self.optional = optional
 
 
 class HelperVar:
@@ -54,11 +47,13 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         self._xml_config.line_matched = []
 
     def insert_regex(self, regex, regex_groups):
-        self._xml_config.line_patterns.append(LinePattern(regex, regex_groups))
+        self._xml_config.line_patterns.append(
+            announcement.Extract(None, regex, regex_groups, False)
+        )
 
     def insert_multi_regex(self, regex, regex_groups, optional=False):
         self._xml_config.multiline_patterns.append(
-            LinePattern(regex, regex_groups, optional)
+            announcement.Extract(None, regex, regex_groups, optional)
         )
 
     def insert_ignore(self, regex, expected):
