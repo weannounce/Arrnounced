@@ -67,7 +67,11 @@ def extract_creator(element):
 
 
 def extract_one_creator(element):
-    return ExtractOne()
+    extracts = []
+    xml_extracts = element.findall("./extract")
+    for xml_extract in xml_extracts:
+        extracts.append(extract_creator(xml_extract))
+    return ExtractOne(extracts)
 
 
 def extract_tags_creator(element):

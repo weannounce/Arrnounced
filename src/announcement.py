@@ -106,10 +106,14 @@ class Extract:
 
         return None
 
-    def process(self, tracker_config, variables):
+    def get_extract_variables(self, variables):
         match_groups = None
         if self.srcvar in variables:
             match_groups = self.process_string(variables[self.srcvar])
+        return match_groups
+
+    def process(self, tracker_config, variables):
+        match_groups = self.get_extract_variables(variables)
 
         if match_groups is not None:
             variables.update(match_groups)
@@ -122,11 +126,17 @@ class Extract:
 
 
 class ExtractOne:
-    def __init__(self):
-        pass
+    def __init__(self, extracts):
+        self.extracts = extracts
 
     def process(self, tracker_config, variables):
-        pass
+        for extract in self.extracts:
+            extract_vars = extract.get_extract_variables(variables)
+            if extract_vars is not None:
+                variables.update(extract_vars)
+                return
+
+        logger.warning("ExtractOne: No matching regex found")
 
 
 class ExtractTags:

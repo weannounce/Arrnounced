@@ -2,10 +2,9 @@ import unittest
 from datetime import datetime
 
 from src import announcement, tracker_config
-from announcement import Var, Extract
+from announcement import Var, Extract, ExtractOne
 
 #    Http,
-#    ExtractOne,
 #    ExtractTags,
 #    VarReplace,
 #    SetRegex,
@@ -335,6 +334,60 @@ class AnnouncementTest(unittest.TestCase):
         self.assertEqual(
             variables["g1"], "groupone",
         )
+
+    def test_extractone_no_match(self):
+        tc_helper = TrackerConfigHelper()
+
+        extracts = []
+        extracts.append(Extract("src", "^(.*) - (.*)$", ["torrentName", "g1"], False))
+        extracts.append(Extract("src", "^(.*) : (.*)$", ["torrentName", "g1"], False))
+        extractone = ExtractOne(extracts)
+
+        variables = {
+            "src": "something / someother",
+        }
+
+        extractone.process(tc_helper, variables)
+        self.assertTrue("torrentName" not in variables)
+        self.assertTrue("g1" not in variables)
+
+    def test_extractone_match_first(self):
+        tc_helper = TrackerConfigHelper()
+
+        extracts = []
+        extracts.append(
+            Extract("src", "^(.*) - (.*) - (.*)$", ["torrentName", "g1", "g2"], False)
+        )
+        extracts.append(Extract("src", "^(.*) : (.*)$", ["torrentName", "g1"], False))
+        extractone = ExtractOne(extracts)
+
+        variables = {
+            "src": "something - else -  or",
+        }
+
+        extractone.process(tc_helper, variables)
+        self.assertEqual(variables["torrentName"], "something")
+        self.assertEqual(variables["g1"], "else")
+        self.assertEqual(variables["g2"], "or")
+
+    def test_extractone_match_second(self):
+        tc_helper = TrackerConfigHelper()
+
+        extracts = []
+        extracts.append(
+            Extract("src", "^(.*) - (.*) - (.*)$", ["torrentName", "g1", "g2"], False)
+        )
+        extracts.append(Extract("src", "^(.*) : (.*)$", ["torrentName", "g1"], False))
+        extractone = ExtractOne(extracts)
+
+        variables = {
+            "src": "some :  stuff",
+        }
+
+        extractone.process(tc_helper, variables)
+        self.assertEqual(variables["torrentName"], "some")
+        self.assertEqual(variables["g1"], "stuff")
+        self.assertTrue("g2" not in variables)
 
 
 if __name__ == "__main__":
