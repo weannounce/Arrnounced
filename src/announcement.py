@@ -94,14 +94,14 @@ class Extract:
 
     # Returns None when no match was found
     def process_string(self, string):
-        match = re.search(self.regex, string)
-        if match:
+        matches = re.search(self.regex, string)
+        if matches:
             match_groups = {}
             for j, group_name in enumerate(self.groups, start=1):
                 # Filter out missing non-capturing groups
-                group = match.group(j)
-                if group is not None and not group.isspace():
-                    match_groups[group_name] = match.group(j).strip()
+                match = matches.group(j)
+                if match is not None and not match.isspace():
+                    match_groups[group_name] = match.strip()
             return match_groups
 
         return None
@@ -182,11 +182,20 @@ class ExtractTags:
 
 
 class VarReplace:
-    def __init__(self):
-        pass
+    def __init__(self, name, srcvar, regex, replace):
+        self.name = name
+        self.srcvar = srcvar
+        self.regex = regex
+        self.replace = replace
 
     def process(self, tracker_config, variables):
-        pass
+        if self.srcvar not in variables:
+            logger.warning(
+                "VarReplace: Could not replace, variable '%s' not found", self.srcvar
+            )
+            return
+
+        variables[self.name] = re.sub(self.regex, self.replace, variables[self.srcvar])
 
 
 class SetRegex:

@@ -57,14 +57,17 @@ def http_creator(element):
 
 
 def extract_creator(element):
-    srcvar = element.attrib["srcvar"] if "srcvar" in element.attrib else None
-    optional = _is_optional(element)
-    regex = element.find("./regex")
     groups = element.findall("./vars/*")
     groupList = []
     for group in groups:
         groupList.append(group.attrib["name"])
-    return Extract(srcvar, regex.attrib["value"], groupList, optional)
+
+    return Extract(
+        element.attrib["srcvar"] if "srcvar" in element.attrib else None,
+        element.find("./regex").attrib["value"],
+        groupList,
+        _is_optional(element),
+    )
 
 
 def extract_one_creator(element):
@@ -94,7 +97,12 @@ def extract_tags_creator(element):
 
 
 def var_replace_creator(element):
-    return VarReplace
+    return VarReplace(
+        element.attrib["name"],
+        element.attrib["srcvar"],
+        element.attrib["regex"],
+        element.attrib["replace"],
+    )
 
 
 def set_regex_creator(element):

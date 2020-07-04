@@ -2,10 +2,9 @@ import unittest
 from datetime import datetime
 
 from src import announcement, tracker_config
-from announcement import Var, Extract, ExtractOne, ExtractTags
+from announcement import Var, Extract, ExtractOne, ExtractTags, VarReplace
 
 #    Http,
-#    VarReplace
 #    SetRegex
 #    If,
 
@@ -522,6 +521,54 @@ class AnnouncementTest(unittest.TestCase):
 
         extracttags.process(tc_helper, variables)
         self.assertEqual(variables["name1"], "eurT")
+
+    def test_varreplace_missing_srcvar(self):
+        tc_helper = TrackerConfigHelper()
+
+        varreplace = VarReplace("name", "missing", "[_]", "asdf")
+
+        variables = {
+            "srcvar": "asdf : other_tings",
+        }
+
+        varreplace.process(tc_helper, variables)
+        self.assertTrue("name" not in variables)
+
+    def test_varreplace_replace_nothing(self):
+        tc_helper = TrackerConfigHelper()
+
+        varreplace = VarReplace("name", "srcvar", "[_]", "asdf")
+
+        variables = {
+            "srcvar": "asdf : other tings",
+        }
+
+        varreplace.process(tc_helper, variables)
+        self.assertEqual(variables["name"], "asdf : other tings")
+
+    def test_varreplace_replace_one(self):
+        tc_helper = TrackerConfigHelper()
+
+        varreplace = VarReplace("name", "srcvar", "[_]", "asdf")
+
+        variables = {
+            "srcvar": "asdf : other_tings",
+        }
+
+        varreplace.process(tc_helper, variables)
+        self.assertEqual(variables["name"], "asdf : otherasdftings")
+
+    def test_varreplace_replace_many(self):
+        tc_helper = TrackerConfigHelper()
+
+        varreplace = VarReplace("name", "srcvar", "[_:/]", "db")
+
+        variables = {
+            "srcvar": "asdf : other_tings/nostuff",
+        }
+
+        varreplace.process(tc_helper, variables)
+        self.assertEqual(variables["name"], "asdf db otherdbtingsdbnostuff")
 
 
 if __name__ == "__main__":
