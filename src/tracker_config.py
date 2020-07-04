@@ -106,7 +106,12 @@ def var_replace_creator(element):
 
 
 def set_regex_creator(element):
-    return SetRegex()
+    return SetRegex(
+        element.attrib["srcvar"],
+        element.attrib["regex"],
+        element.attrib["varName"],
+        element.attrib["newValue"],
+    )
 
 
 def if_creator(element):

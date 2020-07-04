@@ -2,10 +2,9 @@ import unittest
 from datetime import datetime
 
 from src import announcement, tracker_config
-from announcement import Var, Extract, ExtractOne, ExtractTags, VarReplace
+from announcement import Var, Extract, ExtractOne, ExtractTags, VarReplace, SetRegex
 
 #    Http,
-#    SetRegex
 #    If,
 
 
@@ -569,6 +568,42 @@ class AnnouncementTest(unittest.TestCase):
 
         varreplace.process(tc_helper, variables)
         self.assertEqual(variables["name"], "asdf db otherdbtingsdbnostuff")
+
+    def test_setregex_missing_srcvar(self):
+        tc_helper = TrackerConfigHelper()
+
+        setregex = SetRegex("missing", "b0[:/]", "new_variable", "new value")
+
+        variables = {
+            "srcvar": "stuff in here",
+        }
+
+        setregex.process(tc_helper, variables)
+        self.assertTrue("new_variable" not in variables)
+
+    def test_setregex_no_match(self):
+        tc_helper = TrackerConfigHelper()
+
+        setregex = SetRegex("srcvar", "b0[:/]", "new_variable", "new value")
+
+        variables = {
+            "srcvar": "stuff in here",
+        }
+
+        setregex.process(tc_helper, variables)
+        self.assertTrue("new_variable" not in variables)
+
+    def test_setregex_match(self):
+        tc_helper = TrackerConfigHelper()
+
+        setregex = SetRegex("srcvar", "b0[:/]", "new_variable", "new value")
+
+        variables = {
+            "srcvar": "stuff in b0:here",
+        }
+
+        setregex.process(tc_helper, variables)
+        self.assertEqual(variables["new_variable"], "new value")
 
 
 if __name__ == "__main__":

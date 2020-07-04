@@ -199,11 +199,21 @@ class VarReplace:
 
 
 class SetRegex:
-    def __init__(self):
-        pass
+    def __init__(self, srcvar, regex, var_name, new_value):
+        self.srcvar = srcvar
+        self.regex = regex
+        self.var_name = var_name
+        self.new_value = new_value
 
     def process(self, tracker_config, variables):
-        pass
+        if self.srcvar not in variables:
+            logger.warning(
+                "SetRegex: Could not set variable, variable '%s' not found", self.srcvar
+            )
+            return
+
+        if re.search(self.regex, variables[self.srcvar]):
+            variables[self.var_name] = self.new_value
 
 
 class If:
