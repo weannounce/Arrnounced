@@ -18,6 +18,7 @@ from announcement import (
 )
 
 
+# TODO: compile and store regex
 logger = logging.getLogger("TRACKER_CONF")
 debug = False
 
@@ -75,7 +76,21 @@ def extract_one_creator(element):
 
 
 def extract_tags_creator(element):
-    return ExtractTags()
+    srcvar = element.attrib["srcvar"]
+    split = element.attrib["split"]
+
+    setvarifs = []
+    for setvarif in element.findall("./setvarif"):
+        setvarifs.append(
+            ExtractTags.SetVarIf(
+                setvarif.attrib["varName"],
+                setvarif.attrib["regex"] if "regex" in setvarif.attrib else None,
+                setvarif.attrib["value"] if "value" in setvarif.attrib else None,
+                setvarif.attrib["newValue"] if "newValue" in setvarif.attrib else None,
+            )
+        )
+
+    return ExtractTags(srcvar, split, setvarifs)
 
 
 def var_replace_creator(element):

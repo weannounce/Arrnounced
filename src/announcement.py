@@ -140,11 +140,45 @@ class ExtractOne:
 
 
 class ExtractTags:
-    def __init__(self):
-        pass
+    def __init__(self, srcvar, split, setvarifs):
+        self.srcvar = srcvar
+        self.split = split
+        self.setvarifs = setvarifs
 
     def process(self, tracker_config, variables):
-        pass
+        if self.srcvar not in variables:
+            logger.warning(
+                "ExtractTags: Could not extract tags, variable '%s' not found",
+                self.srcvar,
+            )
+            return
+
+        for tag_name in [
+            x.strip() for x in re.split(self.split, variables[self.srcvar])
+        ]:
+            if not tag_name:
+                continue
+
+            for setvarif in self.setvarifs:
+                new_value = setvarif.get_value(tag_name)
+                if new_value is not None:
+                    variables[setvarif.var_name] = new_value
+                    break
+
+    class SetVarIf:
+        def __init__(self, var_name, regex, value, new_value):
+            self.var_name = var_name
+            self.regex = regex
+            self.value = value
+            self.new_value = new_value
+
+        def get_value(self, tag_name):
+            if (self.value is not None and self.value.lower() != tag_name.lower()) or (
+                self.regex is not None and re.search(self.regex, tag_name) is None
+            ):
+                return None
+
+            return self.new_value if self.new_value is not None else tag_name
 
 
 class VarReplace:

@@ -2,12 +2,11 @@ import unittest
 from datetime import datetime
 
 from src import announcement, tracker_config
-from announcement import Var, Extract, ExtractOne
+from announcement import Var, Extract, ExtractOne, ExtractTags
 
 #    Http,
-#    ExtractTags,
-#    VarReplace,
-#    SetRegex,
+#    VarReplace
+#    SetRegex
 #    If,
 
 
@@ -388,6 +387,141 @@ class AnnouncementTest(unittest.TestCase):
         self.assertEqual(variables["torrentName"], "some")
         self.assertEqual(variables["g1"], "stuff")
         self.assertTrue("g2" not in variables)
+
+    def test_extracttags_no_match(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name", "^(some|tags)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("name", None, "avalue", "newvalue"))
+        extracttags = ExtractTags("srcvar", "-", setvarifs)
+
+        variables = {
+            "srcvar": "something - someother",
+        }
+        extracttags.process(tc_helper, variables)
+        self.assertTrue("name" not in variables)
+
+    def test_extracttags_no_srcvar(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name", "^(some|tags)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("name", None, "avalue", "newvalue"))
+        extracttags = ExtractTags("srcvar", "-", setvarifs)
+
+        variables = {}
+
+        extracttags.process(tc_helper, variables)
+        self.assertTrue("name" not in variables)
+
+    def test_extracttags_empty_tag(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name", "^(some|tags)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("name", None, "avalue", "newvalue"))
+        extracttags = ExtractTags("srcvar", "-", setvarifs)
+
+        variables = {
+            "srcvar": "something - ",
+        }
+
+        extracttags.process(tc_helper, variables)
+        self.assertTrue("name" not in variables)
+
+    def test_extracttags_match_only_regex(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name", "^(some|tags)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("name", None, "Name", "newvalue"))
+        extracttags = ExtractTags("srcvar", "-", setvarifs)
+
+        variables = {
+            "srcvar": "some - oldvalue",
+        }
+        extracttags.process(tc_helper, variables)
+        self.assertEqual(variables["name"], "some")
+
+    def test_extracttags_match_only_newvalue(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name", "^(some|tags)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("name", None, "OlDvAlUe", "newvalue"))
+        extracttags = ExtractTags("srcvar", "-", setvarifs)
+
+        variables = {
+            "srcvar": "someother - oldvaluE",
+        }
+
+        extracttags.process(tc_helper, variables)
+        self.assertEqual(variables["name"], "newvalue")
+
+    def test_extracttags_match_regex_newvalue(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name", "^(some|tags)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("two", None, "avaluE", "True"))
+        extracttags = ExtractTags("srcvar", "-", setvarifs)
+
+        variables = {
+            "srcvar": "tags - Avalue",
+        }
+
+        extracttags.process(tc_helper, variables)
+        self.assertEqual(variables["name"], "tags")
+        self.assertEqual(variables["two"], "True")
+
+    def test_extracttags_match_two_each(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name1", "^(n1|m1)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("name2", "^(n2|m2)$", None, None))
+        setvarifs.append(ExtractTags.SetVarIf("name3", None, "Value1", "True"))
+        setvarifs.append(ExtractTags.SetVarIf("name4", None, "Value2", "False"))
+        extracttags = ExtractTags("srcvar", "-|/|:", setvarifs)
+
+        variables = {
+            "srcvar": "n1 : valuE2 / m2 - vAlUe1",
+        }
+
+        extracttags.process(tc_helper, variables)
+        self.assertEqual(variables["name1"], "n1")
+        self.assertEqual(variables["name2"], "m2")
+        self.assertEqual(variables["name3"], "True")
+        self.assertEqual(variables["name4"], "False")
+
+    def test_extracttags_regex_part_of_tag(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name1", "stuff$", None, None))
+        extracttags = ExtractTags("srcvar", ":", setvarifs)
+
+        variables = {
+            "srcvar": "some stuff : other tings",
+        }
+
+        extracttags.process(tc_helper, variables)
+        self.assertEqual(variables["name1"], "some stuff")
+
+    def test_extracttags_regex_new_value(self):
+        tc_helper = TrackerConfigHelper()
+
+        setvarifs = []
+        setvarifs.append(ExtractTags.SetVarIf("name1", "^asdf$", None, "eurT"))
+        extracttags = ExtractTags("srcvar", ":", setvarifs)
+
+        variables = {
+            "srcvar": "asdf : other tings",
+        }
+
+        extracttags.process(tc_helper, variables)
+        self.assertEqual(variables["name1"], "eurT")
 
 
 if __name__ == "__main__":
