@@ -2,10 +2,9 @@ import unittest
 from datetime import datetime
 
 from src import announcement, tracker_config
-from announcement import Var, Extract, ExtractOne, ExtractTags, VarReplace, SetRegex
+from announcement import Var, Extract, ExtractOne, ExtractTags, VarReplace, SetRegex, If
 
 #    Http,
-#    If,
 
 
 class HelperXml:
@@ -604,6 +603,126 @@ class AnnouncementTest(unittest.TestCase):
 
         setregex.process(tc_helper, variables)
         self.assertEqual(variables["new_variable"], "new value")
+
+    def test_if_missing_srcvar(self):
+        tc_helper = TrackerConfigHelper()
+
+        matches = []
+        matches.append(SetRegex("srcvar2", "0t.er", "new_variable", "a new value"))
+        iff = If("missing", "st[Uu]ff", matches)
+
+        variables = {
+            "srcvar": "stUff in here",
+            "srcvar2": "0tter stUff in here",
+        }
+
+        iff.process(tc_helper, variables)
+        self.assertTrue("new_variable" not in variables)
+
+    def test_if_condition_not_met(self):
+        tc_helper = TrackerConfigHelper()
+
+        matches = []
+        matches.append(SetRegex("srcvar2", "0t.er", "new_variable", "a new value"))
+        iff = If("srcvar", "no stuff", matches)
+
+        variables = {
+            "srcvar": "stUff in here",
+            "srcvar2": "0tter stUff in here",
+        }
+
+        iff.process(tc_helper, variables)
+        self.assertTrue("new_variable" not in variables)
+
+    def test_if_condition_met(self):
+        tc_helper = TrackerConfigHelper()
+
+        matches = []
+        matches.append(SetRegex("srcvar2", "0t.er", "new_variable", "a new value"))
+        iff = If("srcvar", "st[Uu]ff", matches)
+
+        variables = {
+            "srcvar": "stUff in here",
+            "srcvar2": "0tter stUff in here",
+        }
+
+        iff.process(tc_helper, variables)
+        self.assertEqual(variables["new_variable"], "a new value")
+
+    def test_if_process_all(self):
+        tc_helper = TrackerConfigHelper()
+
+        matches = []
+        matches.append(
+            Var(
+                "first_var",
+                [
+                    HelperXml(x)
+                    for x in [
+                        ["string", "value", "var stuff - here : "],
+                        ["var", "name", "srcvar"],
+                    ]
+                ],
+            )
+        )
+        matches.append(
+            Extract("first_var", "(.*) - (.*) :", ["ext_g1", "ext_g2"], False)
+        )
+
+        matches.append(
+            ExtractOne(
+                [
+                    Extract("ext_g1", "(.*) stuff", ["extone_g1"], False),
+                    Extract("ext_g2", "here", ["extone_g2"], False),
+                ]
+            )
+        )
+
+        matches.append(
+            ExtractTags(
+                "first_var",
+                "[:-]",
+                [ExtractTags.SetVarIf("extract_tags_var", "^(some|here)$", None, None)],
+            )
+        )
+
+        matches.append(VarReplace("varreplace_var", "first_var", "[_:/-]", "<-->"))
+
+        matches.append(
+            SetRegex("varreplace_var", "> here <", "setregex_var", "setregex_value")
+        )
+
+        matches.append(
+            If(
+                "setregex_var",
+                "_value",
+                [
+                    SetRegex(
+                        "extract_tags_var", "here", "setregex_var2", "setregex_value2"
+                    )
+                ],
+            )
+        )
+
+        iff = If("srcvar", "st[Uu]ff", matches)
+
+        variables = {
+            "srcvar": "stUff in here",
+            "srcvar2": "0tter stUff in here",
+        }
+
+        iff.process(tc_helper, variables)
+        self.assertEqual(variables["first_var"], "var stuff - here : stUff in here")
+        self.assertEqual(variables["ext_g1"], "var stuff")
+        self.assertEqual(variables["ext_g2"], "here")
+        self.assertEqual(variables["extone_g1"], "var")
+        self.assertTrue("extone_g2" not in variables)
+        self.assertEqual(variables["extract_tags_var"], "here")
+        self.assertEqual(
+            variables["varreplace_var"], "var stuff <--> here <--> stUff in here"
+        )
+        self.assertEqual(variables["setregex_var"], "setregex_value")
+        self.assertEqual(variables["setregex_var2"], "setregex_value2")
 
 
 if __name__ == "__main__":

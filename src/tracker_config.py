@@ -122,7 +122,10 @@ def set_regex_creator(element):
 
 
 def if_creator(element):
-    return If()
+    line_matches = []
+    for matched in element.findall("./*"):
+        line_matches.append(_line_match_creators[matched.tag](matched))
+    return If(element.attrib["srcvar"], element.attrib["regex"], line_matches)
 
 
 _line_match_creators = {

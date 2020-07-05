@@ -217,8 +217,18 @@ class SetRegex:
 
 
 class If:
-    def __init__(self):
-        pass
+    def __init__(self, srcvar, regex, line_matches):
+        self.srcvar = srcvar
+        self.regex = regex
+        self.line_matches = line_matches
 
     def process(self, tracker_config, variables):
-        pass
+        if self.srcvar not in variables:
+            logger.warning(
+                "If: Could not check condition, variable '%s' not found", self.srcvar
+            )
+            return
+
+        if re.search(self.regex, variables[self.srcvar]):
+            for matched in self.line_matches:
+                matched.process(tracker_config, variables)
