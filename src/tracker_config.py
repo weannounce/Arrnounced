@@ -28,14 +28,21 @@ Ignore = namedtuple("Ignore", "regex expected")
 
 def parse_xml_configs(tracker_config_path):
     xml_configs = {}
-    for trackerFile in sorted(os.listdir(tracker_config_path)):
-        tree = ET.parse(tracker_config_path + "/" + trackerFile)
+    for tracker_file in sorted(os.listdir(tracker_config_path)):
+        tree = ET.parse(tracker_config_path + "/" + tracker_file)
         tracker = TrackerXmlConfig()
 
-        if tracker.parse_config(tree.getroot()):
-            xml_configs[tracker.tracker_info["type"]] = tracker
-        else:
-            logger.error("Could not parse tracker XML config: %s", trackerFile)
+        try:
+            if tracker.parse_config(tree.getroot()):
+                xml_configs[tracker.tracker_info["type"]] = tracker
+            else:
+                logger.error("Could not parse tracker XML config '%s'", tracker_file)
+        except KeyError as e:
+            logger.error(
+                "Could not parse tracker XML config '%s', missing attribute %s",
+                tracker_file,
+                e,
+            )
 
     return xml_configs
 
@@ -87,9 +94,9 @@ def extract_tags_creator(element):
         setvarifs.append(
             ExtractTags.SetVarIf(
                 setvarif.attrib["varName"],
-                setvarif.attrib["regex"] if "regex" in setvarif.attrib else None,
-                setvarif.attrib["value"] if "value" in setvarif.attrib else None,
-                setvarif.attrib["newValue"] if "newValue" in setvarif.attrib else None,
+                setvarif.attrib.get("regex"),
+                setvarif.attrib.get("value"),
+                setvarif.attrib.get("newValue"),
             )
         )
 
