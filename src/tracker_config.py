@@ -254,7 +254,13 @@ def get_trackers(tracker_config_path):
 def _are_settings_configured(user_config, required_settings):
     configured = True
     for setting in required_settings:
-        if setting not in user_config:
+        if setting == "cookie":
+            logger.warning(
+                "%s: Tracker seems to require cookies to download torrent file. "
+                + "Sonarr/Radarr/Lidarr API does not support cookies",
+                user_config.name,
+            )
+        elif setting not in user_config:
             logger.error("%s: Must specify '%s' in config", user_config.name, setting)
             configured = False
     return configured

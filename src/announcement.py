@@ -78,11 +78,11 @@ class Var:
 
 
 class Http:
-    def __init__(self):
-        pass
-
     def process(self, tracker_config, variables):
-        pass
+        logger.warning(
+            "HTTP header (e.g. cookie) in tracker configuration not supported. "
+            + "This might cause problems downloading the torrent file."
+        )
 
 
 class Extract:

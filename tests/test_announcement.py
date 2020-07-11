@@ -2,7 +2,16 @@ import unittest
 from datetime import datetime
 
 from src import announcement, tracker_config
-from announcement import Var, Extract, ExtractOne, ExtractTags, VarReplace, SetRegex, If
+from announcement import (
+    Var,
+    Http,
+    Extract,
+    ExtractOne,
+    ExtractTags,
+    VarReplace,
+    SetRegex,
+    If,
+)
 
 #    Http,
 
@@ -723,6 +732,18 @@ class AnnouncementTest(unittest.TestCase):
         )
         self.assertEqual(variables["setregex_var"], "setregex_value")
         self.assertEqual(variables["setregex_var2"], "setregex_value2")
+
+    def test_http_does_nothing(self):
+        tc_helper = TrackerConfigHelper()
+
+        matches = []
+        matches.append(SetRegex("srcvar2", "0t.er", "new_variable", "a new value"))
+        http = Http()
+
+        variables = {}
+
+        http.process(tc_helper, variables)
+        self.assertEqual(len(variables), 0)
 
 
 if __name__ == "__main__":
