@@ -5,6 +5,7 @@ from enum import Enum
 import re
 
 logger = logging.getLogger("ANNOUNCEMENT")
+debug = False
 
 
 class Announcement:
@@ -48,20 +49,30 @@ class Var:
     def process(self, tracker_config, variables):
         var = ""
         for element in self.elements:
+            var_shard = None
             if element.var_type is self.Element.Type.STRING:
-                var = var + element.name
-            elif element.var_type is self.Element.Type.VAR:
+                var_shard = element.name
+            else:
                 if element.name in variables:
-                    var = var + variables[element.name]
+                    var_shard = variables[element.name]
                 else:
-                    var = var + tracker_config[element.name]
-            elif element.var_type is self.Element.Type.VARENC:
-                if element.name in variables:
-                    var_value = variables[element.name]
-                else:
-                    var_value = tracker_config[element.name]
-                var = var + urllib.parse.quote_plus(var_value)
+                    var_shard = tracker_config.get(element.name)
 
+                if element.var_type is self.Element.Type.VARENC:
+                    var_shard = urllib.parse.quote_plus(var_shard)
+
+            if not var_shard:
+                logger.warning(
+                    "Could not build var '%s', missing variable '%s'",
+                    self.var_name,
+                    element.name,
+                )
+                return
+
+            var = var + var_shard
+
+        if debug:
+            logger.debug("Setting variable: %s = %s", self.var_name, var)
         variables[self.var_name] = var
 
     class Element:
@@ -116,6 +127,9 @@ class Extract:
         match_groups = self.get_extract_variables(variables)
 
         if match_groups is not None:
+            if debug:
+                for k in match_groups:
+                    logger.debug("Setting variable: %s = %s", k, match_groups[k])
             variables.update(match_groups)
         elif not self.optional:
             logger.warning(
@@ -133,6 +147,9 @@ class ExtractOne:
         for extract in self.extracts:
             extract_vars = extract.get_extract_variables(variables)
             if extract_vars is not None:
+                if debug:
+                    for k in extract_vars:
+                        logger.debug("Setting variable: %s = %s", k, extract_vars[k])
                 variables.update(extract_vars)
                 return
 
@@ -162,6 +179,10 @@ class ExtractTags:
             for setvarif in self.setvarifs:
                 new_value = setvarif.get_value(tag_name)
                 if new_value is not None:
+                    if debug:
+                        logger.debug(
+                            "Setting variable: %s = %s", setvarif.var_name, new_value
+                        )
                     variables[setvarif.var_name] = new_value
                     break
 
@@ -195,6 +216,12 @@ class VarReplace:
             )
             return
 
+        if debug:
+            logger.debug(
+                "Setting variable: %s = %s",
+                self.name,
+                re.sub(self.regex, self.replace, variables[self.srcvar]),
+            )
         variables[self.name] = re.sub(self.regex, self.replace, variables[self.srcvar])
 
 
@@ -208,11 +235,13 @@ class SetRegex:
     def process(self, tracker_config, variables):
         if self.srcvar not in variables:
             logger.warning(
-                "SetRegex: Could not set variable, variable '%s' not found", self.srcvar
+                "SetRegex: Could not set variable, '%s' not found", self.srcvar
             )
             return
 
         if re.search(self.regex, variables[self.srcvar]):
+            if debug:
+                logger.debug("Setting variable: %s = %s", self.var_name, self.new_value)
             variables[self.var_name] = self.new_value
 
 

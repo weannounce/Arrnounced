@@ -297,8 +297,8 @@ class TrackerConfig:
         if self._user_config["category_lidarr"] is not None:
             self.backends[Backend.LIDARR] = self._user_config["category_lidarr"]
 
-    def __getitem__(self, key):
-        return self._user_config[key]
+    def get(self, key):
+        return self._user_config.get(key)
 
     @property
     def irc_port(self):
