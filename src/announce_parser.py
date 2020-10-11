@@ -1,6 +1,7 @@
 import time
 import logging
 import re
+from enum import Enum
 
 from itertools import filterfalse
 from multiprocessing import Lock
@@ -8,36 +9,44 @@ from multiprocessing import Lock
 logger = logging.getLogger("ANNOUNCE_PARSER")
 
 
+class ParseStatus(Enum):
+    MATCH = 1
+    NO_MATCH = 2
+    CONTINUE = 3
+
+
 def parse(tracker_config, message):
+    parse_status = ParseStatus.NO_MATCH
     pattern_groups = {}
     if len(tracker_config.line_patterns) > 0:
-        _, pattern_groups = _parse_message(tracker_config.line_patterns, message)
+        parse_status, pattern_groups = _parse_singleline_patterns(
+            tracker_config.line_patterns, message
+        )
     elif len(tracker_config.multiline_patterns) > 0:
-        pattern_groups = _parse_multiline_patterns(tracker_config, message)
-        if pattern_groups is None:
-            logger.debug(
-                "%s: Messages in announcement still remaining",
-                tracker_config.short_name,
-            )
-            return None
+        parse_status, pattern_groups = _parse_multiline_patterns(
+            tracker_config, message
+        )
 
-    if not _is_parsing_ok(tracker_config, pattern_groups, message):
+    if not _is_parsing_ok(tracker_config, parse_status, message):
         return None
 
     return pattern_groups
 
 
-def _is_parsing_ok(tracker_config, pattern_groups, message):
-    if len(pattern_groups) == 0:
+def _is_parsing_ok(tracker_config, parse_status, message):
+    if parse_status == ParseStatus.NO_MATCH:
         if _ignore_message(tracker_config.ignores, message):
             logger.debug("%s: Message ignored: %s", tracker_config.short_name, message)
         else:
             logger.warning(
                 "%s: No match found for '%s'", tracker_config.short_name, message
             )
-        return False
+    elif parse_status == ParseStatus.CONTINUE:
+        logger.debug(
+            "%s: Messages in announcement still remaining", tracker_config.short_name,
+        )
 
-    return True
+    return parse_status == ParseStatus.MATCH
 
 
 def _ignore_message(ignores, message):
@@ -47,6 +56,14 @@ def _ignore_message(ignores, message):
         if bool(re.search(ignore.regex, message)) == ignore.expected:
             return True
     return False
+
+
+def _parse_singleline_patterns(line_patterns, message):
+    index, pattern_groups = _parse_message(line_patterns, message)
+    if index == -1:
+        return ParseStatus.NO_MATCH, {}
+    else:
+        return ParseStatus.MATCH, pattern_groups
 
 
 def _parse_message(pattern_list, message):
@@ -87,7 +104,7 @@ def _parse_multiline_patterns(tracker_config, message):
     )
 
     if match_index == -1:
-        return {}
+        return ParseStatus.NO_MATCH, {}
 
     is_last_pattern = _is_last_multiline_pattern(
         tracker_config.multiline_patterns, match_index
@@ -102,15 +119,15 @@ def _parse_multiline_patterns(tracker_config, message):
         )
 
         if multiline_match is None:
-            return {}
+            return ParseStatus.NO_MATCH, {}
 
         multiline_match.matched_index = match_index
         multiline_match.pattern_groups.update(match_groups)
 
     if is_last_pattern:
-        return multiline_match.pattern_groups
+        return ParseStatus.MATCH, multiline_match.pattern_groups
 
-    return None
+    return ParseStatus.CONTINUE, {}
 
 
 def _is_valid_next_index(matched_index, next_index, patterns):
