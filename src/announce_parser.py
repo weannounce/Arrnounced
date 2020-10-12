@@ -1,10 +1,11 @@
 import time
 import logging
 import re
-from enum import Enum
 
+from enum import Enum
 from itertools import filterfalse
 from multiprocessing import Lock
+from utils import get_default_variables
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
 
@@ -63,7 +64,9 @@ def _parse_singleline_patterns(line_patterns, message):
     if index == -1:
         return ParseStatus.NO_MATCH, {}
     else:
-        return ParseStatus.MATCH, pattern_groups
+        variables = get_default_variables()
+        variables.update(pattern_groups)
+        return ParseStatus.MATCH, variables
 
 
 def _parse_message(pattern_list, message):
@@ -85,7 +88,7 @@ mutex = Lock()
 class MultilineMatch:
     def __init__(self):
         self.time = time.time()
-        self.pattern_groups = {}
+        self.pattern_groups = get_default_variables()
         self.matched_index = -1
 
     # Returns true if more than 15 seconds has passed since instantiated

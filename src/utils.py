@@ -60,3 +60,38 @@ def human_datetime(date_time):
     if not (xdays or months or years):
         datelets.append("%d minute%s" % (minutes, plural(minutes)))
     return ", ".join(datelets) + " ago."
+
+
+def get_default_variables():
+    variables = {
+        "releaseType": "",
+        "freeleech": "",
+        "freeleechPercent": "",
+        "origin": "",
+        "releaseGroup": "",
+        "category": "",
+        "torrentName": "",
+        "uploader": "",
+        "torrentSize": "",
+        "preTime": "",
+        "torrentUrl": "",
+        "torrentSslUrl": "",
+        "year": "",
+        "name1": "",  # artist, show, movie
+        "name2": "",  # album
+        "season": "",
+        "episode": "",
+        "resolution": "",
+        "source": "",
+        "encoder": "",
+        "container": "",
+        "format": "",
+        "bitrate": "",
+        "media": "",
+        "tags": "",
+        "scene": "",
+        "log": "",
+        "logScore": "",
+        "cue": "",
+    }
+    return variables

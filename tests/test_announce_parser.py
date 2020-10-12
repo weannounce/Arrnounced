@@ -1,6 +1,6 @@
 import unittest
 
-from src import announcement, announce_parser, tracker_config
+from src import announcement, announce_parser, tracker_config, utils
 from tracker_config import Ignore
 from unittest import mock
 
@@ -84,7 +84,7 @@ class ParserTest(unittest.TestCase):
             tc_helper, "Test name:  the_name  g2: g2_text& g3: g3_text&"
         )
 
-        self.assertEqual(len(var), 3)
+        self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "the_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text&", "g2 did not match")
         self.assertEqual(var["$g3"], "g3_text&", "g3 did not match")
@@ -100,7 +100,7 @@ class ParserTest(unittest.TestCase):
             tc_helper, "Test name: a_name g2: g2_text category: this_is_category"
         )
 
-        self.assertEqual(len(var), 3)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
         self.assertEqual(var["category"], "this_is_category", "category did not match")
@@ -120,7 +120,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "Should return None when ignored match")
 
         var = announce_parser.parse(tc_helper, "a_name - a_group")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "a_group", "g2 did not match")
 
@@ -135,7 +135,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "Should return None when ignored match")
 
         var = announce_parser.parse(tc_helper, "a_name / a_group")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "a_group", "g2 did not match")
 
@@ -146,11 +146,11 @@ class ParserTest(unittest.TestCase):
         )
 
         var = announce_parser.parse(tc_helper, "name /")
-        self.assertEqual(len(var), 1)
+        self.assertEqual(len(var), len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "name", "Name did not match")
 
         var = announce_parser.parse(tc_helper, "name / group")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "name", "Name did not match")
         self.assertEqual(var["$g2"], "group", "g2 did not match")
 
@@ -161,12 +161,31 @@ class ParserTest(unittest.TestCase):
         )
 
         var = announce_parser.parse(tc_helper, "  / the_group")
-        self.assertEqual(len(var), 1)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["$g2"], "the_group", "$g2 did not match")
 
         var = announce_parser.parse(tc_helper, "a_name /  ")
-        self.assertEqual(len(var), 1)
+        self.assertEqual(len(var), len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "$g2 did not match")
+
+    def test_single_default_variables(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_regex(
+            regex=r"Test g1: (.*) g2: (.*) g3: (.*)",
+            regex_groups=["$g1", "$g2", "$g3"],
+        )
+
+        var = announce_parser.parse(
+            tc_helper, "Test g1:  g1_text  g2: g2_text& g3: g3_text&"
+        )
+
+        self.assertEqual(len(var), 3 + len(utils.get_default_variables()))
+        self.assertEqual(var["$g1"], "g1_text", "g1 did not match")
+        self.assertEqual(var["$g2"], "g2_text&", "g2 did not match")
+        self.assertEqual(var["$g3"], "g3_text&", "g3 did not match")
+
+        for key in utils.get_default_variables():
+            self.assertEqual(var[key], "", "default value did not match")
 
     def test_multi_line_pattern_no_match(self):
         tc_helper = TrackerConfigHelper()
@@ -204,7 +223,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "Announcement is None")
 
         var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
-        self.assertEqual(len(var), 3)
+        self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "the_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
         self.assertEqual(var["$g3"], "g3_text", "g3 did not match")
@@ -223,12 +242,12 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row2 g2: first_g2")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "first_name", "Name did not match")
         self.assertEqual(var["$g2"], "first_g2", "g2 did not match")
 
         var = announce_parser.parse(tc_helper, "Row2 g2: second_g2")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "second_name", "Name did not match")
         self.assertEqual(var["$g2"], "second_g2", "g2 did not match")
 
@@ -247,7 +266,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g3"], "g3_text", "g2 did not match")
 
@@ -266,7 +285,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
 
@@ -290,7 +309,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g3"], "g3_text", "g2 did not match")
 
@@ -317,7 +336,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
-        self.assertEqual(len(var), 3)
+        self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
         self.assertEqual(var["$g3"], "g3_text", "g2 did not match")
@@ -352,13 +371,13 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row4 g4: g4_text1")
-        self.assertEqual(len(var), 3)
+        self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g3"], "g3_text1", "g3 did not match")
         self.assertEqual(var["$g4"], "g4_text1", "g2 did not match")
 
         var = announce_parser.parse(tc_helper, "Row4 g4: g4_text2")
-        self.assertEqual(len(var), 4)
+        self.assertEqual(len(var), 3 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
         self.assertEqual(var["$g3"], "g3_text2", "g3 did not match")
@@ -377,7 +396,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
 
@@ -417,7 +436,7 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "No match should return None")
 
         var = announce_parser.parse(tc_helper, "Row2 g2: g2_text1")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "two_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text1", "g2 did not match")
 
@@ -433,16 +452,37 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var, None, "First row in multi should return None")
 
         var = announce_parser.parse(tc_helper, "Row2 g2:")
-        self.assertEqual(len(var), 1)
+        self.assertEqual(len(var), len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
 
         var = announce_parser.parse(tc_helper, "Row1 name: a_name")
         self.assertEqual(var, None, "First row in multi should return None")
 
         var = announce_parser.parse(tc_helper, "Row2 g2: a_group")
-        self.assertEqual(len(var), 2)
+        self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "a_group", "g2 did not match")
+
+    @multi_post_condition
+    def test_multi_default_variables(self):
+        tc_helper = TrackerConfigHelper()
+        tc_helper.insert_multi_regex(regex=r"Row1 g1: (.*)", regex_groups=["$g1"])
+        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        tc_helper.insert_multi_regex(regex=r"Row3 g3: (.*)", regex_groups=["$g3"])
+
+        var = announce_parser.parse(tc_helper, "Row1 g1: g1_text")
+        self.assertEqual(var, None, "No match should return None")
+        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        self.assertEqual(var, None, "Announcement is None")
+        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
+
+        self.assertEqual(len(var), 3 + len(utils.get_default_variables()))
+        self.assertEqual(var["$g1"], "g1_text", "g1 did not match")
+        self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
+        self.assertEqual(var["$g3"], "g3_text", "g3 did not match")
+
+        for key in utils.get_default_variables():
+            self.assertEqual(var[key], "", "default value did not match")
 
 
 if __name__ == "__main__":
