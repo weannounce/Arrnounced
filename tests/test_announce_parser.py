@@ -108,7 +108,8 @@ class ParserTest(unittest.TestCase):
     def test_single_line_ignore_expected(self):
         tc_helper = TrackerConfigHelper()
         tc_helper.insert_regex(
-            regex=r"(.*) - (.*)", regex_groups=["torrentName", "$g2"],
+            regex=r"(.*) - (.*)",
+            regex_groups=["torrentName", "$g2"],
         )
         tc_helper.insert_ignore(r"cond1 (.*)", True)
         tc_helper.insert_ignore(r"cond2 (.*)", True)
@@ -127,7 +128,8 @@ class ParserTest(unittest.TestCase):
     def test_single_line_ignore_unexpected(self):
         tc_helper = TrackerConfigHelper()
         tc_helper.insert_regex(
-            regex=r"(.*) / (.*)", regex_groups=["torrentName", "$g2"],
+            regex=r"(.*) / (.*)",
+            regex_groups=["torrentName", "$g2"],
         )
         tc_helper.insert_ignore(r".*/.*", False)
 
@@ -142,7 +144,8 @@ class ParserTest(unittest.TestCase):
     def test_single_non_capture_group(self):
         tc_helper = TrackerConfigHelper()
         tc_helper.insert_regex(
-            regex=r"(.*) /(?: (.*))?", regex_groups=["torrentName", "$g2"],
+            regex=r"(.*) /(?: (.*))?",
+            regex_groups=["torrentName", "$g2"],
         )
 
         var = announce_parser.parse(tc_helper, "name /")
@@ -157,7 +160,8 @@ class ParserTest(unittest.TestCase):
     def test_single_empty_groups(self):
         tc_helper = TrackerConfigHelper()
         tc_helper.insert_regex(
-            regex=r"(.*) / (.*)", regex_groups=["torrentName", "$g2"],
+            regex=r"(.*) / (.*)",
+            regex_groups=["torrentName", "$g2"],
         )
 
         var = announce_parser.parse(tc_helper, "  / the_group")
@@ -299,7 +303,8 @@ class ParserTest(unittest.TestCase):
             regex=r"Row2 g2: (.*)", regex_groups=["$g2"], optional=True
         )
         tc_helper.insert_multi_regex(
-            regex=r"Row3 g3: (.*)", regex_groups=["$g3"],
+            regex=r"Row3 g3: (.*)",
+            regex_groups=["$g3"],
         )
         tc_helper.insert_multi_regex(
             regex=r"Row4 g4: (.*)", regex_groups=["$g4"], optional=True
@@ -323,7 +328,8 @@ class ParserTest(unittest.TestCase):
             regex=r"Row2 g2: (.*)", regex_groups=["$g2"], optional=True
         )
         tc_helper.insert_multi_regex(
-            regex=r"Row3 g3: (.*)", regex_groups=["$g3"],
+            regex=r"Row3 g3: (.*)",
+            regex_groups=["$g3"],
         )
         tc_helper.insert_multi_regex(
             regex=r"Row4 g4: (.*)", regex_groups=["$g4"], optional=True
@@ -351,7 +357,8 @@ class ParserTest(unittest.TestCase):
             regex=r"Row2 g2: (.*)", regex_groups=["$g2"], optional=True
         )
         tc_helper.insert_multi_regex(
-            regex=r"Row3 g3: (.*)", regex_groups=["$g3"],
+            regex=r"Row3 g3: (.*)",
+            regex_groups=["$g3"],
         )
         tc_helper.insert_multi_regex(regex=r"Row4 g4: (.*)", regex_groups=["$g4"])
 

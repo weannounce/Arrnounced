@@ -44,7 +44,8 @@ def init(destination_dir):
         db.generate_mapping(create_tables=True)
     except pony.orm.dbapiprovider.OperationalError as e:
         logger.error(
-            "Could not initiate database: %s", e,
+            "Could not initiate database: %s",
+            e,
         )
         return False
 

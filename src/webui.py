@@ -176,7 +176,10 @@ def notify():
                     indexer=db_announcement.indexer,
                     date=db_announcement.date,
                 )
-                approved = renotify(announcement, backend_name,)
+                approved = renotify(
+                    announcement,
+                    backend_name,
+                )
 
                 if approved:
                     logger.debug(backend_name + " accepted the torrent this time!")

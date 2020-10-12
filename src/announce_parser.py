@@ -44,7 +44,8 @@ def _is_parsing_ok(tracker_config, parse_status, message):
             )
     elif parse_status == ParseStatus.CONTINUE:
         logger.debug(
-            "%s: Messages in announcement still remaining", tracker_config.short_name,
+            "%s: Messages in announcement still remaining",
+            tracker_config.short_name,
         )
 
     return parse_status == ParseStatus.MATCH

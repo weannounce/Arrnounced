@@ -109,7 +109,9 @@ class AnnouncementTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            variables["category"], "a_category", "Variable not correct",
+            variables["category"],
+            "a_category",
+            "Variable not correct",
         )
 
     def test_no_torrent_url(self):
@@ -155,7 +157,9 @@ class AnnouncementTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            variables["category"], "a_category", "Variable not correct",
+            variables["category"],
+            "a_category",
+            "Variable not correct",
         )
 
     def test_var_not_valid(self):
@@ -247,19 +251,28 @@ class AnnouncementTest(unittest.TestCase):
         announce = announcement.create_announcement(tc_helper, variables)
         self.assertEqual(announce, None, "No match should return None")
         self.assertEqual(
-            variables["g1"], "group1", "Variable not correct",
+            variables["g1"],
+            "group1",
+            "Variable not correct",
         )
         self.assertEqual(
-            variables["g2"], "group2", "Variable not correct",
+            variables["g2"],
+            "group2",
+            "Variable not correct",
         )
         self.assertEqual(
-            variables["g3"], "group3", "Variable not correct",
+            variables["g3"],
+            "group3",
+            "Variable not correct",
         )
         self.assertEqual(
-            variables["g4"], "group4", "Variable not correct",
+            variables["g4"],
+            "group4",
+            "Variable not correct",
         )
         self.assertTrue(
-            "g5" not in variables, "Group should be missing",
+            "g5" not in variables,
+            "Group should be missing",
         )
 
     def test_extract_valid(self):
@@ -278,17 +291,23 @@ class AnnouncementTest(unittest.TestCase):
         announce = announcement.create_announcement(tc_helper, variables)
         self.assertNotEqual(announce, None, "Should return match")
         self.assertEqual(
-            announce.title, "a title", "Title does not match",
+            announce.title,
+            "a title",
+            "Title does not match",
         )
         self.assertEqual(announce.torrent_url, "an url", "URL does not match")
         self.assertEqual(announce.category, "a_category", "Category should be None")
         self.assertEqual(announce.indexer, "trackername", "Wrong indexer")
         self.assertTrue(get_time_passed(announce.date) < 0.005, "Date is wrong")
         self.assertEqual(
-            variables["g1"], "group1", "Variable not correct",
+            variables["g1"],
+            "group1",
+            "Variable not correct",
         )
         self.assertEqual(
-            variables["g2"], "group2", "Variable not correct",
+            variables["g2"],
+            "group2",
+            "Variable not correct",
         )
 
     def test_extract_missing_non_optional(self):
@@ -303,10 +322,12 @@ class AnnouncementTest(unittest.TestCase):
         announce = announcement.create_announcement(tc_helper, variables)
         self.assertEqual(announce, None, "No match should return None")
         self.assertTrue(
-            "torrentName" not in variables, "Group should be missing",
+            "torrentName" not in variables,
+            "Group should be missing",
         )
         self.assertTrue(
-            "g1" not in variables, "Group should be missing",
+            "g1" not in variables,
+            "Group should be missing",
         )
 
     def test_extract_missing_non_capture_group(self):
@@ -321,10 +342,12 @@ class AnnouncementTest(unittest.TestCase):
         announce = announcement.create_announcement(tc_helper, variables)
         self.assertEqual(announce, None, "No match should return None")
         self.assertEqual(
-            variables["torrentName"], "a name",
+            variables["torrentName"],
+            "a name",
         )
         self.assertTrue(
-            "g1" not in variables, "Group should be missing",
+            "g1" not in variables,
+            "Group should be missing",
         )
 
     def test_extract_process_string(self):
@@ -334,10 +357,12 @@ class AnnouncementTest(unittest.TestCase):
 
         variables = extract.process_string("one title  - groupone")
         self.assertEqual(
-            variables["torrentName"], "one title",
+            variables["torrentName"],
+            "one title",
         )
         self.assertEqual(
-            variables["g1"], "groupone",
+            variables["g1"],
+            "groupone",
         )
 
     def test_extractone_no_match(self):

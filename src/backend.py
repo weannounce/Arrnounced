@@ -93,7 +93,10 @@ def notify_which_backends(tracker_config, announced_category):
 
 def notify(announcement, backends):
     for backend in backends:
-        if _notify(announcement, _backend_data[backend],):
+        if _notify(
+            announcement,
+            _backend_data[backend],
+        ):
             return _backend_data[backend]["name"]
 
     return None
