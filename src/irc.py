@@ -46,7 +46,10 @@ class IRC(BotBase):
         else:
             logger.info("Identifying with NICKSERV")
             await self.rawmsg(
-                "NICKSERV", "IDENTIFY", self.tracker_config.irc_ident_password
+                "PRIVMSG",
+                "NICKSERV",
+                "IDENTIFY",
+                self.tracker_config.irc_ident_password,
             )
 
     async def on_raw(self, message):
