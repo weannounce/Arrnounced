@@ -18,6 +18,7 @@ def init(config_path):
     cfg.init("webui.port", 3467)
     cfg.init("webui.username", None, type=str)
     cfg.init("webui.password", None, type=str)
+    cfg.init("webui.shutdown", False)
 
     cfg.init("log.to_file", True)
     cfg.init("log.to_console", True)
@@ -154,6 +155,10 @@ def webui_host():
 
 def webui_port():
     return cfg["webui.port"]
+
+
+def webui_shutdown():
+    return cfg["webui.shutdown"]
 
 
 def login_required():

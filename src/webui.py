@@ -60,9 +60,12 @@ def run():
 
 
 @app.route("/shutdown", methods=["GET", "POST"])
-@login_required
 def shutdown():
-    logger.info("Shutting down Arrnounced",)
+    if not config.webui_shutdown():
+        return redirect(url_for("index"))
+
+    logger.info("Shutting down Arrnounced")
+    logger.info("Disable shutdown by removing webui.shutdown from config")
     irc.stop()
     func = request.environ.get("werkzeug.server.shutdown")
     if func is None:
