@@ -282,20 +282,39 @@ class TrackerConfig:
         self._xml_config = xml_config
         self._user_config = user_config
 
-        self.backends = {}
-        if self._user_config["notify_sonarr"]:
-            self.backends[BackendType.SONARR] = None
-        if self._user_config["notify_radarr"]:
-            self.backends[BackendType.RADARR] = None
-        if self._user_config["notify_lidarr"]:
-            self.backends[BackendType.LIDARR] = None
+        always_mapping = {
+            "notify_sonarr": BackendType.SONARR,
+            "notify_radarr": BackendType.RADARR,
+            "notify_lidarr": BackendType.LIDARR,
+        }
+        self.always_backends = []
+        for key, backend_type in always_mapping.items():
+            if self._user_config[key]:
+                self.always_backends.append(backend_type)
 
-        if self._user_config["category_sonarr"] is not None:
-            self.backends[BackendType.SONARR] = self._user_config["category_sonarr"]
-        if self._user_config["category_radarr"] is not None:
-            self.backends[BackendType.RADARR] = self._user_config["category_radarr"]
-        if self._user_config["category_lidarr"] is not None:
-            self.backends[BackendType.LIDARR] = self._user_config["category_lidarr"]
+        # if self._user_config["notify_sonarr"]:
+        #    self.always_backends.append(BackendType.SONARR)
+        # if self._user_config["notify_radarr"]:
+        #    self.always_backends.append(BackendType.RADARR)
+        # if self._user_config["notify_lidarr"]:
+        #    self.always_backends.append(BackendType.LIDARR)
+
+        category_mapping = {
+            "category_sonarr": BackendType.SONARR,
+            "category_radarr": BackendType.RADARR,
+            "category_lidarr": BackendType.LIDARR,
+        }
+        self.category_backends = {}
+        for key, backend_type in category_mapping.items():
+            if self._user_config[key]:
+                self.category_backends[backend_type] = self._user_config[key]
+
+        # if self._user_config["category_sonarr"] is not None:
+        #    self.backends[BackendType.SONARR] = self._user_config["category_sonarr"]
+        # if self._user_config["category_radarr"] is not None:
+        #    self.backends[BackendType.RADARR] = self._user_config["category_radarr"]
+        # if self._user_config["category_lidarr"] is not None:
+        #    self.backends[BackendType.LIDARR] = self._user_config["category_lidarr"]
 
     def get(self, key):
         return self._user_config.get(key)
@@ -337,8 +356,12 @@ class TrackerConfig:
         return self._user_config["announce_delay"]
 
     @property
-    def notify_backends(self):
-        return self.backends
+    def always_notify_backends(self):
+        return self.always_backends
+
+    @property
+    def category_notify_backends(self):
+        return self.category_backends
 
     @property
     def short_name(self):

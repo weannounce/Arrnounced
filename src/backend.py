@@ -15,138 +15,140 @@ class BackendType(IntEnum):
     LIDARR = 3
 
 
-_backend_data = {
-    BackendType.SONARR: {
-        "name": "Sonarr",
-        "api_path": "/api/release/push",
-        "use_indexer": True,
-    },
-    BackendType.RADARR: {
-        "name": "Radarr",
-        "api_path": "/api/release/push",
-        "use_indexer": True,
-    },
-    BackendType.LIDARR: {
-        "name": "Lidarr",
-        "api_path": "/api/v1/release/push",
-        "use_indexer": False,
-    },
-}
+class Backend:
+    def notify(self, announcement):
+        headers = {"X-Api-Key": self.apikey}
+        params = {
+            "title": announcement.title,
+            "downloadUrl": announcement.torrent_url,
+            "protocol": "Torrent",
+            "publishDate": announcement.date.isoformat(),
+        }
+
+        if self.use_indexer:
+            params["indexer"] = "Irc" + announcement.indexer
+
+        http_response = None
+        try:
+            http_response = requests.post(
+                url="{}{}".format(self.url, self.api_path),
+                headers=headers,
+                json=params,
+            )
+            http_response.raise_for_status()
+        except HTTPError as e:
+            logger.warning("%s: %s", self.name, e)
+            return False
+        except RequestException as e:
+            logger.error("%s connection problem", self.name)
+            logger.error("%s", e)
+            return False
+
+        approved = False
+        try:
+            json_response = http_response.json()
+            if "approved" in json_response:
+                approved = json_response["approved"]
+        except JSONDecodeError as e:
+            logger.warning(
+                "Could not parse response from %s: %s",
+                self.name,
+                http_response.content,
+            )
+            logger.warning(e)
+
+        return approved
 
 
-# TODO: Make this looks nicer if possible. E.g. some for-loop
+class Sonarr(Backend):
+    api_path = "/api/release/push"
+    use_indexer = True
+
+    def __init__(self, apikey, url):
+        self.apikey = apikey
+        self.url = url
+        self.name = Sonarr.__name__
+
+
+class Radarr(Backend):
+    api_path = "/api/release/push"
+    use_indexer = True
+
+    def __init__(self, apikey, url):
+        self.apikey = apikey
+        self.url = url
+        self.name = Radarr.__name__
+
+
+class Lidarr(Backend):
+    api_path = "/api/v1/release/push"
+    use_indexer = False
+
+    def __init__(self, apikey, url):
+        self.apikey = apikey
+        self.url = url
+        self.name = Lidarr.__name__
+
+
+_backends = {}
+
+
 def init(config):
-    if config["sonarr.apikey"] is None:
-        del _backend_data[BackendType.SONARR]
-    else:
-        _backend_data[BackendType.SONARR]["apikey"] = config["sonarr.apikey"]
-        _backend_data[BackendType.SONARR]["url"] = config["sonarr.url"]
+    if config["sonarr.apikey"]:
+        sonarr = Sonarr(config["sonarr.apikey"], config["sonarr.url"])
+        _backends[BackendType.SONARR] = sonarr
 
-    if config["radarr.apikey"] is None:
-        del _backend_data[BackendType.RADARR]
-    else:
-        _backend_data[BackendType.RADARR]["apikey"] = config["radarr.apikey"]
-        _backend_data[BackendType.RADARR]["url"] = config["radarr.url"]
+    if config["radarr.apikey"]:
+        radarr = Radarr(config["radarr.apikey"], config["radarr.url"])
+        _backends[BackendType.RADARR] = radarr
 
-    if config["lidarr.apikey"] is None:
-        del _backend_data[BackendType.LIDARR]
-    else:
-        _backend_data[BackendType.LIDARR]["apikey"] = config["lidarr.apikey"]
-        _backend_data[BackendType.LIDARR]["url"] = config["lidarr.url"]
-
-
-def backends_to_string(backends):
-    return (
-        "/".join(_backend_data[x]["name"] for x in backends)
-        if len(backends) > 0
-        else "None"
-    )
+    if config["lidarr.apikey"]:
+        lidarr = Lidarr(config["lidarr.apikey"], config["lidarr.url"])
+        _backends[BackendType.LIDARR] = lidarr
 
 
 def get_configured_backends():
-    return {int(x): _backend_data[x]["name"] for x in (list(_backend_data.keys()))}
+    return {int(x): _backends[x].name for x in (list(_backends.keys()))}
 
 
 def notify_which_backends(tracker_config, announced_category):
-    backends = []
-    for backend, category_regex in tracker_config.notify_backends.items():
-        if category_regex is None:
-            backends.append(backend)
-        elif announced_category is not None and re.search(
-            category_regex, announced_category, re.IGNORECASE
-        ):
-            backends.append(backend)
+    notify_backends = [_backends[bt] for bt in tracker_config.always_notify_backends]
+
+    if announced_category:
+        for (
+            backend_type,
+            category_regex,
+        ) in tracker_config.category_notify_backends.items():
+            if re.search(category_regex, announced_category, re.IGNORECASE):
+                notify_backends.append(_backends[backend_type])
 
     # Return all configured backends if none where specified
-    if len(tracker_config.notify_backends) == 0:
-        backends = list(_backend_data.keys())
+    if (
+        len(tracker_config.always_notify_backends) == 0
+        and len(tracker_config.category_notify_backends) == 0
+    ):
+        notify_backends = list(_backends.values())
 
-    return backends
+    return notify_backends
 
 
 def notify(announcement, backends):
     for backend in backends:
-        if _notify(
-            announcement,
-            _backend_data[backend],
-        ):
-            return _backend_data[backend]["name"]
+        if backend.notify(announcement):
+            return backend
 
     return None
 
 
-def renotify(announcement, backend_id):
+def get_backend_from_id(backend_id):
     try:
         backend_type = BackendType(backend_id)
     except ValueError as e:
         logger.error("Unknown backend id, %s", e)
-        return False, "Unkonwn"
+        return None
 
-    return (
-        _notify(announcement, _backend_data[backend_type]),
-        _backend_data[backend_type]["name"],
-    )
+    return _backends.get(backend_type)
 
 
-def _notify(announcement, backend):
-    headers = {"X-Api-Key": backend["apikey"]}
-    params = {
-        "title": announcement.title,
-        "downloadUrl": announcement.torrent_url,
-        "protocol": "Torrent",
-        "publishDate": announcement.date.isoformat(),
-    }
-
-    if backend["use_indexer"]:
-        params["indexer"] = "Irc" + announcement.indexer
-
-    http_response = None
-    try:
-        http_response = requests.post(
-            url="{}{}".format(backend["url"], backend["api_path"]),
-            headers=headers,
-            json=params,
-        )
-        http_response.raise_for_status()
-    except HTTPError as e:
-        logger.warning("%s: %s", backend["name"], e)
-        return False
-    except RequestException as e:
-        logger.error("%s connection problem", backend["name"])
-        logger.error("%s", e)
-        return False
-
-    approved = False
-    try:
-        json_response = http_response.json()
-        if "approved" in json_response:
-            approved = json_response["approved"]
-    except JSONDecodeError as e:
-        logger.warning(
-            "Could not parse response from %s: %s",
-            backend["name"],
-            http_response.content,
-        )
-        logger.warning(e)
-
-    return approved
+def renotify(announcement, backend):
+    return backend.notify(announcement)

@@ -21,7 +21,7 @@ import db
 import irc
 import log
 import utils
-from backend import renotify, get_configured_backends
+from backend import renotify, get_configured_backends, get_backend_from_id
 from announcement import Announcement
 
 logger = logging.getLogger("WEB-UI")
@@ -169,24 +169,24 @@ def notify():
             if db_announcement is not None and len(db_announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", db_announcement.title)
 
-                backend_id = data.get("backend_id")
                 announcement = Announcement(
                     db_announcement.title,
                     db_announcement.torrent,
                     indexer=db_announcement.indexer,
                     date=db_announcement.date,
                 )
-                approved, backend_name = renotify(
-                    announcement,
-                    backend_id,
-                )
 
-                if approved:
-                    logger.debug("%s accepted the torrent this time!", backend_name)
-                    db.insert_snatched(db_announcement, backend_name)
+                backend = get_backend_from_id(data.get("backend_id"))
+                if not backend:
+                    logger.warning("Could not find the requested backend")
+                    return "ERR"
+
+                if renotify(announcement, backend):
+                    logger.debug("%s accepted the torrent this time!", backend.name)
+                    db.insert_snatched(db_announcement, backend.name)
                     return "OK"
 
-                logger.debug("%s still refused this torrent...", backend_name)
+                logger.debug("%s still refused this torrent...", backend.name)
                 return "ERR"
             else:
                 logger.warning("Announcement to notify not found in database")

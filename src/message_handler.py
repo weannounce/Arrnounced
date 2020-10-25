@@ -6,7 +6,7 @@ import announce_parser
 import db
 import utils
 from announcement import create_announcement
-from backend import notify, notify_which_backends, backends_to_string
+from backend import notify, notify_which_backends
 
 logger = logging.getLogger("MESSAGE_HANDLER")
 
@@ -43,8 +43,9 @@ async def on_message(tracker_config, source, target, message):
 
     backends = notify_which_backends(tracker_config, announcement.category)
 
-    # If backends is empty backends_string is "None"
-    backends_string = backends_to_string(backends)
+    backends_string = (
+        "/".join([b.name for b in backends]) if len(backends) > 0 else "None"
+    )
 
     if tracker_config.announce_delay > 0:
         logger.debug(
@@ -69,5 +70,5 @@ async def on_message(tracker_config, source, target, message):
         # TODO Print rejection reason
         logger.debug("Release was rejected: %s", announcement.title)
     else:
-        logger.info("%s approved release: %s", backend, announcement.title)
-        db.insert_snatched(db_announced, backend)
+        logger.info("%s approved release: %s", backend.name, announcement.title)
+        db.insert_snatched(db_announced, backend.name)
