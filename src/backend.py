@@ -15,9 +15,22 @@ class BackendType(IntEnum):
     LIDARR = 3
 
 
+def _extract_approval(http_response, backend_name):
+    try:
+        json_response = http_response.json()
+        return "approved" in json_response and json_response["approved"]
+    except JSONDecodeError as e:
+        logger.warning(
+            "Could not parse response from %s: %s",
+            backend_name,
+            http_response.content,
+        )
+        logger.warning(e)
+        return False
+
+
 class Backend:
-    def notify(self, announcement):
-        headers = {"X-Api-Key": self.apikey}
+    def _create_json(self, announcement):
         params = {
             "title": announcement.title,
             "downloadUrl": announcement.torrent_url,
@@ -27,37 +40,33 @@ class Backend:
 
         if self.use_indexer:
             params["indexer"] = "Irc" + announcement.indexer
+        return params
 
-        http_response = None
+    def _send_notification(self, announcement):
+        headers = {"X-Api-Key": self.apikey}
+        http_response = requests.post(
+            url="{}{}".format(self.url, self.api_path),
+            headers=headers,
+            json=self._create_json(announcement),
+        )
+
         try:
-            http_response = requests.post(
-                url="{}{}".format(self.url, self.api_path),
-                headers=headers,
-                json=params,
-            )
             http_response.raise_for_status()
         except HTTPError as e:
             logger.warning("%s: %s", self.name, e)
-            return False
+            return None
         except RequestException as e:
             logger.error("%s connection problem", self.name)
             logger.error("%s", e)
+            return None
+
+        return http_response
+
+    def notify(self, announcement):
+        http_response = self._send_notification(announcement)
+        if not http_response:
             return False
-
-        approved = False
-        try:
-            json_response = http_response.json()
-            if "approved" in json_response:
-                approved = json_response["approved"]
-        except JSONDecodeError as e:
-            logger.warning(
-                "Could not parse response from %s: %s",
-                self.name,
-                http_response.content,
-            )
-            logger.warning(e)
-
-        return approved
+        return _extract_approval(http_response, self.name)
 
 
 class Sonarr(Backend):
