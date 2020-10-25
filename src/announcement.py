@@ -22,10 +22,10 @@ def create_announcement(tracker_config, variables):
         line_match.process(tracker_config, variables)
 
     # TODO: Handle missing https variables
-    if variables.get("torrentName") is None:
+    if not variables.get("torrentName"):
         logger.warning("Missing torrent name")
         return None
-    elif variables.get("torrentUrl") is None:
+    elif not variables.get("torrentUrl"):
         logger.warning("Missing torrent URL")
         return None
 
