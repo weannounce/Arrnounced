@@ -5,7 +5,7 @@ import defusedxml.ElementTree as ET
 from collections import namedtuple
 
 import config
-from backend import Backend
+from backend import BackendType
 from announcement import (
     Var,
     Http,
@@ -284,18 +284,18 @@ class TrackerConfig:
 
         self.backends = {}
         if self._user_config["notify_sonarr"]:
-            self.backends[Backend.SONARR] = None
+            self.backends[BackendType.SONARR] = None
         if self._user_config["notify_radarr"]:
-            self.backends[Backend.RADARR] = None
+            self.backends[BackendType.RADARR] = None
         if self._user_config["notify_lidarr"]:
-            self.backends[Backend.LIDARR] = None
+            self.backends[BackendType.LIDARR] = None
 
         if self._user_config["category_sonarr"] is not None:
-            self.backends[Backend.SONARR] = self._user_config["category_sonarr"]
+            self.backends[BackendType.SONARR] = self._user_config["category_sonarr"]
         if self._user_config["category_radarr"] is not None:
-            self.backends[Backend.RADARR] = self._user_config["category_radarr"]
+            self.backends[BackendType.RADARR] = self._user_config["category_radarr"]
         if self._user_config["category_lidarr"] is not None:
-            self.backends[Backend.LIDARR] = self._user_config["category_lidarr"]
+            self.backends[BackendType.LIDARR] = self._user_config["category_lidarr"]
 
     def get(self, key):
         return self._user_config.get(key)

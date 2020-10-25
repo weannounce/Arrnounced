@@ -1,7 +1,7 @@
 import logging
 import re
 import requests
-from enum import Enum
+from enum import IntEnum
 from json.decoder import JSONDecodeError
 from requests.exceptions import HTTPError, RequestException
 
@@ -9,24 +9,24 @@ from requests.exceptions import HTTPError, RequestException
 logger = logging.getLogger("BACKEND")
 
 
-class Backend(Enum):
+class BackendType(IntEnum):
     SONARR = 1
     RADARR = 2
     LIDARR = 3
 
 
 _backend_data = {
-    Backend.SONARR: {
+    BackendType.SONARR: {
         "name": "Sonarr",
         "api_path": "/api/release/push",
         "use_indexer": True,
     },
-    Backend.RADARR: {
+    BackendType.RADARR: {
         "name": "Radarr",
         "api_path": "/api/release/push",
         "use_indexer": True,
     },
-    Backend.LIDARR: {
+    BackendType.LIDARR: {
         "name": "Lidarr",
         "api_path": "/api/v1/release/push",
         "use_indexer": False,
@@ -37,29 +37,22 @@ _backend_data = {
 # TODO: Make this looks nicer if possible. E.g. some for-loop
 def init(config):
     if config["sonarr.apikey"] is None:
-        del _backend_data[Backend.SONARR]
+        del _backend_data[BackendType.SONARR]
     else:
-        _backend_data[Backend.SONARR]["apikey"] = config["sonarr.apikey"]
-        _backend_data[Backend.SONARR]["url"] = config["sonarr.url"]
+        _backend_data[BackendType.SONARR]["apikey"] = config["sonarr.apikey"]
+        _backend_data[BackendType.SONARR]["url"] = config["sonarr.url"]
 
     if config["radarr.apikey"] is None:
-        del _backend_data[Backend.RADARR]
+        del _backend_data[BackendType.RADARR]
     else:
-        _backend_data[Backend.RADARR]["apikey"] = config["radarr.apikey"]
-        _backend_data[Backend.RADARR]["url"] = config["radarr.url"]
+        _backend_data[BackendType.RADARR]["apikey"] = config["radarr.apikey"]
+        _backend_data[BackendType.RADARR]["url"] = config["radarr.url"]
 
     if config["lidarr.apikey"] is None:
-        del _backend_data[Backend.LIDARR]
+        del _backend_data[BackendType.LIDARR]
     else:
-        _backend_data[Backend.LIDARR]["apikey"] = config["lidarr.apikey"]
-        _backend_data[Backend.LIDARR]["url"] = config["lidarr.url"]
-
-
-def _string_to_backend(backend_name):
-    for backend in _backend_data.keys():
-        if _backend_data[backend]["name"] == backend_name:
-            return backend
-    return None
+        _backend_data[BackendType.LIDARR]["apikey"] = config["lidarr.apikey"]
+        _backend_data[BackendType.LIDARR]["url"] = config["lidarr.url"]
 
 
 def backends_to_string(backends):
@@ -71,7 +64,7 @@ def backends_to_string(backends):
 
 
 def get_configured_backends():
-    return [_backend_data[x]["name"] for x in (list(_backend_data.keys()))]
+    return {int(x): _backend_data[x]["name"] for x in (list(_backend_data.keys()))}
 
 
 def notify_which_backends(tracker_config, announced_category):
@@ -102,13 +95,17 @@ def notify(announcement, backends):
     return None
 
 
-def renotify(announcement, backend_name):
-    backend = _string_to_backend(backend_name)
-    if backend is None:
-        logger.warning("Unknown backend %s", backend_name)
-        return False
+def renotify(announcement, backend_id):
+    try:
+        backend_type = BackendType(backend_id)
+    except ValueError as e:
+        logger.error("Unknown backend id, %s", e)
+        return False, "Unkonwn"
 
-    return _notify(announcement, _backend_data[backend])
+    return (
+        _notify(announcement, _backend_data[backend_type]),
+        _backend_data[backend_type]["name"],
+    )
 
 
 def _notify(announcement, backend):

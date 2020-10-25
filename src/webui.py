@@ -163,31 +163,35 @@ def check(pvr_name):
 def notify():
     try:
         data = request.json
-        if "id" in data and "backend_name" in data:
+        if "id" in data and "backend_id" in data:
             # Request to check this torrent again
             db_announcement = db.get_announcement(data.get("id"))
             if db_announcement is not None and len(db_announcement.title) > 0:
                 logger.debug("Checking announcement again: %s", db_announcement.title)
 
-                backend_name = data.get("backend_name")
+                backend_id = data.get("backend_id")
                 announcement = Announcement(
                     db_announcement.title,
                     db_announcement.torrent,
                     indexer=db_announcement.indexer,
                     date=db_announcement.date,
                 )
-                approved = renotify(
+                approved, backend_name = renotify(
                     announcement,
-                    backend_name,
+                    backend_id,
                 )
 
                 if approved:
-                    logger.debug(backend_name + " accepted the torrent this time!")
+                    logger.debug("%s accepted the torrent this time!", backend_name)
                     db.insert_snatched(db_announcement, backend_name)
                     return "OK"
 
-                logger.debug(backend_name + " still refused this torrent...")
+                logger.debug("%s still refused this torrent...", backend_name)
                 return "ERR"
+            else:
+                logger.warning("Announcement to notify not found in database")
+        else:
+            logger.warning("Missing data in notify request")
 
     # TODO: Catch more specific types
     except Exception:
