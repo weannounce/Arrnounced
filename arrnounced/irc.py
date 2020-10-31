@@ -9,6 +9,13 @@ from arrnounced.eventloop_utils import eventloop_util
 logger = logging.getLogger("IRC")
 
 
+def get_connected():
+    connected = {}
+    for client in clients:
+        connected[client.tracker.config.short_name] = client.connected
+    return connected
+
+
 class IRC(irc_modes.ModesFixer):
     RECONNECT_MAX_ATTEMPTS = None
 
