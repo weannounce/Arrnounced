@@ -128,7 +128,9 @@ def logs():
     for log_line in log.get_logs():
         logs.append({"time": log_line[0], "tag": log_line[1], "msg": log_line[2]})
 
-    return render_template("logs.html", logs=logs)
+    return render_template(
+        "logs.html", logs=logs, login_required=user_config.login_required
+    )
 
 
 # TODO: Reintroduce check ability
