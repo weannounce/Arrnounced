@@ -1,7 +1,7 @@
 import unittest
 
-from src import announcement, announce_parser, tracker_config, utils
-from tracker_config import Ignore
+from src import announcement, announce_parser, tracker, tracker_xml_config, utils
+from tracker_xml_config import Ignore
 from unittest import mock
 
 
@@ -19,7 +19,7 @@ def multi_post_condition(func):
     return func_wrapper
 
 
-class TrackerConfigHelper(tracker_config.TrackerConfig):
+class TrackerConfigHelper(tracker.TrackerConfig):
     def __init__(
         self,
         regex=None,
@@ -36,7 +36,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         self._user_config["category_radarr"] = False
         self._user_config["category_lidarr"] = False
 
-        self._xml_config = tracker_config.TrackerXmlConfig()
+        self._xml_config = tracker_xml_config.TrackerXmlConfig()
         self._xml_config.tracker_info = {
             "shortName": tracker_name,
             "type": tracker_type,

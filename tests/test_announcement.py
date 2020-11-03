@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from src import announcement, tracker_config
+from src import announcement, tracker, tracker_xml_config
 from announcement import (
     Var,
     Http,
@@ -26,7 +26,7 @@ def get_time_passed(announce_time):
     return (datetime.now() - announce_time).total_seconds()
 
 
-class TrackerConfigHelper(tracker_config.TrackerConfig):
+class TrackerConfigHelper(tracker.TrackerConfig):
     def __init__(
         self,
         regex=None,
@@ -41,7 +41,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         self._user_tracker["torrent_https"] = False
         self._user_tracker["settings"] = {}
 
-        self._xml_config = tracker_config.TrackerXmlConfig()
+        self._xml_config = tracker_xml_config.TrackerXmlConfig()
         self._xml_config.tracker_info = {
             "shortName": tracker_name,
             "type": tracker_type,
