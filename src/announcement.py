@@ -17,13 +17,13 @@ class Announcement:
         self.indexer = indexer
 
 
-def create_announcement(tracker_config, variables):
-    for line_match in tracker_config.line_matched:
-        line_match.process(tracker_config, variables)
+def create_announcement(tracker, variables):
+    for line_match in tracker.config.line_matched:
+        line_match.process(tracker.config, variables)
 
     _insert_ssl_url(variables)
 
-    torrent_url_var = "torrentSslUrl" if tracker_config.torrent_https else "torrentUrl"
+    torrent_url_var = "torrentSslUrl" if tracker.config.torrent_https else "torrentUrl"
     if not variables.get("torrentName"):
         logger.warning("Missing torrent name")
         return None
@@ -36,7 +36,7 @@ def create_announcement(tracker_config, variables):
         variables[torrent_url_var],
         variables.get("category"),
         date=datetime.now(),
-        indexer=tracker_config.short_name,
+        indexer=tracker.config.short_name,
     )
 
 

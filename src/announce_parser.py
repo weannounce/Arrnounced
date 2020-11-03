@@ -16,36 +16,34 @@ class ParseStatus(Enum):
     CONTINUE = 3
 
 
-def parse(tracker_config, message):
+def parse(tracker, message):
     parse_status = ParseStatus.NO_MATCH
     pattern_groups = {}
-    if len(tracker_config.line_patterns) > 0:
+    if len(tracker.config.line_patterns) > 0:
         parse_status, pattern_groups = _parse_singleline_patterns(
-            tracker_config.line_patterns, message
+            tracker.config.line_patterns, message
         )
-    elif len(tracker_config.multiline_patterns) > 0:
-        parse_status, pattern_groups = _parse_multiline_patterns(
-            tracker_config, message
-        )
+    elif len(tracker.config.multiline_patterns) > 0:
+        parse_status, pattern_groups = _parse_multiline_patterns(tracker, message)
 
-    if not _is_parsing_ok(tracker_config, parse_status, message):
+    if not _is_parsing_ok(tracker, parse_status, message):
         return None
 
     return pattern_groups
 
 
-def _is_parsing_ok(tracker_config, parse_status, message):
+def _is_parsing_ok(tracker, parse_status, message):
     if parse_status == ParseStatus.NO_MATCH:
-        if _ignore_message(tracker_config.ignores, message):
-            logger.debug("%s: Message ignored: %s", tracker_config.short_name, message)
+        if _ignore_message(tracker.config.ignores, message):
+            logger.debug("%s: Message ignored: %s", tracker.config.short_name, message)
         else:
             logger.warning(
-                "%s: No match found for '%s'", tracker_config.short_name, message
+                "%s: No match found for '%s'", tracker.config.short_name, message
             )
     elif parse_status == ParseStatus.CONTINUE:
         logger.debug(
             "%s: Messages in announcement still remaining",
-            tracker_config.short_name,
+            tracker.config.short_name,
         )
 
     return parse_status == ParseStatus.MATCH
@@ -99,25 +97,25 @@ class MultilineMatch:
 
 # Returning None means the message matched but still waiting for remaning messages.
 # Returning an empty dictionary means the message did not match anything.
-def _parse_multiline_patterns(tracker_config, message):
+def _parse_multiline_patterns(tracker, message):
     logger.debug(
-        "%s: Parsing multiline annoucement '%s'", tracker_config.short_name, message
+        "%s: Parsing multiline annoucement '%s'", tracker.config.short_name, message
     )
     match_index, match_groups = _parse_message(
-        tracker_config.multiline_patterns, message
+        tracker.config.multiline_patterns, message
     )
 
     if match_index == -1:
         return ParseStatus.NO_MATCH, {}
 
     is_last_pattern = _is_last_multiline_pattern(
-        tracker_config.multiline_patterns, match_index
+        tracker.config.multiline_patterns, match_index
     )
 
     with mutex:
         multiline_match = _get_multiline_match(
-            tracker_config.type,
-            tracker_config.multiline_patterns,
+            tracker.config.type,
+            tracker.config.multiline_patterns,
             match_index,
             is_last_pattern,
         )

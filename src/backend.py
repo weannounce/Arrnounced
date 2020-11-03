@@ -1,18 +1,11 @@
 import logging
 import re
 import requests
-from enum import IntEnum
 from json.decoder import JSONDecodeError
 from requests.exceptions import HTTPError, RequestException
 
 
 logger = logging.getLogger("BACKEND")
-
-
-class BackendType(IntEnum):
-    SONARR = 1
-    RADARR = 2
-    LIDARR = 3
 
 
 def _extract_approval(http_response, backend_name):
@@ -112,21 +105,21 @@ def get_configured_backends():
     return list(_backends.keys())
 
 
-def notify_which_backends(tracker_config, announced_category):
-    notify_backends = [_backends[b] for b in tracker_config.always_notify_backends]
+def notify_which_backends(tracker, announced_category):
+    notify_backends = [_backends[b] for b in tracker.config.always_notify_backends]
 
     if announced_category:
         for (
             backend_name,
             category_regex,
-        ) in tracker_config.category_notify_backends.items():
+        ) in tracker.config.category_notify_backends.items():
             if re.search(category_regex, announced_category, re.IGNORECASE):
                 notify_backends.append(_backends[backend_name])
 
     # Return all configured backends if none where specified
     if (
-        len(tracker_config.always_notify_backends) == 0
-        and len(tracker_config.category_notify_backends) == 0
+        len(tracker.config.always_notify_backends) == 0
+        and len(tracker.config.category_notify_backends) == 0
     ):
         notify_backends = list(_backends.values())
 

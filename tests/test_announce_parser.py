@@ -19,6 +19,11 @@ def multi_post_condition(func):
     return func_wrapper
 
 
+class TrackerHelper:
+    def __init__(self):
+        self.config = TrackerConfigHelper()
+
+
 class TrackerConfigHelper(tracker.TrackerConfig):
     def __init__(
         self,
@@ -65,23 +70,23 @@ class ParserTest(unittest.TestCase):
         announce_parser.multiline_matches = {}
 
     def test_single_line_pattern_no_match(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"This Test (.*) (.*)", regex_groups=["torrentName", "$group2"]
         )
-        var = announce_parser.parse(tc_helper, "No matching message")
+        var = announce_parser.parse(th, "No matching message")
         self.assertEqual(var, None, "No match should return None")
 
     def test_single_line_pattern_with_match(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"Test name: (.*) g2: (.*) g3: (.*)",
             regex_groups=["torrentName", "$g2", "$g3"],
         )
 
         # torrentName has extra whitespace added
         var = announce_parser.parse(
-            tc_helper, "Test name:  the_name  g2: g2_text& g3: g3_text&"
+            th, "Test name:  the_name  g2: g2_text& g3: g3_text&"
         )
 
         self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
@@ -90,14 +95,14 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var["$g3"], "g3_text&", "g3 did not match")
 
     def test_single_line_pattern_with_category(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"Test name: (.*) g2: (.*) category: (.*)",
             regex_groups=["torrentName", "$g2", "category"],
         )
 
         var = announce_parser.parse(
-            tc_helper, "Test name: a_name g2: g2_text category: this_is_category"
+            th, "Test name: a_name g2: g2_text category: this_is_category"
         )
 
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
@@ -106,82 +111,80 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(var["category"], "this_is_category", "category did not match")
 
     def test_single_line_ignore_expected(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"(.*) - (.*)",
             regex_groups=["torrentName", "$g2"],
         )
-        tc_helper.insert_ignore(r"cond1 (.*)", True)
-        tc_helper.insert_ignore(r"cond2 (.*)", True)
+        th.config.insert_ignore(r"cond1 (.*)", True)
+        th.config.insert_ignore(r"cond2 (.*)", True)
 
-        var = announce_parser.parse(tc_helper, "cond1 something else")
+        var = announce_parser.parse(th, "cond1 something else")
         self.assertEqual(var, None, "Should return None when ignored match")
 
-        var = announce_parser.parse(tc_helper, "cond2 something else")
+        var = announce_parser.parse(th, "cond2 something else")
         self.assertEqual(var, None, "Should return None when ignored match")
 
-        var = announce_parser.parse(tc_helper, "a_name - a_group")
+        var = announce_parser.parse(th, "a_name - a_group")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "a_group", "g2 did not match")
 
     def test_single_line_ignore_unexpected(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"(.*) / (.*)",
             regex_groups=["torrentName", "$g2"],
         )
-        tc_helper.insert_ignore(r".*/.*", False)
+        th.config.insert_ignore(r".*/.*", False)
 
-        var = announce_parser.parse(tc_helper, "something else")
+        var = announce_parser.parse(th, "something else")
         self.assertEqual(var, None, "Should return None when ignored match")
 
-        var = announce_parser.parse(tc_helper, "a_name / a_group")
+        var = announce_parser.parse(th, "a_name / a_group")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "a_group", "g2 did not match")
 
     def test_single_non_capture_group(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"(.*) /(?: (.*))?",
             regex_groups=["torrentName", "$g2"],
         )
 
-        var = announce_parser.parse(tc_helper, "name /")
+        var = announce_parser.parse(th, "name /")
         self.assertEqual(len(var), len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "name", "Name did not match")
 
-        var = announce_parser.parse(tc_helper, "name / group")
+        var = announce_parser.parse(th, "name / group")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "name", "Name did not match")
         self.assertEqual(var["$g2"], "group", "g2 did not match")
 
     def test_single_empty_groups(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"(.*) / (.*)",
             regex_groups=["torrentName", "$g2"],
         )
 
-        var = announce_parser.parse(tc_helper, "  / the_group")
+        var = announce_parser.parse(th, "  / the_group")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["$g2"], "the_group", "$g2 did not match")
 
-        var = announce_parser.parse(tc_helper, "a_name /  ")
+        var = announce_parser.parse(th, "a_name /  ")
         self.assertEqual(len(var), len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "$g2 did not match")
 
     def test_single_default_variables(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_regex(
+        th = TrackerHelper()
+        th.config.insert_regex(
             regex=r"Test g1: (.*) g2: (.*) g3: (.*)",
             regex_groups=["$g1", "$g2", "$g3"],
         )
 
-        var = announce_parser.parse(
-            tc_helper, "Test g1:  g1_text  g2: g2_text& g3: g3_text&"
-        )
+        var = announce_parser.parse(th, "Test g1:  g1_text  g2: g2_text& g3: g3_text&")
 
         self.assertEqual(len(var), 3 + len(utils.get_default_variables()))
         self.assertEqual(var["$g1"], "g1_text", "g1 did not match")
@@ -192,41 +195,41 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(var[key], "", "default value did not match")
 
     def test_multi_line_pattern_no_match(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
 
         # torrentName has extra whitespace added
-        var = announce_parser.parse(tc_helper, "something else")
+        var = announce_parser.parse(th, "something else")
         self.assertEqual(var, None, "No match should return None")
 
         self.assertEqual(len(announce_parser.multiline_matches), 0)
 
     @multi_post_condition
     def test_multi_line_pattern_simple(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
-        tc_helper.insert_multi_regex(regex=r"Row3 g3: (.*)", regex_groups=["$g3"])
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row3 g3: (.*)", regex_groups=["$g3"])
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_error")
+        var = announce_parser.parse(th, "Row2 g2: g2_error")
         self.assertEqual(var, None, "Should return None if matched rows not in order")
 
         # torrentName has extra whitespace added
-        var = announce_parser.parse(tc_helper, "Row1 name:  the_name")
+        var = announce_parser.parse(th, "Row1 name:  the_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_error")
+        var = announce_parser.parse(th, "Row3 g3: g3_error")
         self.assertEqual(var, None, "Should return None if matched rows not in order")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        var = announce_parser.parse(th, "Row2 g2: g2_text")
         self.assertEqual(var, None, "Announcement is None")
 
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
+        var = announce_parser.parse(th, "Row3 g3: g3_text")
         self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "the_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
@@ -234,114 +237,114 @@ class ParserTest(unittest.TestCase):
 
     @multi_post_condition
     def test_multi_line_pattern_two_in_parallel(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
 
-        var = announce_parser.parse(tc_helper, "Row1 name: first_name")
+        var = announce_parser.parse(th, "Row1 name: first_name")
         self.assertEqual(var, None, "No match should return None")
-        var = announce_parser.parse(tc_helper, "Row1 name: second_name")
+        var = announce_parser.parse(th, "Row1 name: second_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: first_g2")
+        var = announce_parser.parse(th, "Row2 g2: first_g2")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "first_name", "Name did not match")
         self.assertEqual(var["$g2"], "first_g2", "g2 did not match")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: second_g2")
+        var = announce_parser.parse(th, "Row2 g2: second_g2")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "second_name", "Name did not match")
         self.assertEqual(var["$g2"], "second_g2", "g2 did not match")
 
     @multi_post_condition
     def test_multi_line_pattern_optional_in_middle(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row2 g2: (.*)", regex_groups=["$g2"], optional=True
         )
-        tc_helper.insert_multi_regex(regex=r"Row3 g3: (.*)", regex_groups=["$g3"])
+        th.config.insert_multi_regex(regex=r"Row3 g3: (.*)", regex_groups=["$g3"])
 
-        var = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        var = announce_parser.parse(th, "Row1 name: a_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
+        var = announce_parser.parse(th, "Row3 g3: g3_text")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g3"], "g3_text", "g2 did not match")
 
     @multi_post_condition
     def test_multi_line_pattern_optional_at_end(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(
             regex=r"Row3 g3: (.*)", regex_groups=["$g3"], optional=True
         )
 
-        var = announce_parser.parse(tc_helper, "Row1 name: another_name")
+        var = announce_parser.parse(th, "Row1 name: another_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        var = announce_parser.parse(th, "Row2 g2: g2_text")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
 
     @multi_post_condition
     def test_multi_line_pattern_optional_in_middle_and_end(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row2 g2: (.*)", regex_groups=["$g2"], optional=True
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row3 g3: (.*)",
             regex_groups=["$g3"],
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row4 g4: (.*)", regex_groups=["$g4"], optional=True
         )
 
-        var = announce_parser.parse(tc_helper, "Row1 name: another_name")
+        var = announce_parser.parse(th, "Row1 name: another_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
+        var = announce_parser.parse(th, "Row3 g3: g3_text")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g3"], "g3_text", "g2 did not match")
 
     @multi_post_condition
     def test_multi_line_pattern_parse_optional(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row2 g2: (.*)", regex_groups=["$g2"], optional=True
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row3 g3: (.*)",
             regex_groups=["$g3"],
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row4 g4: (.*)", regex_groups=["$g4"], optional=True
         )
 
-        var = announce_parser.parse(tc_helper, "Row1 name: another_name")
+        var = announce_parser.parse(th, "Row1 name: another_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        var = announce_parser.parse(th, "Row2 g2: g2_text")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
+        var = announce_parser.parse(th, "Row3 g3: g3_text")
         self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
@@ -349,41 +352,41 @@ class ParserTest(unittest.TestCase):
 
     @multi_post_condition
     def test_multi_line_pattern_parallel_optional(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row2 g2: (.*)", regex_groups=["$g2"], optional=True
         )
-        tc_helper.insert_multi_regex(
+        th.config.insert_multi_regex(
             regex=r"Row3 g3: (.*)",
             regex_groups=["$g3"],
         )
-        tc_helper.insert_multi_regex(regex=r"Row4 g4: (.*)", regex_groups=["$g4"])
+        th.config.insert_multi_regex(regex=r"Row4 g4: (.*)", regex_groups=["$g4"])
 
-        var = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        var = announce_parser.parse(th, "Row1 name: a_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row1 name: another_name")
+        var = announce_parser.parse(th, "Row1 name: another_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text1")
+        var = announce_parser.parse(th, "Row3 g3: g3_text1")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        var = announce_parser.parse(th, "Row2 g2: g2_text")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text2")
+        var = announce_parser.parse(th, "Row3 g3: g3_text2")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row4 g4: g4_text1")
+        var = announce_parser.parse(th, "Row4 g4: g4_text1")
         self.assertEqual(len(var), 2 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g3"], "g3_text1", "g3 did not match")
         self.assertEqual(var["$g4"], "g4_text1", "g2 did not match")
 
-        var = announce_parser.parse(tc_helper, "Row4 g4: g4_text2")
+        var = announce_parser.parse(th, "Row4 g4: g4_text2")
         self.assertEqual(len(var), 3 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "another_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
@@ -393,16 +396,16 @@ class ParserTest(unittest.TestCase):
     @mock.patch("time.time", mock.MagicMock(side_effect=[0, 15]))
     @multi_post_condition
     def test_multi_line_pattern_announcement_completed_just_in_time(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
 
-        var = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        var = announce_parser.parse(th, "Row1 name: a_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        var = announce_parser.parse(th, "Row2 g2: g2_text")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text", "g2 did not match")
@@ -412,16 +415,16 @@ class ParserTest(unittest.TestCase):
     @mock.patch("time.time", mock.MagicMock(side_effect=[0, 15.1, 0, 0]))
     @multi_post_condition
     def test_multi_line_pattern_discard_too_old(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
 
-        var = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        var = announce_parser.parse(th, "Row1 name: a_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        var = announce_parser.parse(th, "Row2 g2: g2_text")
         self.assertEqual(
             var, None, "Announcement should be discarded for being too old"
         )
@@ -430,58 +433,58 @@ class ParserTest(unittest.TestCase):
     @mock.patch("time.time", mock.MagicMock(side_effect=[0, 10, 10, 16, 16, 16]))
     @multi_post_condition
     def test_multi_line_pattern_parallell_first_too_old(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
 
-        var = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        var = announce_parser.parse(th, "Row1 name: a_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row1 name: two_name")
+        var = announce_parser.parse(th, "Row1 name: two_name")
         self.assertEqual(var, None, "No match should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text1")
+        var = announce_parser.parse(th, "Row2 g2: g2_text1")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "two_name", "Name did not match")
         self.assertEqual(var["$g2"], "g2_text1", "g2 did not match")
 
     @multi_post_condition
     def test_multi_non_capture_group(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(
+        th = TrackerHelper()
+        th.config.insert_multi_regex(
             regex=r"Row1 name: (.*)", regex_groups=["torrentName"]
         )
-        tc_helper.insert_multi_regex(regex=r"Row2 g2:(?: (.*))?", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row2 g2:(?: (.*))?", regex_groups=["$g2"])
 
-        var = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        var = announce_parser.parse(th, "Row1 name: a_name")
         self.assertEqual(var, None, "First row in multi should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2:")
+        var = announce_parser.parse(th, "Row2 g2:")
         self.assertEqual(len(var), len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
 
-        var = announce_parser.parse(tc_helper, "Row1 name: a_name")
+        var = announce_parser.parse(th, "Row1 name: a_name")
         self.assertEqual(var, None, "First row in multi should return None")
 
-        var = announce_parser.parse(tc_helper, "Row2 g2: a_group")
+        var = announce_parser.parse(th, "Row2 g2: a_group")
         self.assertEqual(len(var), 1 + len(utils.get_default_variables()))
         self.assertEqual(var["torrentName"], "a_name", "Name did not match")
         self.assertEqual(var["$g2"], "a_group", "g2 did not match")
 
     @multi_post_condition
     def test_multi_default_variables(self):
-        tc_helper = TrackerConfigHelper()
-        tc_helper.insert_multi_regex(regex=r"Row1 g1: (.*)", regex_groups=["$g1"])
-        tc_helper.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
-        tc_helper.insert_multi_regex(regex=r"Row3 g3: (.*)", regex_groups=["$g3"])
+        th = TrackerHelper()
+        th.config.insert_multi_regex(regex=r"Row1 g1: (.*)", regex_groups=["$g1"])
+        th.config.insert_multi_regex(regex=r"Row2 g2: (.*)", regex_groups=["$g2"])
+        th.config.insert_multi_regex(regex=r"Row3 g3: (.*)", regex_groups=["$g3"])
 
-        var = announce_parser.parse(tc_helper, "Row1 g1: g1_text")
+        var = announce_parser.parse(th, "Row1 g1: g1_text")
         self.assertEqual(var, None, "No match should return None")
-        var = announce_parser.parse(tc_helper, "Row2 g2: g2_text")
+        var = announce_parser.parse(th, "Row2 g2: g2_text")
         self.assertEqual(var, None, "Announcement is None")
-        var = announce_parser.parse(tc_helper, "Row3 g3: g3_text")
+        var = announce_parser.parse(th, "Row3 g3: g3_text")
 
         self.assertEqual(len(var), 3 + len(utils.get_default_variables()))
         self.assertEqual(var["$g1"], "g1_text", "g1 did not match")

@@ -10,12 +10,11 @@ logger = logging.getLogger("IRC")
 
 
 class IRC(irc_modes.ModesFixer):
-    tracker_config = None
     RECONNECT_MAX_ATTEMPTS = None
 
-    def __init__(self, tracker_config, event_loop):
-        super().__init__(tracker_config.irc_nickname, eventloop=event_loop)
-        self.tracker_config = tracker_config
+    def __init__(self, tracker, event_loop):
+        super().__init__(tracker.config.irc_nickname, eventloop=event_loop)
+        self.tracker = tracker
 
     async def connect(self, *args, **kwargs):
         try:
@@ -26,21 +25,21 @@ class IRC(irc_modes.ModesFixer):
 
     # Request channel invite or join channel
     async def attempt_join_channel(self):
-        if self.tracker_config.irc_invite_cmd is None:
-            for channel in self.tracker_config.user_channels:
+        if self.tracker.config.irc_invite_cmd is None:
+            for channel in self.tracker.config.user_channels:
                 logger.info("Joining %s", channel)
                 await self.join(channel)
         else:
-            logger.info("%s: Requesting invite", self.tracker_config.short_name)
+            logger.info("%s: Requesting invite", self.tracker.config.short_name)
             await self.message(
-                self.tracker_config.irc_inviter, self.tracker_config.irc_invite_cmd
+                self.tracker.config.irc_inviter, self.tracker.config.irc_invite_cmd
             )
 
     async def on_connect(self):
-        logger.info("Connected to: %s", self.tracker_config.irc_server)
+        logger.info("Connected to: %s", self.tracker.config.irc_server)
         await super().on_connect()
 
-        if self.tracker_config.irc_ident_password is None:
+        if self.tracker.config.irc_ident_password is None:
             await self.attempt_join_channel()
         else:
             logger.info("Identifying with NICKSERV")
@@ -48,7 +47,7 @@ class IRC(irc_modes.ModesFixer):
                 "PRIVMSG",
                 "NICKSERV",
                 "IDENTIFY",
-                self.tracker_config.irc_ident_password,
+                self.tracker.config.irc_ident_password,
             )
 
     async def on_raw(self, message):
@@ -63,13 +62,11 @@ class IRC(irc_modes.ModesFixer):
         await self.attempt_join_channel()
 
     async def on_message(self, target, source, message):
-        await message_handler.on_message(
-            self.tracker_config, source, target.lower(), message
-        )
+        await message_handler.on_message(self.tracker, source, target.lower(), message)
 
     async def on_invite(self, channel, by):
         logger.info("%s invited us to join %s", by, channel)
-        if channel in self.tracker_config.irc_channels:
+        if channel in self.tracker.config.irc_channels:
             await self.join(channel)
         else:
             logger.warning(
@@ -98,30 +95,30 @@ def stop():
     pool.eventloop.close()
 
 
-def run(tracker_configs):
+def run(trackers):
     global pool, clients
 
-    for tracker_config in tracker_configs.values():
+    for tracker in trackers.values():
         logger.info(
             "Connecting to server: %s:%d %s",
-            tracker_config.irc_server,
-            tracker_config.irc_port,
-            ", ".join(tracker_config.user_channels),
+            tracker.config.irc_server,
+            tracker.config.irc_port,
+            ", ".join(tracker.config.user_channels),
         )
 
-        client = IRC(tracker_config, pool.eventloop)
+        client = IRC(tracker, pool.eventloop)
 
         clients.append(client)
         try:
             pool.connect(
                 client,
-                hostname=tracker_config.irc_server,
-                port=tracker_config.irc_port,
-                tls=tracker_config.irc_tls,
-                tls_verify=tracker_config.irc_tls_verify,
+                hostname=tracker.config.irc_server,
+                port=tracker.config.irc_port,
+                tls=tracker.config.irc_tls,
+                tls_verify=tracker.config.irc_tls_verify,
             )
         except Exception:
-            logger.exception("Error while connecting to: %s", tracker_config.irc_server)
+            logger.exception("Error while connecting to: %s", tracker.config.irc_server)
 
     try:
         pool.handle_forever()

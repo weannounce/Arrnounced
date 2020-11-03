@@ -26,6 +26,11 @@ def get_time_passed(announce_time):
     return (datetime.now() - announce_time).total_seconds()
 
 
+class TrackerHelper:
+    def __init__(self):
+        self.config = TrackerConfigHelper()
+
+
 class TrackerConfigHelper(tracker.TrackerConfig):
     def __init__(
         self,
@@ -65,7 +70,7 @@ class TrackerConfigHelper(tracker.TrackerConfig):
 
 class AnnouncementTest(unittest.TestCase):
     def test_no_torrent_name(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         elements1 = [
             HelperXml(x)
             for x in [
@@ -86,14 +91,14 @@ class AnnouncementTest(unittest.TestCase):
 
         elements3 = [HelperXml(x) for x in [["string", "value", "a_category"]]]
 
-        tc_helper["tc1"] = "config_text1%"
-        tc_helper["tc2"] = "config_text2%"
+        th.config["tc1"] = "config_text1%"
+        th.config["tc2"] = "config_text2%"
 
-        tc_helper.insert_var("first_var", elements1)
-        tc_helper.insert_var("torrentUrl", elements2)
-        tc_helper.insert_var("category", elements3)
+        th.config.insert_var("first_var", elements1)
+        th.config.insert_var("torrentUrl", elements2)
+        th.config.insert_var("category", elements3)
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
-        var = announcement.create_announcement(tc_helper, variables)
+        var = announcement.create_announcement(th, variables)
         self.assertEqual(var, None, "No match should return None")
         self.assertEqual(
             variables["first_var"],
@@ -113,7 +118,7 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_no_torrent_url(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         elements1 = [
             HelperXml(x)
             for x in [
@@ -134,14 +139,14 @@ class AnnouncementTest(unittest.TestCase):
 
         elements3 = [HelperXml(x) for x in [["string", "value", "a_category"]]]
 
-        tc_helper["tc1"] = "config_text1%"
-        tc_helper["tc2"] = "config_text2%"
+        th.config["tc1"] = "config_text1%"
+        th.config["tc2"] = "config_text2%"
 
-        tc_helper.insert_var("torrentName", elements1)
-        tc_helper.insert_var("second_var", elements2)
-        tc_helper.insert_var("category", elements3)
+        th.config.insert_var("torrentName", elements1)
+        th.config.insert_var("second_var", elements2)
+        th.config.insert_var("category", elements3)
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
-        var = announcement.create_announcement(tc_helper, variables)
+        var = announcement.create_announcement(th, variables)
         self.assertEqual(var, None, "No match should return None")
         self.assertEqual(
             variables["torrentName"],
@@ -161,7 +166,7 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_no_torrent_ssl_url(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         elements1 = [
             HelperXml(x)
             for x in [
@@ -171,11 +176,11 @@ class AnnouncementTest(unittest.TestCase):
             ]
         ]
 
-        tc_helper["torrent_https"] = True
-        tc_helper.insert_var("torrentName", elements1)
+        th.config["torrent_https"] = True
+        th.config.insert_var("torrentName", elements1)
 
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
-        var = announcement.create_announcement(tc_helper, variables)
+        var = announcement.create_announcement(th, variables)
         self.assertEqual(var, None, "No match should return None")
         self.assertEqual(
             variables["torrentName"],
@@ -184,7 +189,7 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_no_torrent_ssl_url_created_from_http(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         elements1 = [
             HelperXml(x)
             for x in [
@@ -203,12 +208,12 @@ class AnnouncementTest(unittest.TestCase):
             ]
         ]
 
-        tc_helper["torrent_https"] = True
-        tc_helper.insert_var("torrentName", elements1)
-        tc_helper.insert_var("torrentUrl", elements2)
+        th.config["torrent_https"] = True
+        th.config.insert_var("torrentName", elements1)
+        th.config.insert_var("torrentUrl", elements2)
 
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
-        var = announcement.create_announcement(tc_helper, variables)
+        var = announcement.create_announcement(th, variables)
         self.assertNotEqual(var, None, "No match should return None")
         self.assertEqual(
             variables["torrentName"],
@@ -227,7 +232,7 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_no_torrent_ssl_url_created_from_https(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         elements1 = [
             HelperXml(x)
             for x in [
@@ -246,12 +251,12 @@ class AnnouncementTest(unittest.TestCase):
             ]
         ]
 
-        tc_helper["torrent_https"] = True
-        tc_helper.insert_var("torrentName", elements1)
-        tc_helper.insert_var("torrentUrl", elements2)
+        th.config["torrent_https"] = True
+        th.config.insert_var("torrentName", elements1)
+        th.config.insert_var("torrentUrl", elements2)
 
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
-        var = announcement.create_announcement(tc_helper, variables)
+        var = announcement.create_announcement(th, variables)
         self.assertNotEqual(var, None, "No match should return None")
         self.assertEqual(
             variables["torrentName"],
@@ -270,7 +275,7 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_var_not_valid(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         elements1 = [
             HelperXml(x)
             for x in [
@@ -289,13 +294,13 @@ class AnnouncementTest(unittest.TestCase):
             ]
         ]
 
-        tc_helper["tc1"] = "config_text1%"
-        tc_helper["tc2"] = "config_text2%"
+        th.config["tc1"] = "config_text1%"
+        th.config["tc2"] = "config_text2%"
 
-        tc_helper.insert_var("first_var", elements1)
-        tc_helper.insert_var("second_var", elements2)
+        th.config.insert_var("first_var", elements1)
+        th.config.insert_var("second_var", elements2)
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
-        var = announcement.create_announcement(tc_helper, variables)
+        var = announcement.create_announcement(th, variables)
         self.assertEqual(var, None, "No match should return None")
         self.assertEqual(
             variables["first_var"],
@@ -309,7 +314,7 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_var_valid(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         elements1 = [
             HelperXml(x)
             for x in [
@@ -328,13 +333,13 @@ class AnnouncementTest(unittest.TestCase):
             ]
         ]
 
-        tc_helper["tc1"] = "config_text1%"
-        tc_helper["tc2"] = "config_text2%"
+        th.config["tc1"] = "config_text1%"
+        th.config["tc2"] = "config_text2%"
 
-        tc_helper.insert_var("torrentName", elements1)
-        tc_helper.insert_var("torrentUrl", elements2)
+        th.config.insert_var("torrentName", elements1)
+        th.config.insert_var("torrentUrl", elements2)
         variables = {"var1": "testvar1&", "var2": "testvar2&"}
-        announce = announcement.create_announcement(tc_helper, variables)
+        announce = announcement.create_announcement(th, variables)
         self.assertNotEqual(announce, None, "Should return match")
         self.assertEqual(
             announce.title,
@@ -349,13 +354,13 @@ class AnnouncementTest(unittest.TestCase):
         self.assertTrue(get_time_passed(announce.date) < 0.005, "Date is wrong")
 
     def test_extract_not_valid(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         variables = {"mysrc": "group1  -  group2", "anothersrc": " group3  :  group4"}
 
-        tc_helper.insert_extract("mysrc", "^(.*) - (.*)$", ["g1", "g2"], False)
-        tc_helper.insert_extract("anothersrc", "^(.*) : (.*)$", ["g3", "g4"], False)
-        tc_helper.insert_extract("missing", ">(.*)$", ["g5"], True)
-        announce = announcement.create_announcement(tc_helper, variables)
+        th.config.insert_extract("mysrc", "^(.*) - (.*)$", ["g1", "g2"], False)
+        th.config.insert_extract("anothersrc", "^(.*) : (.*)$", ["g3", "g4"], False)
+        th.config.insert_extract("missing", ">(.*)$", ["g5"], True)
+        announce = announcement.create_announcement(th, variables)
         self.assertEqual(announce, None, "No match should return None")
         self.assertEqual(
             variables["g1"],
@@ -383,19 +388,19 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_extract_valid(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         variables = {
             "mysrc": "a title  -  group1",
             "anothersrc": " an url  :  group2",
             "present": "> a_category",
         }
 
-        tc_helper.insert_extract("mysrc", "^(.*) - (.*)$", ["torrentName", "g1"], False)
-        tc_helper.insert_extract(
+        th.config.insert_extract("mysrc", "^(.*) - (.*)$", ["torrentName", "g1"], False)
+        th.config.insert_extract(
             "anothersrc", "^(.*) : (.*)$", ["torrentUrl", "g2"], False
         )
-        tc_helper.insert_extract("present", ">(.*)$", ["category"], True)
-        announce = announcement.create_announcement(tc_helper, variables)
+        th.config.insert_extract("present", ">(.*)$", ["category"], True)
+        announce = announcement.create_announcement(th, variables)
         self.assertNotEqual(announce, None, "Should return match")
         self.assertEqual(
             announce.title,
@@ -418,15 +423,15 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_extract_missing_non_optional(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         variables = {
             "nomatch": "something else",
         }
 
-        tc_helper.insert_extract(
+        th.config.insert_extract(
             "nomatch", "^(.*) - (.*)$", ["torrentName", "g1"], False
         )
-        announce = announcement.create_announcement(tc_helper, variables)
+        announce = announcement.create_announcement(th, variables)
         self.assertEqual(announce, None, "No match should return None")
         self.assertTrue(
             "torrentName" not in variables,
@@ -438,15 +443,15 @@ class AnnouncementTest(unittest.TestCase):
         )
 
     def test_extract_missing_non_capture_group(self):
-        tc_helper = TrackerConfigHelper()
+        th = TrackerHelper()
         variables = {
             "srcvar": " a name  -   ",
         }
 
-        tc_helper.insert_extract(
+        th.config.insert_extract(
             "srcvar", "^(.*) - (?:(.*))$", ["torrentName", "g1"], False
         )
-        announce = announcement.create_announcement(tc_helper, variables)
+        announce = announcement.create_announcement(th, variables)
         self.assertEqual(announce, None, "No match should return None")
         self.assertEqual(
             variables["torrentName"],

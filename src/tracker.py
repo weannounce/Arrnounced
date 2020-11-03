@@ -1,3 +1,24 @@
+class Tracker:
+    def __init__(self, tracker_config):
+        self.config = tracker_config
+        self.status = TrackerStatus()
+
+    @property
+    def name(self):
+        return self.config.long_name
+
+    @property
+    def type(self):
+        return self.config.type
+
+
+class TrackerStatus:
+    def __init__(self):
+        self.connected = False
+        self.channels = []
+        self.latest_announcement = None
+
+
 class TrackerConfig:
     def __init__(self, user_tracker, xml_config):
         self._xml_config = xml_config
