@@ -64,6 +64,9 @@ class ConfigTest(unittest.TestCase):
             config.cfg["tracker1.irc_invite_cmd"], None, "Invalid default value"
         )
         self.assertEqual(
+            config.cfg["tracker1.torrent_https"], False, "Invalid default value"
+        )
+        self.assertEqual(
             config.cfg["tracker1.announce_delay"], 0, "Invalid default value"
         )
         self.assertFalse(config.cfg["tracker1.notify_sonarr"], "Invalid default value")
@@ -124,6 +127,7 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(
             config.cfg["tracker1.irc_invite_cmd"], "t1invcmd", "Invalid inviter command"
         )
+        self.assertEqual(config.cfg["tracker1.torrent_https"], True)
         self.assertEqual(
             config.cfg["tracker1.announce_delay"], 9000, "Invalid announce delay"
         )

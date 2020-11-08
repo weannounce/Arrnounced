@@ -42,6 +42,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         self._user_config["category_sonarr"] = False
         self._user_config["category_radarr"] = False
         self._user_config["category_lidarr"] = False
+        self._user_config["torrent_https"] = False
 
         self._xml_config = tracker_config.TrackerXmlConfig()
         self._xml_config.tracker_info = {
@@ -159,6 +160,115 @@ class AnnouncementTest(unittest.TestCase):
         self.assertEqual(
             variables["category"],
             "a_category",
+            "Variable not correct",
+        )
+
+    def test_no_torrent_ssl_url(self):
+        tc_helper = TrackerConfigHelper()
+        elements1 = [
+            HelperXml(x)
+            for x in [
+                ["string", "value", "test_string"],
+                ["var", "name", "var1"],
+                ["varenc", "name", "var2"],
+            ]
+        ]
+
+        tc_helper["torrent_https"] = True
+        tc_helper.insert_var("torrentName", elements1)
+
+        variables = {"var1": "testvar1&", "var2": "testvar2&"}
+        var = announcement.create_announcement(tc_helper, variables)
+        self.assertEqual(var, None, "No match should return None")
+        self.assertEqual(
+            variables["torrentName"],
+            "test_stringtestvar1&testvar2%26",
+            "Variable not correct",
+        )
+
+    def test_no_torrent_ssl_url_created_from_http(self):
+        tc_helper = TrackerConfigHelper()
+        elements1 = [
+            HelperXml(x)
+            for x in [
+                ["string", "value", "test_string"],
+                ["var", "name", "var1"],
+                ["varenc", "name", "var2"],
+            ]
+        ]
+
+        elements2 = [
+            HelperXml(x)
+            for x in [
+                ["string", "value", "http://"],
+                ["var", "name", "var2"],
+                ["string", "value", "-"],
+            ]
+        ]
+
+        tc_helper["torrent_https"] = True
+        tc_helper.insert_var("torrentName", elements1)
+        tc_helper.insert_var("torrentUrl", elements2)
+
+        variables = {"var1": "testvar1&", "var2": "testvar2&"}
+        var = announcement.create_announcement(tc_helper, variables)
+        self.assertNotEqual(var, None, "No match should return None")
+        self.assertEqual(
+            variables["torrentName"],
+            "test_stringtestvar1&testvar2%26",
+            "Variable not correct",
+        )
+        self.assertEqual(
+            variables["torrentUrl"],
+            "http://testvar2&-",
+            "Variable not correct",
+        )
+        self.assertEqual(
+            variables["torrentSslUrl"],
+            "https://testvar2&-",
+            "Variable not correct",
+        )
+
+    def test_no_torrent_ssl_url_created_from_https(self):
+        tc_helper = TrackerConfigHelper()
+        elements1 = [
+            HelperXml(x)
+            for x in [
+                ["string", "value", "test_string"],
+                ["var", "name", "var1"],
+                ["varenc", "name", "var2"],
+            ]
+        ]
+
+        elements2 = [
+            HelperXml(x)
+            for x in [
+                ["string", "value", "https://"],
+                ["var", "name", "var2"],
+                ["string", "value", "-"],
+            ]
+        ]
+
+        tc_helper["torrent_https"] = True
+        tc_helper.insert_var("torrentName", elements1)
+        tc_helper.insert_var("torrentUrl", elements2)
+
+        variables = {"var1": "testvar1&", "var2": "testvar2&"}
+        var = announcement.create_announcement(tc_helper, variables)
+        self.assertNotEqual(var, None, "No match should return None")
+        self.assertEqual(
+            variables["torrentName"],
+            "test_stringtestvar1&testvar2%26",
+            "Variable not correct",
+        )
+        self.assertEqual(
+            variables["torrentUrl"],
+            "https://testvar2&-",
+            "Variable not correct",
+        )
+        self.assertEqual(
+            variables["torrentSslUrl"],
+            "https://testvar2&-",
             "Variable not correct",
         )
 

@@ -47,6 +47,7 @@ def init(config_path):
         section.init("irc_ident_password", None, type=str)
         section.init("irc_inviter", None, type=str)
         section.init("irc_invite_cmd", None, type=str)
+        section.init("torrent_https", False)
         section.init("announce_delay", 0)
         section.init("notify_sonarr", False)
         section.init("notify_radarr", False)

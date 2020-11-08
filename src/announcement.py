@@ -21,22 +21,28 @@ def create_announcement(tracker_config, variables):
     for line_match in tracker_config.line_matched:
         line_match.process(tracker_config, variables)
 
-    # TODO: Handle missing https variables
+    _insert_ssl_url(variables)
+
+    torrent_url_var = "torrentSslUrl" if tracker_config.torrent_https else "torrentUrl"
     if not variables.get("torrentName"):
         logger.warning("Missing torrent name")
         return None
-    elif not variables.get("torrentUrl"):
+    elif not variables.get(torrent_url_var):
         logger.warning("Missing torrent URL")
         return None
 
-    # TODO: User config option to use https
     return Announcement(
         variables["torrentName"],
-        variables["torrentUrl"],
+        variables[torrent_url_var],
         variables.get("category"),
         date=datetime.now(),
         indexer=tracker_config.short_name,
     )
+
+
+def _insert_ssl_url(variables):
+    if variables.get("torrentUrl") and not variables.get("torrentSslUrl"):
+        variables["torrentSslUrl"] = re.sub("^https?", "https", variables["torrentUrl"])
 
 
 class Var:

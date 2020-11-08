@@ -338,6 +338,10 @@ class TrackerConfig:
         return self._user_config["irc_invite_cmd"]
 
     @property
+    def torrent_https(self):
+        return self._user_config["torrent_https"]
+
+    @property
     def announce_delay(self):
         return self._user_config["announce_delay"]
 
