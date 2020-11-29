@@ -1,0 +1,28 @@
+[webui]
+host = "webhost2"
+port = 4567
+username = "auser"
+password = "apass"
+
+[lidarr]
+apikey = "lidapi"
+
+
+[tracker1]
+irc_nickname = "t1nick"
+irc_server = "t1url"
+irc_port = 1234
+irc_channels = "t1ch"
+
+irc_inviter = "t1inver"
+irc_invite_cmd = "t1invcmd"
+
+[tracker2]
+irc_nickname = "t2nick"
+irc_server = "t2url"
+irc_port = 9876
+irc_channels = "t2ch"
+
+irc_ident_password = "t2ident"
+irc_tls = true
+irc_tls_verify = true
