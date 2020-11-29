@@ -1,0 +1,10 @@
+[lidarr]
+apikey = "lidapi"
+
+[tracker1]
+irc_nickname = "t1nick"
+irc_server = "t1url"
+irc_port = 1234
+irc_channels = "t1ch"
+
+notify_sonarr = true

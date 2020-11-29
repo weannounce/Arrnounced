@@ -14,12 +14,12 @@ def init_logging(config, log_level, the_log_file):
     rootLogger = logging.getLogger()
     rootLogger.setLevel(log_level)
 
-    if config["log.to_console"]:
+    if config["log"]["to_console"]:
         consoleHandler = logging.StreamHandler()
         consoleHandler.setFormatter(logFormatter)
         rootLogger.addHandler(consoleHandler)
 
-    if config["log.to_file"]:
+    if config["log"]["to_file"]:
         fileHandler = RotatingFileHandler(
             log_file, maxBytes=1024 * 1024 * 5, backupCount=5
         )

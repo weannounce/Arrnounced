@@ -41,8 +41,8 @@ if __name__ == "__main__":
         "-c",
         "--config",
         type=is_file,
-        help="Configuration file. Default ~/.arrnounced/settings.cfg",
-        default=str(Path.home().joinpath(".arrnounced", "settings.cfg")),
+        help="Configuration file. Default ~/.arrnounced/settings.toml",
+        default=str(Path.home().joinpath(".arrnounced", "settings.toml")),
     )
     parser.add_argument(
         "-t",
@@ -60,6 +60,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     cfg = config.init(args.config)
+    if cfg is None:
+        sys.exit(1)
 
     log_level = logging.INFO
     if args.verbose or bool(os.getenv("VERBOSE")):
@@ -68,7 +70,7 @@ if __name__ == "__main__":
     log_file = Path(args.data).joinpath("arrnounced.log")
     log.init_logging(cfg, log_level, log_file)
 
-    if cfg is None or not config.validate_config():
+    if not config.validate_config():
         print("Error: Configuration not valid", file=sys.stderr)
         sys.exit(1)
 
