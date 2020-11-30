@@ -234,17 +234,17 @@ def get_trackers(tracker_config_path):
     xml_configs = parse_xml_configs(tracker_config_path)
     trackers = {}
     for user_config in config.sections():
-        if user_config.name in config.base_sections:
+        if user_config in config.base_sections:
             continue
-        elif user_config.name not in xml_configs:
+        elif user_config not in xml_configs:
             logger.error(
-                "Tracker '%s' from configuration is not supported", user_config.name
+                "Tracker '%s' from configuration is not supported", user_config
             )
         elif _are_settings_configured(
-            user_config, xml_configs[user_config.name].settings
+            config.toml_cfg[user_config], xml_configs[user_config].settings
         ):
-            trackers[user_config.name] = TrackerConfig(
-                user_config, xml_configs[user_config.name]
+            trackers[user_config] = TrackerConfig(
+                config.toml_cfg[user_config], xml_configs[user_config]
             )
 
     return trackers
@@ -299,7 +299,7 @@ class TrackerConfig:
         }
         self.category_backends = {}
         for key, backend_type in category_mapping.items():
-            if self._user_config[key]:
+            if self._user_config.get(key):
                 self.category_backends[backend_type] = self._user_config[key]
 
     def get(self, key):
@@ -327,15 +327,15 @@ class TrackerConfig:
 
     @property
     def irc_ident_password(self):
-        return self._user_config["irc_ident_password"]
+        return self._user_config.get("irc_ident_password")
 
     @property
     def irc_inviter(self):
-        return self._user_config["irc_inviter"]
+        return self._user_config.get("irc_inviter")
 
     @property
     def irc_invite_cmd(self):
-        return self._user_config["irc_invite_cmd"]
+        return self._user_config.get("irc_invite_cmd")
 
     @property
     def torrent_https(self):

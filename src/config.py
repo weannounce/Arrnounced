@@ -29,8 +29,6 @@ def init(config_path):
     _init_value(toml_cfg, "webui", {})
     _init_value(toml_cfg["webui"], "host", "0.0.0.0")
     _init_value(toml_cfg["webui"], "port", 3467)
-    # _init_value(toml_cfg["webui"], "username", None)
-    # _init_value(toml_cfg["webui"], "password", None)
     _init_value(toml_cfg["webui"], "shutdown", False)
 
     _init_value(toml_cfg, "log", {})
@@ -38,40 +36,25 @@ def init(config_path):
     _init_value(toml_cfg["log"], "to_console", True)
 
     _init_value(toml_cfg, "sonarr", {})
-    # _init_value(toml_cfg["sonarr"], "apikey", None)
     _init_value(toml_cfg["sonarr"], "url", "http://localhost:8989")
 
     _init_value(toml_cfg, "radarr", {})
-    # _init_value(toml_cfg["radarr"], "apikey", None)
     _init_value(toml_cfg["radarr"], "url", "http://localhost:7878")
 
     _init_value(toml_cfg, "lidarr", {})
-    # _init_value(toml_cfg["lidarr"], "apikey", None)
     _init_value(toml_cfg["lidarr"], "url", "http://localhost:8686")
 
     for section in toml_cfg.keys():
         if section in base_sections:
             continue
-        # Init mandatory tracker values
-        # _init_value(toml_cfg[section], "irc_nickname", None)
-        # _init_value(toml_cfg[section], "irc_server", None)
-        # _init_value(toml_cfg[section], "irc_port", None)
-        # _init_value(toml_cfg[section], "irc_channels", None)
-
         # Init optional tracker values
         _init_value(toml_cfg[section], "irc_tls", False)
         _init_value(toml_cfg[section], "irc_tls_verify", False)
-        # _init_value(toml_cfg[section], "irc_ident_password", None)
-        # _init_value(toml_cfg[section], "irc_inviter", None)
-        # _init_value(toml_cfg[section], "irc_invite_cmd", None)
         _init_value(toml_cfg[section], "torrent_https", False)
         _init_value(toml_cfg[section], "announce_delay", 0)
         _init_value(toml_cfg[section], "notify_sonarr", False)
         _init_value(toml_cfg[section], "notify_radarr", False)
         _init_value(toml_cfg[section], "notify_lidarr", False)
-        # _init_value(toml_cfg[section], "category_sonarr", None, type=str)
-        # _init_value(toml_cfg[section], "category_radarr", None, type=str)
-        # _init_value(toml_cfg[section], "category_lidarr", None, type=str)
 
     # for k, v in toml_cfg.items():
     #    print(k + ": " + str(v))
