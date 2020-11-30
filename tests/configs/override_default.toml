@@ -3,6 +3,7 @@ host = "webhost"
 port = 456
 username = "usern"
 password = "passw"
+shutdown = true
 
 [log]
 to_file = false
