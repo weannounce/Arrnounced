@@ -103,16 +103,16 @@ _backends = {}
 
 
 def init(config):
-    if config["sonarr.apikey"]:
-        sonarr = Sonarr(config["sonarr.apikey"], config["sonarr.url"])
+    if config["sonarr"].get("apikey"):
+        sonarr = Sonarr(config["sonarr"].get("apikey"), config["sonarr"]["url"])
         _backends[BackendType.SONARR] = sonarr
 
-    if config["radarr.apikey"]:
-        radarr = Radarr(config["radarr.apikey"], config["radarr.url"])
+    if config["radarr"].get("apikey"):
+        radarr = Radarr(config["radarr"].get("apikey"), config["radarr"]["url"])
         _backends[BackendType.RADARR] = radarr
 
-    if config["lidarr.apikey"]:
-        lidarr = Lidarr(config["lidarr.apikey"], config["lidarr.url"])
+    if config["lidarr"].get("apikey"):
+        lidarr = Lidarr(config["lidarr"].get("apikey"), config["lidarr"]["url"])
         _backends[BackendType.LIDARR] = lidarr
 
 
