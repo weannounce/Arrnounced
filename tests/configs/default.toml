@@ -4,6 +4,7 @@
 ## Username and password are default empty which means login is disabled
 #username = admin
 #password = password
+#shutdown = false
 
 # Logging configuration
 #[log]

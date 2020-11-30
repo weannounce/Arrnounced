@@ -27,6 +27,9 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(
             config.toml_cfg["webui"].get("password"), None, "Invalid default value"
         )
+        self.assertEqual(
+            config.toml_cfg["webui"]["shutdown"], False, "Invalid default value"
+        )
 
         self.assertEqual(
             config.toml_cfg["log"]["to_file"], True, "Invalid default value"
@@ -137,6 +140,7 @@ class ConfigTest(unittest.TestCase):
 
         self.assertEqual(config.webui_host(), "webhost", "host is invalid")
         self.assertEqual(config.webui_port(), 456, "host is invalid")
+        self.assertEqual(config.webui_shutdown(), True, "Invalid shutdown value")
 
         self.assertEqual(
             config.toml_cfg["log"]["to_file"], False, "Invalid log to file"
