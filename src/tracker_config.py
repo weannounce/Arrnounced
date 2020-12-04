@@ -230,21 +230,19 @@ class TrackerXmlConfig:
         return True
 
 
-def get_trackers(tracker_config_path):
+def get_trackers(user_config, tracker_config_path):
     xml_configs = parse_xml_configs(tracker_config_path)
     trackers = {}
-    for user_config in config.sections():
-        if user_config in config.base_sections:
+    for section in user_config.sections:
+        if section in config.base_sections:
             continue
-        elif user_config not in xml_configs:
-            logger.error(
-                "Tracker '%s' from configuration is not supported", user_config
-            )
+        elif section not in xml_configs:
+            logger.error("Tracker '%s' from configuration is not supported", section)
         elif _are_settings_configured(
-            config.toml_cfg[user_config], xml_configs[user_config].settings
+            user_config.toml[section], xml_configs[section].settings
         ):
-            trackers[user_config] = TrackerConfig(
-                config.toml_cfg[user_config], xml_configs[user_config]
+            trackers[section] = TrackerConfig(
+                user_config.toml[section], xml_configs[section]
             )
 
     return trackers

@@ -4,9 +4,169 @@ import sys
 from tomlkit import parse
 
 
-toml_cfg = None
 base_sections = ["webui", "log", "sonarr", "radarr", "lidarr"]
+mandatory_tracker_fields = ["irc_nickname", "irc_server", "irc_port", "irc_channels"]
 logger = logging.getLogger("CONFIG")
+
+
+class UserConfig:
+    def __init__(self, toml):
+        self.toml = toml
+
+    def validate_config(self):  # noqa: C901
+        valid = True
+
+        if not (
+            self.toml["sonarr"].get("apikey") is not None
+            or self.toml["radarr"].get("apikey") is not None
+            or self.toml["lidarr"].get("apikey") is not None
+        ):
+            logger.error("Must specify at least one backend (Sonarr/Radarr/Lidarr)")
+            valid = False
+
+        for section_name, section in self.toml.items():
+            if section_name == "webui":
+                if bool(section.get("username")) != bool(section.get("password")):
+                    logger.error(
+                        "%s: Must set none or both 'username' and 'password'",
+                        section_name,
+                    )
+                    valid = False
+                continue
+            elif section_name in base_sections:
+                continue
+
+            for mandatory in mandatory_tracker_fields:
+                if not section.get(mandatory):
+                    logger.error("%s: Must set '%s'", section_name, mandatory)
+                    valid = False
+
+            if bool(section.get("irc_inviter")) != bool(section.get("irc_invite_cmd")):
+                logger.error(
+                    "%s: Must set both 'irc_inviter' and 'irc_invite_cmd'", section_name
+                )
+                valid = False
+
+            if (
+                section.get("notify_sonarr")
+                or section.get("category_sonarr") is not None
+            ) and self.toml["sonarr"].get("apikey") is None:
+                logger.error(
+                    "%s: Must configure sonarr to use 'notify_sonarr' or 'category_sonarr'",
+                    section_name,
+                )
+                valid = False
+            if (
+                section.get("notify_radarr")
+                or section.get("category_radarr") is not None
+            ) and self.toml["radarr"].get("apikey") is None:
+                logger.error(
+                    "%s: Must configure radarr to use 'notify_radarr' or 'category_radarr'",
+                    section_name,
+                )
+                valid = False
+            if (
+                section.get("notify_lidarr")
+                or section.get("category_lidarr") is not None
+            ) and self.toml["lidarr"].get("apikey") is None:
+                logger.error(
+                    "%s: Must configure lidarr to use 'notify_lidarr' or 'category_lidarr'",
+                    section_name,
+                )
+                valid = False
+
+            if (
+                section.get("notify_sonarr")
+                and section.get("category_sonarr") is not None
+            ):
+                logger.error(
+                    "%s: Cannot use both notify_sonarr and cateogry_sonarr",
+                    section_name,
+                )
+                valid = False
+            if (
+                section.get("notify_radarr")
+                and section.get("category_radarr") is not None
+            ):
+                logger.error(
+                    "%s: Cannot use both notify_radarr and cateogry_radarr",
+                    section_name,
+                )
+                valid = False
+            if (
+                section.get("notify_lidarr")
+                and section.get("category_lidarr") is not None
+            ):
+                logger.error(
+                    "%s: Cannot use both notify_lidarr and cateogry_lidarr",
+                    section_name,
+                )
+                valid = False
+
+        valid = _check_empty_values(self.toml, []) and valid
+        return valid
+
+    @property
+    def sections(self):
+        return self.toml.keys()
+
+    @property
+    def log_to_console(self):
+        return self.toml["log"]["to_console"]
+
+    @property
+    def log_to_file(self):
+        return self.toml["log"]["to_file"]
+
+    @property
+    def sonarr_apikey(self):
+        return self.toml["sonarr"].get("apikey")
+
+    @property
+    def sonarr_url(self):
+        return self.toml["sonarr"]["url"]
+
+    @property
+    def radarr_apikey(self):
+        return self.toml["radarr"].get("apikey")
+
+    @property
+    def radarr_url(self):
+        return self.toml["radarr"]["url"]
+
+    @property
+    def lidarr_apikey(self):
+        return self.toml["lidarr"].get("apikey")
+
+    @property
+    def lidarr_url(self):
+        return self.toml["lidarr"]["url"]
+
+    @property
+    def webui_host(self):
+        return self.toml["webui"]["host"]
+
+    @property
+    def webui_port(self):
+        return self.toml["webui"]["port"]
+
+    @property
+    def webui_shutdown(self):
+        return self.toml["webui"]["shutdown"]
+
+    @property
+    def login_required(self):
+        return self.toml["webui"].get("username") is not None
+
+    def login(self, username, password):
+        if self.toml["webui"].get("username") is None:
+            return True
+        elif (
+            self.toml["webui"].get("username") == username
+            and self.toml["webui"].get("password") == password
+        ):
+            return True
+        return False
 
 
 def _init_value(table, key, value):
@@ -15,15 +175,15 @@ def _init_value(table, key, value):
 
 
 def init(config_path):
-    global toml_cfg
     global base_sections
 
+    toml_cfg = None
     with io.open(config_path) as f:
         try:
             toml_cfg = parse(f.read())
         except Exception as e:
             print("Error {}: {}".format(config_path, e), file=sys.stderr)
-            return toml_cfg
+            return None
 
     # Settings
     _init_value(toml_cfg, "webui", {})
@@ -58,89 +218,7 @@ def init(config_path):
 
     # for k, v in toml_cfg.items():
     #    print(k + ": " + str(v))
-    return toml_cfg
-
-
-mandatory_tracker_fields = ["irc_nickname", "irc_server", "irc_port", "irc_channels"]
-
-
-def validate_config():  # noqa: C901
-    global toml_cfg
-    valid = True
-
-    if not (
-        toml_cfg["sonarr"].get("apikey") is not None
-        or toml_cfg["radarr"].get("apikey") is not None
-        or toml_cfg["lidarr"].get("apikey") is not None
-    ):
-        logger.error("Must specify at least one backend (Sonarr/Radarr/Lidarr)")
-        valid = False
-
-    for section_name, section in toml_cfg.items():
-        if section_name == "webui":
-            if bool(section.get("username")) != bool(section.get("password")):
-                logger.error(
-                    "%s: Must set none or both 'username' and 'password'", section_name
-                )
-                valid = False
-            continue
-        elif section_name in base_sections:
-            continue
-
-        for mandatory in mandatory_tracker_fields:
-            if not section.get(mandatory):
-                logger.error("%s: Must set '%s'", section_name, mandatory)
-                valid = False
-
-        if bool(section.get("irc_inviter")) != bool(section.get("irc_invite_cmd")):
-            logger.error(
-                "%s: Must set both 'irc_inviter' and 'irc_invite_cmd'", section_name
-            )
-            valid = False
-
-        if (
-            section.get("notify_sonarr") or section.get("category_sonarr") is not None
-        ) and toml_cfg["sonarr"].get("apikey") is None:
-            logger.error(
-                "%s: Must configure sonarr to use 'notify_sonarr' or 'category_sonarr'",
-                section_name,
-            )
-            valid = False
-        if (
-            section.get("notify_radarr") or section.get("category_radarr") is not None
-        ) and toml_cfg["radarr"].get("apikey") is None:
-            logger.error(
-                "%s: Must configure radarr to use 'notify_radarr' or 'category_radarr'",
-                section_name,
-            )
-            valid = False
-        if (
-            section.get("notify_lidarr") or section.get("category_lidarr") is not None
-        ) and toml_cfg["lidarr"].get("apikey") is None:
-            logger.error(
-                "%s: Must configure lidarr to use 'notify_lidarr' or 'category_lidarr'",
-                section_name,
-            )
-            valid = False
-
-        if section.get("notify_sonarr") and section.get("category_sonarr") is not None:
-            logger.error(
-                "%s: Cannot use both notify_sonarr and cateogry_sonarr", section_name
-            )
-            valid = False
-        if section.get("notify_radarr") and section.get("category_radarr") is not None:
-            logger.error(
-                "%s: Cannot use both notify_radarr and cateogry_radarr", section_name
-            )
-            valid = False
-        if section.get("notify_lidarr") and section.get("category_lidarr") is not None:
-            logger.error(
-                "%s: Cannot use both notify_lidarr and cateogry_lidarr", section_name
-            )
-            valid = False
-
-    valid = _check_empty_values(toml_cfg, []) and valid
-    return valid
+    return UserConfig(toml_cfg)
 
 
 def _check_empty_values(section, prior_sections):
@@ -156,37 +234,3 @@ def _check_empty_values(section, prior_sections):
             )
             valid = False
     return valid
-
-
-def sections():
-    return toml_cfg.keys()
-
-
-def webui_host():
-    return toml_cfg["webui"]["host"]
-
-
-def webui_port():
-    return toml_cfg["webui"]["port"]
-
-
-def webui_shutdown():
-    return toml_cfg["webui"]["shutdown"]
-
-
-def login_required():
-    if toml_cfg["webui"].get("username") is None:
-        return False
-    else:
-        return True
-
-
-def login(username, password):
-    if toml_cfg["webui"].get("username") is None:
-        return True
-    elif (
-        toml_cfg["webui"].get("username") == username
-        and toml_cfg["webui"].get("password") == password
-    ):
-        return True
-    return False

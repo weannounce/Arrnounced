@@ -16,7 +16,6 @@ from flask_login import login_required
 from flask_login import UserMixin
 from pathlib import Path
 
-import config
 import db
 import irc
 import log
@@ -45,14 +44,17 @@ app.secret_key = os.urandom(16)
 login_manager = LoginManager(app=app)
 login_manager.login_view = "login"
 user = User()
+user_config = None
 
 
-def run():
+def run(config):
+    global user_config
+    user_config = config
     try:
         app.run(
             debug=False,
-            host=config.webui_host(),
-            port=config.webui_port(),
+            host=user_config.webui_host,
+            port=user_config.webui_port,
             use_reloader=False,
         )
     except OSError as e:
@@ -61,7 +63,7 @@ def run():
 
 @app.route("/shutdown", methods=["GET", "POST"])
 def shutdown():
-    if not config.webui_shutdown():
+    if not user_config.webui_shutdown:
         return redirect(url_for("index"))
 
     logger.info("Shutting down Arrnounced")
@@ -82,8 +84,10 @@ def load_user(id):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
-    if request.method == "POST" or not config.login_required():
-        if config.login(request.form.get("username"), request.form.get("password")):
+    if request.method == "POST" or not user_config.login_required:
+        if user_config.login(
+            request.form.get("username"), request.form.get("password")
+        ):
             login_user(user)
             return redirect(url_for("index"))
         else:
@@ -113,7 +117,7 @@ def index():
         "index.html",
         announcement_pages=ceil(db.get_announced_count() / table_row_count),
         snatch_pages=ceil(db.get_snatched_count() / table_row_count),
-        login_required=config.login_required(),
+        login_required=user_config.login_required,
     )
 
 
