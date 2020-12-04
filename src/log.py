@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 log_file = None
 
 
-def init_logging(config, log_level, the_log_file):
+def init_logging(user_config, log_level, the_log_file):
     global log_file
     log_file = the_log_file
     logFormatter = logging.Formatter(
@@ -14,12 +14,12 @@ def init_logging(config, log_level, the_log_file):
     rootLogger = logging.getLogger()
     rootLogger.setLevel(log_level)
 
-    if config["log"]["to_console"]:
+    if user_config.log_to_console:
         consoleHandler = logging.StreamHandler()
         consoleHandler.setFormatter(logFormatter)
         rootLogger.addHandler(consoleHandler)
 
-    if config["log"]["to_file"]:
+    if user_config.log_to_file:
         fileHandler = RotatingFileHandler(
             log_file, maxBytes=1024 * 1024 * 5, backupCount=5
         )

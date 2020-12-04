@@ -59,8 +59,8 @@ if __name__ == "__main__":
         print(e)
         sys.exit(1)
 
-    cfg = config.init(args.config)
-    if cfg is None:
+    user_config = config.init(args.config)
+    if user_config is None:
         sys.exit(1)
 
     log_level = logging.INFO
@@ -68,14 +68,14 @@ if __name__ == "__main__":
         log_level = logging.DEBUG
 
     log_file = Path(args.data).joinpath("arrnounced.log")
-    log.init_logging(cfg, log_level, log_file)
+    log.init_logging(user_config, log_level, log_file)
 
-    if not config.validate_config():
+    if not user_config.validate_config():
         print("Error: Configuration not valid", file=sys.stderr)
         sys.exit(1)
 
-    backend.init(cfg)
+    backend.init(user_config)
     if not db.init(args.data):
         sys.exit(1)
 
-    manager.run(args.trackers)
+    manager.run(user_config, args.trackers)

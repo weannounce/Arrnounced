@@ -102,17 +102,17 @@ class Lidarr(Backend):
 _backends = {}
 
 
-def init(config):
-    if config["sonarr"].get("apikey"):
-        sonarr = Sonarr(config["sonarr"].get("apikey"), config["sonarr"]["url"])
+def init(user_config):
+    if user_config.sonarr_apikey:
+        sonarr = Sonarr(user_config.sonarr_apikey, user_config.sonarr_url)
         _backends[BackendType.SONARR] = sonarr
 
-    if config["radarr"].get("apikey"):
-        radarr = Radarr(config["radarr"].get("apikey"), config["radarr"]["url"])
+    if user_config.radarr_apikey:
+        radarr = Radarr(user_config.radarr_apikey, user_config.radarr_url)
         _backends[BackendType.RADARR] = radarr
 
-    if config["lidarr"].get("apikey"):
-        lidarr = Lidarr(config["lidarr"].get("apikey"), config["lidarr"]["url"])
+    if user_config.lidarr_apikey:
+        lidarr = Lidarr(user_config.lidarr_apikey, user_config.lidarr_url)
         _backends[BackendType.LIDARR] = lidarr
 
 
