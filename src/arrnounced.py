@@ -56,7 +56,9 @@ if __name__ == "__main__":
     try:
         args = parser.parse_args()
     except Exception as e:
-        print(e)
+        print(e, file=sys.stderr)
+        if isinstance(e, FileNotFoundError):
+            config.toml_notice()
         sys.exit(1)
 
     user_config = config.init(args.config)

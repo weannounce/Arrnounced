@@ -174,6 +174,16 @@ def _init_value(table, key, value):
         table[key] = value
 
 
+def toml_notice():
+    print(
+        "Please note that the configuration format has changed to TOML", file=sys.stderr
+    )
+    print("Because of this", file=sys.stderr)
+    print("* The default config file path has chagned", file=sys.stderr)
+    print("* Config file must be updated to conform with TOML", file=sys.stderr)
+    print("See the release notes for more info", file=sys.stderr)
+
+
 def init(config_path):
     global base_sections
 
@@ -183,6 +193,7 @@ def init(config_path):
             toml_cfg = parse(f.read())
         except Exception as e:
             print("Error {}: {}".format(config_path, e), file=sys.stderr)
+            toml_notice()
             return None
 
     # Settings
