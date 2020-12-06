@@ -38,8 +38,7 @@ apikey = "YOUR-API-KEY"
 
 # One or more trackers shall be configured. The section name shall be the
 # "type" as specified in the XML tracker configuration.
-# Any periods (.) in "type" shall be replaced with underscore (_) as the config
-# implementation uses periods to denote subsections. E.g. "tvt.ro" -> "tvt_ro"
+# Any type with a period (.) must be quoted e.g. ["tvt.ro"]
 [x264]
 # Mandatory
 irc_nickname = "arrnounced_bot"

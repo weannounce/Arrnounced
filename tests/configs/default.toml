@@ -28,11 +28,6 @@
 #url = lidurl
 #apikey = lidapi
 
-
-# One or more trackers shall be configured. The section name shall be the
-# "type" as specified in the XML tracker configuration.
-# Any periods (.) in "type" shall be replaced with underscore (_) as the config
-# implementation uses periods to denote subsections. E.g. "tvt.ro" -> "tvt_ro"
 [tracker1]
 irc_nickname = "t1nick"
 irc_server = "t1url"

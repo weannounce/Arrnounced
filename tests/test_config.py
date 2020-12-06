@@ -224,23 +224,30 @@ class ConfigTest(unittest.TestCase):
 
         # Tracker 2
         self.assertEqual(
-            cfg.toml["tracker2"]["irc_nickname"],
+            cfg.toml.get("tracker2"),
+            None,
+            "tracker2 should be None",
+        )
+        self.assertEqual(
+            cfg.toml["tracker2.dottest"]["irc_nickname"],
             "t2nick",
             "Invalid irc nickname",
         )
         self.assertEqual(
-            cfg.toml["tracker2"]["irc_server"], "t2url", "Invalid irc server"
+            cfg.toml["tracker2.dottest"]["irc_server"], "t2url", "Invalid irc server"
         )
-        self.assertEqual(cfg.toml["tracker2"]["irc_port"], 9876, "Invalid irc port")
         self.assertEqual(
-            cfg.toml["tracker2"]["irc_channels"], "t2ch", "Invalid irc channels"
+            cfg.toml["tracker2.dottest"]["irc_port"], 9876, "Invalid irc port"
         )
-        self.assertTrue(cfg.toml["tracker2"]["irc_tls"], "Invalid irc tls")
+        self.assertEqual(
+            cfg.toml["tracker2.dottest"]["irc_channels"], "t2ch", "Invalid irc channels"
+        )
+        self.assertTrue(cfg.toml["tracker2.dottest"]["irc_tls"], "Invalid irc tls")
         self.assertTrue(
-            cfg.toml["tracker2"]["irc_tls_verify"], "Invalid irc tls verify"
+            cfg.toml["tracker2.dottest"]["irc_tls_verify"], "Invalid irc tls verify"
         )
         self.assertEqual(
-            cfg.toml["tracker2"]["irc_ident_password"],
+            cfg.toml["tracker2.dottest"]["irc_ident_password"],
             "t2ident",
             "Invalid ident password",
         )

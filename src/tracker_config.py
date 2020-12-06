@@ -151,8 +151,6 @@ class TrackerXmlConfig:
 
     def parse_config(self, root):  # noqa: C901
         self.tracker_info = root.attrib
-        # TODO: Workaround for profig handling periods as subsections
-        self.tracker_info["type"] = self.tracker_info["type"].replace(".", "_")
 
         for setting in root.findall("./settings/*"):
             if "description" not in setting.tag:
@@ -238,6 +236,15 @@ def get_trackers(user_config, tracker_config_path):
             continue
         elif section not in xml_configs:
             logger.error("Tracker '%s' from configuration is not supported", section)
+            if section.replace("_", ".") in xml_configs:
+                logger.error(
+                    "Tracker names with period (.) in the name are now supported"
+                )
+                logger.error(
+                    'It looks like you should replace %s with "%s" (including quotes)',
+                    section,
+                    section.replace("_", "."),
+                )
         elif _are_settings_configured(
             user_config.toml[section], xml_configs[section].settings
         ):
