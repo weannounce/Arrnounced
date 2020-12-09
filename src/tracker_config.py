@@ -4,7 +4,6 @@ import re
 import defusedxml.ElementTree as ET
 from collections import namedtuple
 
-import config
 from backend import BackendType
 from announcement import (
     Var,
@@ -231,25 +230,25 @@ class TrackerXmlConfig:
 def get_trackers(user_config, tracker_config_path):
     xml_configs = parse_xml_configs(tracker_config_path)
     trackers = {}
-    for section in user_config.sections:
-        if section in config.base_sections:
-            continue
-        elif section not in xml_configs:
-            logger.error("Tracker '%s' from configuration is not supported", section)
-            if section.replace("_", ".") in xml_configs:
+    for user_tracker in user_config.trackers:
+        if user_tracker.type not in xml_configs:
+            logger.error(
+                "Tracker '%s' from configuration is not supported", user_tracker.type
+            )
+            if user_tracker.type.replace("_", ".") in xml_configs:
                 logger.error(
                     "Tracker names with period (.) in the name are now supported"
                 )
                 logger.error(
                     'It looks like you should replace %s with "%s" (including quotes)',
-                    section,
-                    section.replace("_", "."),
+                    user_tracker.type,
+                    user_tracker.type.replace("_", "."),
                 )
         elif _are_settings_configured(
-            user_config.toml[section], xml_configs[section].settings
+            user_tracker, xml_configs[user_tracker.type].settings
         ):
-            trackers[section] = TrackerConfig(
-                user_config.toml[section], xml_configs[section]
+            trackers[user_tracker.type] = TrackerConfig(
+                user_tracker, xml_configs[user_tracker.type]
             )
 
     return trackers
@@ -263,10 +262,10 @@ def _are_settings_configured(user_config, required_settings):
             logger.warning(
                 "%s: Tracker seems to require cookies to download torrent file. "
                 + "Sonarr/Radarr/Lidarr API does not support cookies",
-                user_config.name,
+                user_config.type,
             )
-        elif setting not in user_config:
-            logger.error("%s: Must specify '%s' in config", user_config.name, setting)
+        elif setting not in user_config.tracker:
+            logger.error("%s: Must specify '%s' in config", user_config.type, setting)
             configured = False
     return configured
 
@@ -285,7 +284,7 @@ def parse_bool(string):
 class TrackerConfig:
     def __init__(self, user_config, xml_config):
         self._xml_config = xml_config
-        self._user_config = user_config
+        self._user_config = user_config.tracker
 
         always_mapping = {
             "notify_sonarr": BackendType.SONARR,

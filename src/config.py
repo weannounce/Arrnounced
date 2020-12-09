@@ -4,7 +4,6 @@ import sys
 from tomlkit import parse
 
 
-base_sections = ["webui", "log", "sonarr", "radarr", "lidarr"]
 mandatory_tracker_fields = ["irc_nickname", "irc_server", "irc_port", "irc_channels"]
 logger = logging.getLogger("CONFIG")
 
@@ -24,18 +23,13 @@ class UserConfig:
             logger.error("Must specify at least one backend (Sonarr/Radarr/Lidarr)")
             valid = False
 
-        for section_name, section in self.toml.items():
-            if section_name == "webui":
-                if bool(section.get("username")) != bool(section.get("password")):
-                    logger.error(
-                        "%s: Must set none or both 'username' and 'password'",
-                        section_name,
-                    )
-                    valid = False
-                continue
-            elif section_name in base_sections:
-                continue
+        if bool(self.toml["webui"].get("username")) != bool(
+            self.toml["webui"].get("password")
+        ):
+            logger.error("webui: Must set none or both 'username' and 'password'")
+            valid = False
 
+        for section_name, section in self.toml["trackers"].items():
             for mandatory in mandatory_tracker_fields:
                 if not section.get(mandatory):
                     logger.error("%s: Must set '%s'", section_name, mandatory)
@@ -106,9 +100,17 @@ class UserConfig:
         valid = _check_empty_values(self.toml, []) and valid
         return valid
 
+    class UserTracker:
+        def __init__(self, tracker_type, user_tracker):
+            self.type = tracker_type
+            self.tracker = user_tracker
+
     @property
-    def sections(self):
-        return self.toml.keys()
+    def trackers(self):
+        return [
+            UserConfig.UserTracker(ttype, t)
+            for ttype, t in self.toml["trackers"].items()
+        ]
 
     @property
     def log_to_console(self):
@@ -185,8 +187,6 @@ def toml_notice():
 
 
 def init(config_path):
-    global base_sections
-
     toml_cfg = None
     with io.open(config_path) as f:
         try:
@@ -215,17 +215,16 @@ def init(config_path):
     _init_value(toml_cfg, "lidarr", {})
     _init_value(toml_cfg["lidarr"], "url", "http://localhost:8686")
 
-    for section in toml_cfg.keys():
-        if section in base_sections:
-            continue
+    _init_value(toml_cfg, "trackers", {})
+    for tracker_type in toml_cfg["trackers"]:
         # Init optional tracker values
-        _init_value(toml_cfg[section], "irc_tls", False)
-        _init_value(toml_cfg[section], "irc_tls_verify", False)
-        _init_value(toml_cfg[section], "torrent_https", False)
-        _init_value(toml_cfg[section], "announce_delay", 0)
-        _init_value(toml_cfg[section], "notify_sonarr", False)
-        _init_value(toml_cfg[section], "notify_radarr", False)
-        _init_value(toml_cfg[section], "notify_lidarr", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "irc_tls", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "irc_tls_verify", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "torrent_https", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "announce_delay", 0)
+        _init_value(toml_cfg["trackers"][tracker_type], "notify_sonarr", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "notify_radarr", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "notify_lidarr", False)
 
     # for k, v in toml_cfg.items():
     #    print(k + ": " + str(v))

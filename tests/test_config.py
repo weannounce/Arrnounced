@@ -11,11 +11,6 @@ class ConfigTest(unittest.TestCase):
         self.assertFalse(cfg.login_required, "Login required")
         self.assertTrue(cfg.login(None, None), "Login denied")
 
-        section_names = [s for s in cfg.sections]
-        self.assertTrue("webui" in section_names, "webui in config sections")
-        self.assertTrue("tracker1" in section_names, "tracker1 not in config sections")
-        self.assertTrue("other" not in section_names, "tracker1 not in config sections")
-
         self.assertEqual(cfg.webui_host, "0.0.0.0", "host is invalid")
         self.assertEqual(cfg.webui_port, 3467, "host is invalid")
         self.assertEqual(
@@ -48,59 +43,51 @@ class ConfigTest(unittest.TestCase):
             "Invalid default value",
         )
 
+        tracker1 = next(t.tracker for t in cfg.trackers if t.type == "tracker1")
+        self.assertEqual(len(cfg.trackers), 1)
         self.assertEqual(
-            cfg.toml["tracker1"]["irc_nickname"],
+            tracker1["irc_nickname"],
             "t1nick",
             "Invalid irc nickname",
         )
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_server"], "t1url", "Invalid irc server"
-        )
-        self.assertEqual(cfg.toml["tracker1"]["irc_port"], 1234, "Invalid irc port")
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_channels"], "t1ch", "Invalid irc channels"
-        )
+        self.assertEqual(tracker1["irc_server"], "t1url", "Invalid irc server")
+        self.assertEqual(tracker1["irc_port"], 1234, "Invalid irc port")
+        self.assertEqual(tracker1["irc_channels"], "t1ch", "Invalid irc channels")
 
-        self.assertFalse(cfg.toml["tracker1"]["irc_tls"], "Invalid default value")
-        self.assertFalse(
-            cfg.toml["tracker1"]["irc_tls_verify"], "Invalid default value"
-        )
+        self.assertFalse(tracker1["irc_tls"], "Invalid default value")
+        self.assertFalse(tracker1["irc_tls_verify"], "Invalid default value")
         self.assertEqual(
-            cfg.toml["tracker1"].get("irc_ident_password"),
+            tracker1.get("irc_ident_password"),
             None,
             "Invalid default value",
         )
         self.assertEqual(
-            cfg.toml["tracker1"].get("irc_inviter"),
+            tracker1.get("irc_inviter"),
             None,
             "Invalid default value",
         )
         self.assertEqual(
-            cfg.toml["tracker1"].get("irc_invite_cmd"),
+            tracker1.get("irc_invite_cmd"),
+            None,
+            "Invalid default value",
+        )
+        self.assertEqual(tracker1["torrent_https"], False, "Invalid default value")
+        self.assertEqual(tracker1["announce_delay"], 0, "Invalid default value")
+        self.assertFalse(tracker1["notify_sonarr"], "Invalid default value")
+        self.assertFalse(tracker1["notify_radarr"], "Invalid default value")
+        self.assertFalse(tracker1["notify_lidarr"], "Invalid default value")
+        self.assertEqual(
+            tracker1.get("category_sonarr"),
             None,
             "Invalid default value",
         )
         self.assertEqual(
-            cfg.toml["tracker1"]["torrent_https"], False, "Invalid default value"
-        )
-        self.assertEqual(
-            cfg.toml["tracker1"]["announce_delay"], 0, "Invalid default value"
-        )
-        self.assertFalse(cfg.toml["tracker1"]["notify_sonarr"], "Invalid default value")
-        self.assertFalse(cfg.toml["tracker1"]["notify_radarr"], "Invalid default value")
-        self.assertFalse(cfg.toml["tracker1"]["notify_lidarr"], "Invalid default value")
-        self.assertEqual(
-            cfg.toml["tracker1"].get("category_sonarr"),
+            tracker1.get("category_radarr"),
             None,
             "Invalid default value",
         )
         self.assertEqual(
-            cfg.toml["tracker1"].get("category_radarr"),
-            None,
-            "Invalid default value",
-        )
-        self.assertEqual(
-            cfg.toml["tracker1"].get("category_lidarr"),
+            tracker1.get("category_lidarr"),
             None,
             "Invalid default value",
         )
@@ -127,64 +114,55 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(cfg.toml["lidarr"]["apikey"], "lidapi", "Invalid lidarr api")
         self.assertEqual(cfg.toml["lidarr"]["url"], "lidurl", "Invalid default value")
 
+        tracker1 = next(t.tracker for t in cfg.trackers if t.type == "tracker1")
         self.assertEqual(
-            cfg.toml["tracker1"]["irc_nickname"],
+            tracker1["irc_nickname"],
             "t1nick",
             "Invalid irc nickname",
         )
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_server"], "t1url", "Invalid irc server"
-        )
-        self.assertEqual(cfg.toml["tracker1"]["irc_port"], 1234, "Invalid irc port")
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_channels"], "t1ch", "Invalid irc channels"
-        )
+        self.assertEqual(tracker1["irc_server"], "t1url", "Invalid irc server")
+        self.assertEqual(tracker1["irc_port"], 1234, "Invalid irc port")
+        self.assertEqual(tracker1["irc_channels"], "t1ch", "Invalid irc channels")
 
-        self.assertTrue(cfg.toml["tracker1"]["irc_tls"], "Invalid irc tls")
-        self.assertTrue(
-            cfg.toml["tracker1"]["irc_tls_verify"], "Invalid irc tls verify"
-        )
+        self.assertTrue(tracker1["irc_tls"], "Invalid irc tls")
+        self.assertTrue(tracker1["irc_tls_verify"], "Invalid irc tls verify")
         self.assertEqual(
-            cfg.toml["tracker1"]["irc_ident_password"],
+            tracker1["irc_ident_password"],
             "t1ident",
             "Invalid ident password",
         )
+        self.assertEqual(tracker1["irc_inviter"], "t1inver", "Invalid irc inviter")
         self.assertEqual(
-            cfg.toml["tracker1"]["irc_inviter"], "t1inver", "Invalid irc inviter"
-        )
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_invite_cmd"],
+            tracker1["irc_invite_cmd"],
             "t1invcmd",
             "Invalid inviter command",
         )
-        self.assertEqual(cfg.toml["tracker1"]["torrent_https"], True)
+        self.assertEqual(tracker1["torrent_https"], True)
         self.assertEqual(
-            cfg.toml["tracker1"]["announce_delay"],
+            tracker1["announce_delay"],
             9000,
             "Invalid announce delay",
         )
-        self.assertTrue(cfg.toml["tracker1"]["notify_sonarr"], "Invalid sonarr notify")
-        self.assertTrue(cfg.toml["tracker1"]["notify_radarr"], "Invalid radarr notify")
-        self.assertTrue(cfg.toml["tracker1"]["notify_lidarr"], "Invalid lidarr notify")
+        self.assertTrue(tracker1["notify_sonarr"], "Invalid sonarr notify")
+        self.assertTrue(tracker1["notify_radarr"], "Invalid radarr notify")
+        self.assertTrue(tracker1["notify_lidarr"], "Invalid lidarr notify")
         self.assertEqual(
-            cfg.toml["tracker1"]["category_sonarr"],
+            tracker1["category_sonarr"],
             "soncat",
             "Invalid sonarr category",
         )
         self.assertEqual(
-            cfg.toml["tracker1"]["category_radarr"],
+            tracker1["category_radarr"],
             "radcat",
             "Invalid radarr category",
         )
         self.assertEqual(
-            cfg.toml["tracker1"]["category_lidarr"],
+            tracker1["category_lidarr"],
             "lidcat",
             "Invalid lidarr category",
         )
 
-        self.assertEqual(
-            cfg.toml["tracker1"]["phony"], "t1phony", "Invalid custom value"
-        )
+        self.assertEqual(tracker1["phony"], "t1phony", "Invalid custom value")
 
     def test_two_trackers(self):
         cfg = config.init("./tests/configs/two_trackers.toml")
@@ -199,55 +177,52 @@ class ConfigTest(unittest.TestCase):
 
         self.assertEqual(cfg.toml["lidarr"]["apikey"], "lidapi", "Invalid lidarr api")
 
+        self.assertEqual(len(cfg.trackers), 2)
         # Tracker 1
+        tracker1 = next(t.tracker for t in cfg.trackers if t.type == "tracker1")
         self.assertEqual(
-            cfg.toml["tracker1"]["irc_nickname"],
+            tracker1["irc_nickname"],
             "t1nick",
             "Invalid irc nickname",
         )
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_server"], "t1url", "Invalid irc server"
-        )
-        self.assertEqual(cfg.toml["tracker1"]["irc_port"], 1234, "Invalid irc port")
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_channels"], "t1ch", "Invalid irc channels"
-        )
+        self.assertEqual(tracker1["irc_server"], "t1url", "Invalid irc server")
+        self.assertEqual(tracker1["irc_port"], 1234, "Invalid irc port")
+        self.assertEqual(tracker1["irc_channels"], "t1ch", "Invalid irc channels")
 
+        self.assertEqual(tracker1["irc_inviter"], "t1inver", "Invalid irc inviter")
         self.assertEqual(
-            cfg.toml["tracker1"]["irc_inviter"], "t1inver", "Invalid irc inviter"
-        )
-        self.assertEqual(
-            cfg.toml["tracker1"]["irc_invite_cmd"],
+            tracker1["irc_invite_cmd"],
             "t1invcmd",
             "Invalid inviter command",
         )
 
         # Tracker 2
+        tracker2 = next(t.tracker for t in cfg.trackers if t.type == "tracker2.dottest")
         self.assertEqual(
             cfg.toml.get("tracker2"),
             None,
             "tracker2 should be None",
         )
         self.assertEqual(
-            cfg.toml["tracker2.dottest"]["irc_nickname"],
+            tracker2["irc_nickname"],
             "t2nick",
             "Invalid irc nickname",
         )
         self.assertEqual(
-            cfg.toml["tracker2.dottest"]["irc_server"], "t2url", "Invalid irc server"
+            tracker2["irc_server"],
+            "t2url",
+            "Invalid irc server",
         )
+        self.assertEqual(tracker2["irc_port"], 9876, "Invalid irc port")
         self.assertEqual(
-            cfg.toml["tracker2.dottest"]["irc_port"], 9876, "Invalid irc port"
+            tracker2["irc_channels"],
+            "t2ch",
+            "Invalid irc channels",
         )
+        self.assertTrue(tracker2["irc_tls"], "Invalid irc tls")
+        self.assertTrue(tracker2["irc_tls_verify"], "Invalid irc tls verify")
         self.assertEqual(
-            cfg.toml["tracker2.dottest"]["irc_channels"], "t2ch", "Invalid irc channels"
-        )
-        self.assertTrue(cfg.toml["tracker2.dottest"]["irc_tls"], "Invalid irc tls")
-        self.assertTrue(
-            cfg.toml["tracker2.dottest"]["irc_tls_verify"], "Invalid irc tls verify"
-        )
-        self.assertEqual(
-            cfg.toml["tracker2.dottest"]["irc_ident_password"],
+            tracker2["irc_ident_password"],
             "t2ident",
             "Invalid ident password",
         )

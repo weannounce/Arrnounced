@@ -8,7 +8,7 @@ password = "apass"
 apikey = "lidapi"
 
 
-[tracker1]
+[trackers.tracker1]
 irc_nickname = "t1nick"
 irc_server = "t1url"
 irc_port = 1234
@@ -17,7 +17,7 @@ irc_channels = "t1ch"
 irc_inviter = "t1inver"
 irc_invite_cmd = "t1invcmd"
 
-["tracker2.dottest"]
+[trackers."tracker2.dottest"]
 irc_nickname = "t2nick"
 irc_server = "t2url"
 irc_port = 9876
