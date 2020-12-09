@@ -37,9 +37,10 @@ apikey = "YOUR-API-KEY"
 
 
 # One or more trackers shall be configured. The section name shall be the
-# "type" as specified in the XML tracker configuration.
-# Any type with a period (.) must be quoted e.g. ["tvt.ro"]
-[x264]
+# "type" as specified in the XML tracker configuration. The type shall be put
+# in subsection "trackers" i.e. [trackers.<type>]. Any type with a period (.)
+# must be quoted e.g. [trackers."tvt.ro"]
+[trackers.x264]
 # Mandatory
 irc_nickname = "arrnounced_bot"
 irc_server = "example.com"
@@ -99,8 +100,8 @@ category_radarr = "movie|film|motion picture"
 # Notifications will stop after a backend approved an announcement.
 
 
-# A seconds example tracker. This time slimmed down
-[nbl]
+# A second example tracker. This time slimmed down
+[trackers.nbl]
 irc_nickname = "arrnounced_bot"
 irc_server = "example.com"
 irc_port = 6697
