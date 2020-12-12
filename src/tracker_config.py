@@ -264,8 +264,13 @@ def _are_settings_configured(user_config, required_settings):
                 + "Sonarr/Radarr/Lidarr API does not support cookies",
                 user_config.type,
             )
-        elif setting not in user_config.tracker:
-            logger.error("%s: Must specify '%s' in config", user_config.type, setting)
+        elif setting not in user_config.settings:
+            logger.error(
+                "%s: Must specify '%s' in config section [trackers.%s.settings]",
+                user_config.type,
+                setting,
+                user_config.type,
+            )
             configured = False
     return configured
 
@@ -306,8 +311,8 @@ class TrackerConfig:
             if self._user_config.get(key):
                 self.category_backends[backend_type] = self._user_config[key]
 
-    def get(self, key):
-        return self._user_config.get(key)
+    def setting(self, key):
+        return self._user_config["settings"].get(key)
 
     @property
     def irc_port(self):

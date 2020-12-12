@@ -36,7 +36,6 @@ irc_invite_cmd = "t1invcmd"
 
 torrent_https = true
 
-phony = "t1phony"
 announce_delay = 9000
 
 notify_sonarr = true
@@ -46,3 +45,6 @@ notify_lidarr = true
 category_sonarr = "soncat"
 category_radarr = "radcat"
 category_lidarr = "lidcat"
+
+[trackers.tracker1.settings]
+phony = "t1phony"

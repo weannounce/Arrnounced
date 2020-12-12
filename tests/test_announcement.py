@@ -43,6 +43,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         self._user_config["category_radarr"] = False
         self._user_config["category_lidarr"] = False
         self._user_config["torrent_https"] = False
+        self._user_config["settings"] = {}
 
         self._xml_config = tracker_config.TrackerXmlConfig()
         self._xml_config.tracker_info = {
@@ -63,7 +64,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         )
 
     def __setitem__(self, key, value):
-        self._user_config[key] = value
+        self._user_config["settings"][key] = value
 
 
 class AnnouncementTest(unittest.TestCase):

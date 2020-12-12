@@ -70,12 +70,6 @@ irc_invite_cmd = "invite_me #x264"
 # Whether to use HTTPS when downloading torrent file
 torrent_https = false
 
-# This is a special field which is specified in the XML tracker configuration
-# file, x265.tracker, under "settings". It is mandatory because it is needed
-# when downloading the .torrent-file.
-# Any field specified in "settings" must be specified here (description excluded).
-passkey = "mypasskey"
-
 # Delay in seconds between when an IRC announcement is received and
 # the backends are notified of the release.
 announce_delay = 0
@@ -99,6 +93,11 @@ category_radarr = "movie|film|motion picture"
 # will be notified.
 # Notifications will stop after a backend approved an announcement.
 
+# Settings from the XML tracker configuration, x265.tracker, are set in this
+# section. All settings must be specified here (description excluded).
+[trackers.x264.settings]
+passkey = "mypasskey"
+
 
 # A second example tracker. This time slimmed down
 [trackers.nbl]
@@ -109,9 +108,10 @@ irc_channels = "#example_channel2"
 
 irc_ident_password = "password"
 
-# Tracker XML config settings. (Remove "gazelle_" and "cookie_")
-authkey = "my_auth_key"
-torrent_pass = "my_torrent_pass"
-
 # Only notify Sonarr of all announcements.
 notify_sonarr = true
+
+# Tracker XML config settings. (Remove "gazelle_" and "cookie_")
+[trackers.nbl.settings]
+authkey = "my_auth_key"
+torrent_pass = "my_torrent_pass"

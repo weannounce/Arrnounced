@@ -105,6 +105,10 @@ class UserConfig:
             self.type = tracker_type
             self.tracker = user_tracker
 
+        @property
+        def settings(self):
+            return self.tracker["settings"]
+
     @property
     def trackers(self):
         return [
@@ -225,6 +229,7 @@ def init(config_path):
         _init_value(toml_cfg["trackers"][tracker_type], "notify_sonarr", False)
         _init_value(toml_cfg["trackers"][tracker_type], "notify_radarr", False)
         _init_value(toml_cfg["trackers"][tracker_type], "notify_lidarr", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "settings", {})
 
     # for k, v in toml_cfg.items():
     #    print(k + ": " + str(v))

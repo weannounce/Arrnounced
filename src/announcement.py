@@ -62,7 +62,7 @@ class Var:
                 if element.name in variables:
                     var_shard = variables[element.name]
                 else:
-                    var_shard = tracker_config.get(element.name)
+                    var_shard = tracker_config.setting(element.name)
 
                 if element.var_type is self.Element.Type.VARENC:
                     var_shard = urllib.parse.quote_plus(var_shard)

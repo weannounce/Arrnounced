@@ -162,7 +162,9 @@ class ConfigTest(unittest.TestCase):
             "Invalid lidarr category",
         )
 
-        self.assertEqual(tracker1["phony"], "t1phony", "Invalid custom value")
+        self.assertEqual(
+            tracker1["settings"]["phony"], "t1phony", "Invalid custom value"
+        )
 
     def test_two_trackers(self):
         cfg = config.init("./tests/configs/two_trackers.toml")
@@ -226,6 +228,17 @@ class ConfigTest(unittest.TestCase):
             "t2ident",
             "Invalid ident password",
         )
+
+    def test_settings(self):
+        cfg = config.init("./tests/configs/settings.toml")
+        self.assertNotEqual(cfg, None, "Config is None")
+        self.assertTrue(cfg.validate_config(), "Configuration is invalid")
+
+        # Tracker 1
+        tracker1 = next(t.tracker for t in cfg.trackers if t.type == "tracker1")
+        self.assertEqual(len(tracker1["settings"]), 2)
+        self.assertEqual(tracker1["settings"]["fixed1"], "f1value")
+        self.assertEqual(tracker1["settings"]["fixed2"], "f2value")
 
     def test_missing_backend(self):
         cfg = config.init("./tests/configs/missing_backend.toml")

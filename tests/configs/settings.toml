@@ -1,0 +1,12 @@
+[lidarr]
+apikey = "lidapi"
+
+[trackers.tracker1]
+irc_nickname = "t1nick"
+irc_server = "t1url"
+irc_port = 1234
+irc_channels = "t1ch"
+
+[trackers.tracker1.settings]
+fixed1 = "f1value"
+fixed2 = "f2value"
