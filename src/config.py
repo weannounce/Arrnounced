@@ -4,6 +4,11 @@ import sys
 from tomlkit import parse
 
 
+backend_urls = {
+    "sonarr": "http://localhost:8989",
+    "radarr": "http://localhost:7878",
+    "lidarr": "http://localhost:8686",
+}
 mandatory_tracker_fields = ["irc_nickname", "irc_server", "irc_port", "irc_channels"]
 logger = logging.getLogger("CONFIG")
 
@@ -15,90 +20,89 @@ class UserConfig:
     def validate_config(self):  # noqa: C901
         valid = True
 
-        if not (
-            self.toml["sonarr"].get("apikey") is not None
-            or self.toml["radarr"].get("apikey") is not None
-            or self.toml["lidarr"].get("apikey") is not None
-        ):
-            logger.error("Must specify at least one backend (Sonarr/Radarr/Lidarr)")
-            valid = False
-
         if bool(self.toml["webui"].get("username")) != bool(
             self.toml["webui"].get("password")
         ):
             logger.error("webui: Must set none or both 'username' and 'password'")
             valid = False
 
+        if len(self.toml["backends"]) == 0:
+            logger.error("Must specify at least one backend (Sonarr/Radarr/Lidarr)")
+            valid = False
+
+        for section_name, section in self.toml["backends"].items():
+            if (
+                not section.get("type")
+                or section.get("type").lower() not in backend_urls
+            ):
+                logger.error(
+                    "backends.%s: Must specify type, one of sonarr, radarr, lidarr",
+                    section_name,
+                )
+                valid = False
+            if not section.get("apikey"):
+                logger.error("backends.%s: Must specify apikey", section_name)
+                valid = False
+
         for section_name, section in self.toml["trackers"].items():
             for mandatory in mandatory_tracker_fields:
                 if not section.get(mandatory):
-                    logger.error("%s: Must set '%s'", section_name, mandatory)
+                    logger.error("trackers.%s: Must set '%s'", section_name, mandatory)
                     valid = False
 
             if bool(section.get("irc_inviter")) != bool(section.get("irc_invite_cmd")):
                 logger.error(
-                    "%s: Must set both 'irc_inviter' and 'irc_invite_cmd'", section_name
-                )
-                valid = False
-
-            if (
-                section.get("notify_sonarr")
-                or section.get("category_sonarr") is not None
-            ) and self.toml["sonarr"].get("apikey") is None:
-                logger.error(
-                    "%s: Must configure sonarr to use 'notify_sonarr' or 'category_sonarr'",
-                    section_name,
-                )
-                valid = False
-            if (
-                section.get("notify_radarr")
-                or section.get("category_radarr") is not None
-            ) and self.toml["radarr"].get("apikey") is None:
-                logger.error(
-                    "%s: Must configure radarr to use 'notify_radarr' or 'category_radarr'",
-                    section_name,
-                )
-                valid = False
-            if (
-                section.get("notify_lidarr")
-                or section.get("category_lidarr") is not None
-            ) and self.toml["lidarr"].get("apikey") is None:
-                logger.error(
-                    "%s: Must configure lidarr to use 'notify_lidarr' or 'category_lidarr'",
+                    "trackers.%s: Must set both 'irc_inviter' and 'irc_invite_cmd'",
                     section_name,
                 )
                 valid = False
 
-            if (
-                section.get("notify_sonarr")
-                and section.get("category_sonarr") is not None
-            ):
+            always_backends = (
+                [b.strip() for b in section.get("notify").split(",")]
+                if section.get("notify")
+                else []
+            )
+            category_backends = list(section.get("category").keys())
+
+            for b in always_backends + category_backends:
+                if b not in self.toml["backends"]:
+                    logger.error(
+                        "trackers.%s: No backend named '%s' found", section_name, b
+                    )
+                    valid = False
+
+            backend_duplicates = [b for b in always_backends if b in category_backends]
+            if len(backend_duplicates) != 0:
                 logger.error(
-                    "%s: Cannot use both notify_sonarr and cateogry_sonarr",
+                    "trackers.%s: Cannot specify the same backend for both 'notify' and 'category'. Found %s",
                     section_name,
-                )
-                valid = False
-            if (
-                section.get("notify_radarr")
-                and section.get("category_radarr") is not None
-            ):
-                logger.error(
-                    "%s: Cannot use both notify_radarr and cateogry_radarr",
-                    section_name,
-                )
-                valid = False
-            if (
-                section.get("notify_lidarr")
-                and section.get("category_lidarr") is not None
-            ):
-                logger.error(
-                    "%s: Cannot use both notify_lidarr and cateogry_lidarr",
-                    section_name,
+                    ",".join(backend_duplicates),
                 )
                 valid = False
 
         valid = _check_empty_values(self.toml, []) and valid
         return valid
+
+    class UserBackend:
+        def __init__(self, name, user_backend):
+            self.name = name
+            self.backend = user_backend
+
+        @property
+        def type(self):
+            return self.backend["type"].lower()
+
+        @property
+        def apikey(self):
+            return self.backend["apikey"]
+
+        @property
+        def url(self):
+            return self.backend.get("url")
+
+    @property
+    def backends(self):
+        return [UserConfig.UserBackend(n, b) for n, b in self.toml["backends"].items()]
 
     class UserTracker:
         def __init__(self, tracker_type, user_tracker):
@@ -123,30 +127,6 @@ class UserConfig:
     @property
     def log_to_file(self):
         return self.toml["log"]["to_file"]
-
-    @property
-    def sonarr_apikey(self):
-        return self.toml["sonarr"].get("apikey")
-
-    @property
-    def sonarr_url(self):
-        return self.toml["sonarr"]["url"]
-
-    @property
-    def radarr_apikey(self):
-        return self.toml["radarr"].get("apikey")
-
-    @property
-    def radarr_url(self):
-        return self.toml["radarr"]["url"]
-
-    @property
-    def lidarr_apikey(self):
-        return self.toml["lidarr"].get("apikey")
-
-    @property
-    def lidarr_url(self):
-        return self.toml["lidarr"]["url"]
 
     @property
     def webui_host(self):
@@ -185,7 +165,7 @@ def toml_notice():
         "Please note that the configuration format has changed to TOML", file=sys.stderr
     )
     print("Because of this", file=sys.stderr)
-    print("* The default config file path has chagned", file=sys.stderr)
+    print("* The default config file path has changed", file=sys.stderr)
     print("* Config file must be updated to conform with TOML", file=sys.stderr)
     print("See the release notes for more info", file=sys.stderr)
 
@@ -200,6 +180,7 @@ def init(config_path):
             toml_notice()
             return None
 
+    # TODO: Check types
     # Settings
     _init_value(toml_cfg, "webui", {})
     _init_value(toml_cfg["webui"], "host", "0.0.0.0")
@@ -210,14 +191,15 @@ def init(config_path):
     _init_value(toml_cfg["log"], "to_file", True)
     _init_value(toml_cfg["log"], "to_console", True)
 
-    _init_value(toml_cfg, "sonarr", {})
-    _init_value(toml_cfg["sonarr"], "url", "http://localhost:8989")
-
-    _init_value(toml_cfg, "radarr", {})
-    _init_value(toml_cfg["radarr"], "url", "http://localhost:7878")
-
-    _init_value(toml_cfg, "lidarr", {})
-    _init_value(toml_cfg["lidarr"], "url", "http://localhost:8686")
+    _init_value(toml_cfg, "backends", {})
+    for backend_name in toml_cfg["backends"]:
+        backend_type = toml_cfg["backends"][backend_name].get("type")
+        if not backend_type:
+            continue
+        default_url = backend_urls.get(backend_type.lower())
+        if not default_url:
+            continue
+        _init_value(toml_cfg["backends"][backend_name], "url", default_url)
 
     _init_value(toml_cfg, "trackers", {})
     for tracker_type in toml_cfg["trackers"]:
@@ -226,9 +208,7 @@ def init(config_path):
         _init_value(toml_cfg["trackers"][tracker_type], "irc_tls_verify", False)
         _init_value(toml_cfg["trackers"][tracker_type], "torrent_https", False)
         _init_value(toml_cfg["trackers"][tracker_type], "announce_delay", 0)
-        _init_value(toml_cfg["trackers"][tracker_type], "notify_sonarr", False)
-        _init_value(toml_cfg["trackers"][tracker_type], "notify_radarr", False)
-        _init_value(toml_cfg["trackers"][tracker_type], "notify_lidarr", False)
+        _init_value(toml_cfg["trackers"][tracker_type], "category", {})
         _init_value(toml_cfg["trackers"][tracker_type], "settings", {})
 
     # for k, v in toml_cfg.items():

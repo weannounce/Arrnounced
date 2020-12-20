@@ -1,5 +1,5 @@
 // Index Pgae
-function notify_backend(announcement_id, backend_id, backend_name) {
+function notify_backend(announcement_id, backend_name) {
     console.log("Notifying " + backend_name +  " again for announcement: " + announcement_id);
 
     alite({
@@ -7,7 +7,7 @@ function notify_backend(announcement_id, backend_id, backend_name) {
             method: 'POST',
             data: {
                 id: announcement_id,
-                backend_id: backend_id
+                backend_name: backend_name
             },
         }).then(function (result) {
             console.log(backend_name + '_notify result: ', result);
@@ -55,12 +55,12 @@ $('#announced-pagination').twbsPagination({
             action.querySelector('#torrent_url').href = item['torrent']
             ul = action.querySelector('ul')
 
-            for(var b in backends) {
+            for(var backend of backends) {
               var li_item = $("<li />").appendTo(ul);
 
               var a_b = $("<a />", {
-                href: "javascript:notify_backend(" + item['id'] + ", " + b + ", '" + backends[b] + "');",
-                text: backends[b]
+                href: "javascript:notify_backend(" + item['id'] + ", '" + backend + "');",
+                text: backend
               }).appendTo(li_item);
             }
 

@@ -17,22 +17,27 @@ password = "password"
 to_file = true
 to_console = true
 
-# Sections sonarr, radarr and lidarr are optional. Only specify the once you use.
 # Sonarr, Radarr and Lidarr are referred to as backends.
+# At least one backend is required. Choose any name for the backend [backends.<name>].
+# Which type of backend is decided by the "type" field.
+# Allowed types are radarr, sonarr, lidarr.
 # API Key can be found in Settings -> General in Sonarr/Radarr/Lidarr
-[sonarr]
-url = "http://localhost:8989"
-# Mandatory
-apikey = "YOUR-API-KEY"
-
-[radarr]
+[backends.Radarr4k]
 url = "http://localhost:7878"
 # Mandatory
+type = "radarr"
 apikey = "YOUR-API-KEY"
 
-[lidarr]
+[backends.example_backend]
+url = "http://localhost:8989"
+# Mandatory
+type = "sonarr"
+apikey = "YOUR-API-KEY"
+
+[backends.MyLidarr]
 url = "http://localhost:8686"
 # Mandatory
+type = "lidarr"
 apikey = "YOUR-API-KEY"
 
 
@@ -74,26 +79,26 @@ torrent_https = false
 # the backends are notified of the release.
 announce_delay = 0
 
-# notify_* fields are used to always notify backends of an announcmenet from this tracker.
-# Default false
-notify_sonarr = false
-notify_radarr = false
-notify_lidarr = true
-
-# Some trackers have a category in the annoucement. category_* may be used to
-# specify which backend shall be notified of the announcement.
-# The value is case insensitive regular expression.
+# List of backend names to always notify of an announcement from this tracker
 # Default empty
-category_sonarr = "tv|series"
-category_radarr = "movie|film|motion picture"
-# category_lidarr may be not specified as notify_lidarr is true
-#category_lidarr =
+notify = "example_backend, MyLidarr"
 
-# N.B: If none of notify_* or category_* are specified all configured backends
+# Some trackers have a category in the annoucement. This section may be used to
+# specify which backend shall be notified of the announcement based on the category.
+# Default empty
+[trackers.x264.category]
+# Set the value for each of your backend names.
+# The value is case insensitive regular expression.
+Radarr4k = "movie|film|motion picture"
+# example_backend and MyLidarr may be not specified as they are set in "notify"
+#example_backend =
+#MyLidarr =
+
+# N.B: If none of notify or category are specified all configured backends
 # will be notified.
 # Notifications will stop after a backend approved an announcement.
 
-# Settings from the XML tracker configuration, x265.tracker, are set in this
+# Settings from the XML tracker configuration, x264.tracker, are set in this
 # section. All settings must be specified here (description excluded).
 [trackers.x264.settings]
 passkey = "mypasskey"
@@ -109,7 +114,7 @@ irc_channels = "#example_channel2"
 irc_ident_password = "password"
 
 # Only notify Sonarr of all announcements.
-notify_sonarr = true
+notify = "example_backend"
 
 # Tracker XML config settings. (Remove "gazelle_" and "cookie_")
 [trackers.nbl.settings]

@@ -1,5 +1,6 @@
 [webui]
 password = "password"
 
-[sonarr]
+[backends.sonarr]
+type = "sonarr"
 apikey = "sonapi"

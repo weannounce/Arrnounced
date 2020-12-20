@@ -9,15 +9,18 @@ shutdown = true
 to_file = false
 to_console = false
 
-[sonarr]
+[backends.test_sonarr]
+type = "sOnarr"
 url = "sonurl"
 apikey = "sonapi"
 
-[radarr]
+[backends.test_radarr]
+type = "raDarr"
 url = "radurl"
 apikey = "radapi"
 
-[lidarr]
+[backends.test_lidarr]
+type = "lidArr"
 url = "lidurl"
 apikey = "lidapi"
 
@@ -38,13 +41,12 @@ torrent_https = true
 
 announce_delay = 9000
 
-notify_sonarr = true
-notify_radarr = true
-notify_lidarr = true
+notify = "test_sonarr, test_radarr, test_lidarr"
 
-category_sonarr = "soncat"
-category_radarr = "radcat"
-category_lidarr = "lidcat"
+[trackers.tracker1.category]
+test_sonarr = "soncat"
+test_radarr = "radcat"
+test_lidarr = "lidcat"
 
 [trackers.tracker1.settings]
 phony = "t1phony"

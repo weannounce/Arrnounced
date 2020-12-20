@@ -30,6 +30,11 @@ def _extract_approval(http_response, backend_name):
 
 
 class Backend:
+    def __init__(self, user_backend):
+        self.apikey = user_backend.apikey
+        self.url = user_backend.url
+        self.name = user_backend.name
+
     def _create_json(self, announcement):
         params = {
             "title": announcement.title,
@@ -73,63 +78,46 @@ class Sonarr(Backend):
     api_path = "/api/release/push"
     use_indexer = True
 
-    def __init__(self, apikey, url):
-        self.apikey = apikey
-        self.url = url
-        self.name = Sonarr.__name__
-
 
 class Radarr(Backend):
     api_path = "/api/release/push"
     use_indexer = True
-
-    def __init__(self, apikey, url):
-        self.apikey = apikey
-        self.url = url
-        self.name = Radarr.__name__
 
 
 class Lidarr(Backend):
     api_path = "/api/v1/release/push"
     use_indexer = False
 
-    def __init__(self, apikey, url):
-        self.apikey = apikey
-        self.url = url
-        self.name = Lidarr.__name__
+
+backend_mapping = {
+    "sonarr": Sonarr,
+    "radarr": Radarr,
+    "lidarr": Lidarr,
+}
 
 
 _backends = {}
 
 
-def init(user_config):
-    if user_config.sonarr_apikey:
-        sonarr = Sonarr(user_config.sonarr_apikey, user_config.sonarr_url)
-        _backends[BackendType.SONARR] = sonarr
-
-    if user_config.radarr_apikey:
-        radarr = Radarr(user_config.radarr_apikey, user_config.radarr_url)
-        _backends[BackendType.RADARR] = radarr
-
-    if user_config.lidarr_apikey:
-        lidarr = Lidarr(user_config.lidarr_apikey, user_config.lidarr_url)
-        _backends[BackendType.LIDARR] = lidarr
+def init(user_backends):
+    for user_backend in user_backends:
+        _backends[user_backend.name] = backend_mapping[user_backend.type](user_backend)
 
 
 def get_configured_backends():
-    return {int(x): _backends[x].name for x in (list(_backends.keys()))}
+    return list(_backends.keys())
 
 
 def notify_which_backends(tracker_config, announced_category):
-    notify_backends = [_backends[bt] for bt in tracker_config.always_notify_backends]
+    notify_backends = [_backends[b] for b in tracker_config.always_notify_backends]
 
     if announced_category:
         for (
-            backend_type,
+            backend_name,
             category_regex,
         ) in tracker_config.category_notify_backends.items():
             if re.search(category_regex, announced_category, re.IGNORECASE):
-                notify_backends.append(_backends[backend_type])
+                notify_backends.append(_backends[backend_name])
 
     # Return all configured backends if none where specified
     if (
@@ -149,14 +137,8 @@ def notify(announcement, backends):
     return None
 
 
-def get_backend_from_id(backend_id):
-    try:
-        backend_type = BackendType(backend_id)
-    except ValueError as e:
-        logger.error("Unknown backend id, %s", e)
-        return None
-
-    return _backends.get(backend_type)
+def get_backend(backend_name):
+    return _backends.get(backend_name)
 
 
 def renotify(announcement, backend):

@@ -76,7 +76,7 @@ if __name__ == "__main__":
         print("Error: Configuration not valid", file=sys.stderr)
         sys.exit(1)
 
-    backend.init(user_config)
+    backend.init(user_config.backends)
     if not db.init(args.data):
         sys.exit(1)
 

@@ -1,4 +1,5 @@
-[radarr]
+[backends.mradarr]
+type = "radarr"
 apikey = "radapi"
 
 [trackers.tracker1]
@@ -7,5 +8,7 @@ irc_server = "t1url"
 irc_port = 1234
 irc_channels = "t1ch"
 
-notify_radarr = true
-category_radarr = "soncat"
+notify = "mradarr"
+
+[trackers.tracker1.category]
+mradarr = "soncat"

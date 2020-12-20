@@ -1,4 +1,5 @@
-[sonarr]
+[backends.sonarr]
+type = "sonarr"
 apikey = "sonapi"
 
 [trackers.tracker1]
