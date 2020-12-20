@@ -14,17 +14,20 @@
 # Sections sonarr, radarr and lidarr are optional. Only specify the once you use.
 # Sonarr, Radarr and Lidarr are referred to as backends.
 # API Key can be found in Settings -> General in Sonarr/Radarr/Lidarr
-#[sonarr]
+[backends.test_sonarr]
+type = "sonarr"
 #url = http://localhost:8989
 ## Mandatory
 #apikey = YOUR-API-KEY
 
-#[radarr]
+[backends.test_radarr]
+type = "radarr"
 #url = http://localhost:7878
 ## Mandatory
 #apikey = YOUR-API-KEY
 
-#[lidarr]
+[backends.test_lidarr]
+type = "lidarr"
 #url = lidurl
 #apikey = lidapi
 

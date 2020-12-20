@@ -35,15 +35,11 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         tracker_name="trackername",
         tracker_type="trackertype",
     ):
-        self._user_config = {}
-        self._user_config["notify_sonarr"] = False
-        self._user_config["notify_radarr"] = False
-        self._user_config["notify_lidarr"] = False
-        self._user_config["category_sonarr"] = False
-        self._user_config["category_radarr"] = False
-        self._user_config["category_lidarr"] = False
-        self._user_config["torrent_https"] = False
-        self._user_config["settings"] = {}
+        self._user_tracker = {}
+        self._user_tracker["notify"] = None
+        self._user_tracker["category"] = {}
+        self._user_tracker["torrent_https"] = False
+        self._user_tracker["settings"] = {}
 
         self._xml_config = tracker_config.TrackerXmlConfig()
         self._xml_config.tracker_info = {
@@ -64,7 +60,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         )
 
     def __setitem__(self, key, value):
-        self._user_config["settings"][key] = value
+        self._user_tracker["settings"][key] = value
 
 
 class AnnouncementTest(unittest.TestCase):

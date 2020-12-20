@@ -1,4 +1,5 @@
-[lidarr]
+[backends.lidarr]
+type = "lidarr"
 apikey = "lidapi"
 
 [trackers.tracker1]

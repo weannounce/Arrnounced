@@ -20,7 +20,7 @@ import db
 import irc
 import log
 import utils
-from backend import renotify, get_configured_backends, get_backend_from_id
+from backend import renotify, get_configured_backends, get_backend
 from announcement import Announcement
 
 logger = logging.getLogger("WEB-UI")
@@ -167,7 +167,7 @@ def check(pvr_name):
 def notify():
     try:
         data = request.json
-        if "id" in data and "backend_id" in data:
+        if "id" in data and "backend_name" in data:
             # Request to check this torrent again
             db_announcement = db.get_announcement(data.get("id"))
             if db_announcement is not None and len(db_announcement.title) > 0:
@@ -180,9 +180,12 @@ def notify():
                     date=db_announcement.date,
                 )
 
-                backend = get_backend_from_id(data.get("backend_id"))
+                backend = get_backend(data["backend_name"])
                 if not backend:
-                    logger.warning("Could not find the requested backend")
+                    logger.warning(
+                        "Could not find the requested backend '%s'",
+                        data["backend_name"],
+                    )
                     return "ERR"
 
                 if renotify(announcement, backend):

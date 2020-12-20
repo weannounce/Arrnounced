@@ -24,21 +24,27 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(cfg.log_to_file, True, "Invalid default value")
         self.assertEqual(cfg.log_to_console, True, "Invalid default value")
 
-        self.assertEqual(cfg.sonarr_apikey, None, "Invalid default value")
+        sonarr = next(b for b in cfg.backends if b.name == "test_sonarr")
+        self.assertEqual(sonarr.type, "sonarr", "Invalid default value")
+        self.assertEqual(sonarr.backend.get("apikey"), None, "Invalid default value")
         self.assertEqual(
-            cfg.sonarr_url,
+            sonarr.url,
             "http://localhost:8989",
             "Invalid default value",
         )
-        self.assertEqual(cfg.radarr_apikey, None, "Invalid default value")
+        radarr = next(b for b in cfg.backends if b.name == "test_radarr")
+        self.assertEqual(radarr.type, "radarr", "Invalid default value")
+        self.assertEqual(radarr.backend.get("apikey"), None, "Invalid default value")
         self.assertEqual(
-            cfg.radarr_url,
+            radarr.url,
             "http://localhost:7878",
             "Invalid default value",
         )
-        self.assertEqual(cfg.lidarr_apikey, None, "Invalid default value")
+        lidarr = next(b for b in cfg.backends if b.name == "test_lidarr")
+        self.assertEqual(lidarr.type, "lidarr", "Invalid default value")
+        self.assertEqual(lidarr.backend.get("apikey"), None, "Invalid default value")
         self.assertEqual(
-            cfg.lidarr_url,
+            lidarr.url,
             "http://localhost:8686",
             "Invalid default value",
         )
@@ -73,24 +79,8 @@ class ConfigTest(unittest.TestCase):
         )
         self.assertEqual(tracker1["torrent_https"], False, "Invalid default value")
         self.assertEqual(tracker1["announce_delay"], 0, "Invalid default value")
-        self.assertFalse(tracker1["notify_sonarr"], "Invalid default value")
-        self.assertFalse(tracker1["notify_radarr"], "Invalid default value")
-        self.assertFalse(tracker1["notify_lidarr"], "Invalid default value")
-        self.assertEqual(
-            tracker1.get("category_sonarr"),
-            None,
-            "Invalid default value",
-        )
-        self.assertEqual(
-            tracker1.get("category_radarr"),
-            None,
-            "Invalid default value",
-        )
-        self.assertEqual(
-            tracker1.get("category_lidarr"),
-            None,
-            "Invalid default value",
-        )
+        self.assertEqual(tracker1.get("notify"), None, "Invalid default value")
+        self.assertEqual(len(tracker1["category"]), 0)
 
     def test_override_default(self):
         cfg = config.init("./tests/configs/override_default.toml")
@@ -107,12 +97,27 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(cfg.log_to_file, False, "Invalid log to file")
         self.assertEqual(cfg.log_to_console, False, "Invalid log to console")
 
-        self.assertEqual(cfg.toml["sonarr"]["apikey"], "sonapi", "Invalid sonarr api")
-        self.assertEqual(cfg.toml["sonarr"]["url"], "sonurl", "Invalid sonarr url")
-        self.assertEqual(cfg.toml["radarr"]["apikey"], "radapi", "Invalid radarr api")
-        self.assertEqual(cfg.toml["radarr"]["url"], "radurl", "Invalid default value")
-        self.assertEqual(cfg.toml["lidarr"]["apikey"], "lidapi", "Invalid lidarr api")
-        self.assertEqual(cfg.toml["lidarr"]["url"], "lidurl", "Invalid default value")
+        sonarr = next(b for b in cfg.backends if b.name == "test_sonarr")
+        self.assertEqual(sonarr.apikey, "sonapi", "Invalid sonarr api")
+        self.assertEqual(
+            sonarr.url,
+            "sonurl",
+            "Invalid default value",
+        )
+        radarr = next(b for b in cfg.backends if b.name == "test_radarr")
+        self.assertEqual(radarr.apikey, "radapi", "Invalid radarr api")
+        self.assertEqual(
+            radarr.url,
+            "radurl",
+            "Invalid default value",
+        )
+        lidarr = next(b for b in cfg.backends if b.name == "test_lidarr")
+        self.assertEqual(lidarr.apikey, "lidapi", "Invalid lidarr api")
+        self.assertEqual(
+            lidarr.url,
+            "lidurl",
+            "Invalid default value",
+        )
 
         tracker1 = next(t.tracker for t in cfg.trackers if t.type == "tracker1")
         self.assertEqual(
@@ -143,21 +148,22 @@ class ConfigTest(unittest.TestCase):
             9000,
             "Invalid announce delay",
         )
-        self.assertTrue(tracker1["notify_sonarr"], "Invalid sonarr notify")
-        self.assertTrue(tracker1["notify_radarr"], "Invalid radarr notify")
-        self.assertTrue(tracker1["notify_lidarr"], "Invalid lidarr notify")
+        always_notify = [b.strip() for b in tracker1["notify"].split(",")]
+        self.assertTrue("test_sonarr" in always_notify, "Invalid sonarr notify")
+        self.assertTrue("test_radarr" in always_notify, "Invalid radarr notify")
+        self.assertTrue("test_lidarr" in always_notify, "Invalid lidarr notify")
         self.assertEqual(
-            tracker1["category_sonarr"],
+            tracker1["category"]["test_sonarr"],
             "soncat",
             "Invalid sonarr category",
         )
         self.assertEqual(
-            tracker1["category_radarr"],
+            tracker1["category"]["test_radarr"],
             "radcat",
             "Invalid radarr category",
         )
         self.assertEqual(
-            tracker1["category_lidarr"],
+            tracker1["category"]["test_lidarr"],
             "lidcat",
             "Invalid lidarr category",
         )
@@ -177,7 +183,8 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(cfg.webui_host, "webhost2", "host is invalid")
         self.assertEqual(cfg.webui_port, 4567, "host is invalid")
 
-        self.assertEqual(cfg.toml["lidarr"]["apikey"], "lidapi", "Invalid lidarr api")
+        lidarr = next(b for b in cfg.backends if b.name == "mlidarr")
+        self.assertEqual(lidarr.apikey, "lidapi", "Invalid lidarr api")
 
         self.assertEqual(len(cfg.trackers), 2)
         # Tracker 1
@@ -235,10 +242,10 @@ class ConfigTest(unittest.TestCase):
         self.assertTrue(cfg.validate_config(), "Configuration is invalid")
 
         # Tracker 1
-        tracker1 = next(t.tracker for t in cfg.trackers if t.type == "tracker1")
-        self.assertEqual(len(tracker1["settings"]), 2)
-        self.assertEqual(tracker1["settings"]["fixed1"], "f1value")
-        self.assertEqual(tracker1["settings"]["fixed2"], "f2value")
+        tracker1 = next(t for t in cfg.trackers if t.type == "tracker1")
+        self.assertEqual(len(tracker1.settings), 2)
+        self.assertEqual(tracker1.settings["fixed1"], "f1value")
+        self.assertEqual(tracker1.settings["fixed2"], "f2value")
 
     def test_missing_backend(self):
         cfg = config.init("./tests/configs/missing_backend.toml")
@@ -300,13 +307,15 @@ class ConfigTest(unittest.TestCase):
         self.assertNotEqual(cfg, None, "Config is None")
         self.assertFalse(cfg.validate_config(), "Configuration is valid")
 
-    def test_cannot_notify_sonarr(self):
-        cfg = config.init("./tests/configs/cannot_notify_sonarr.toml")
+    def test_missing_backend_type(self):
+        cfg = config.init("./tests/configs/missing_backend_type.toml")
         self.assertNotEqual(cfg, None, "Config is None")
+        self.assertFalse(cfg.toml["backends"]["mlidarr"].get("type"), None)
+        self.assertFalse(cfg.toml["backends"]["mlidarr"].get("url"), None)
         self.assertFalse(cfg.validate_config(), "Configuration is valid")
 
-    def test_cannot_notify_radarr(self):
-        cfg = config.init("./tests/configs/cannot_notify_radarr.toml")
+    def test_invalid_backend_type(self):
+        cfg = config.init("./tests/configs/invalid_backend_type.toml")
         self.assertNotEqual(cfg, None, "Config is None")
         self.assertFalse(cfg.validate_config(), "Configuration is valid")
 

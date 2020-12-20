@@ -4,7 +4,6 @@ import re
 import defusedxml.ElementTree as ET
 from collections import namedtuple
 
-from backend import BackendType
 from announcement import (
     Var,
     Http,
@@ -287,72 +286,58 @@ def parse_bool(string):
 
 
 class TrackerConfig:
-    def __init__(self, user_config, xml_config):
+    def __init__(self, user_tracker, xml_config):
         self._xml_config = xml_config
-        self._user_config = user_config.tracker
+        self._user_tracker = user_tracker.tracker
 
-        always_mapping = {
-            "notify_sonarr": BackendType.SONARR,
-            "notify_radarr": BackendType.RADARR,
-            "notify_lidarr": BackendType.LIDARR,
-        }
-        self.always_backends = []
-        for key, backend_type in always_mapping.items():
-            if self._user_config[key]:
-                self.always_backends.append(backend_type)
-
-        category_mapping = {
-            "category_sonarr": BackendType.SONARR,
-            "category_radarr": BackendType.RADARR,
-            "category_lidarr": BackendType.LIDARR,
-        }
-        self.category_backends = {}
-        for key, backend_type in category_mapping.items():
-            if self._user_config.get(key):
-                self.category_backends[backend_type] = self._user_config[key]
+        self.always_backends = (
+            [b.strip() for b in self._user_tracker.get("notify").split(",")]
+            if self._user_tracker.get("notify")
+            else []
+        )
 
     def setting(self, key):
-        return self._user_config["settings"].get(key)
+        return self._user_tracker["settings"].get(key)
 
     @property
     def irc_port(self):
-        return self._user_config["irc_port"]
+        return self._user_tracker["irc_port"]
 
     @property
     def irc_nickname(self):
-        return self._user_config["irc_nickname"]
+        return self._user_tracker["irc_nickname"]
 
     @property
     def irc_server(self):
-        return self._user_config["irc_server"]
+        return self._user_tracker["irc_server"]
 
     @property
     def irc_tls(self):
-        return self._user_config["irc_tls"]
+        return self._user_tracker["irc_tls"]
 
     @property
     def irc_tls_verify(self):
-        return self._user_config["irc_tls_verify"]
+        return self._user_tracker["irc_tls_verify"]
 
     @property
     def irc_ident_password(self):
-        return self._user_config.get("irc_ident_password")
+        return self._user_tracker.get("irc_ident_password")
 
     @property
     def irc_inviter(self):
-        return self._user_config.get("irc_inviter")
+        return self._user_tracker.get("irc_inviter")
 
     @property
     def irc_invite_cmd(self):
-        return self._user_config.get("irc_invite_cmd")
+        return self._user_tracker.get("irc_invite_cmd")
 
     @property
     def torrent_https(self):
-        return self._user_config["torrent_https"]
+        return self._user_tracker["torrent_https"]
 
     @property
     def announce_delay(self):
-        return self._user_config["announce_delay"]
+        return self._user_tracker["announce_delay"]
 
     @property
     def always_notify_backends(self):
@@ -360,7 +345,7 @@ class TrackerConfig:
 
     @property
     def category_notify_backends(self):
-        return self.category_backends
+        return self._user_tracker["category"]
 
     @property
     def short_name(self):
@@ -372,7 +357,7 @@ class TrackerConfig:
 
     @property
     def user_channels(self):
-        return [x.strip() for x in self._user_config["irc_channels"].split(",")]
+        return [x.strip() for x in self._user_tracker["irc_channels"].split(",")]
 
     # Return both channels from XML and user config
     @property
