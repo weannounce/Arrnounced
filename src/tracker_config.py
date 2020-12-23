@@ -301,7 +301,7 @@ class TrackerConfig:
 
     @property
     def irc_port(self):
-        return self._user_tracker["irc_port"]
+        return int(self._user_tracker["irc_port"])
 
     @property
     def irc_nickname(self):
@@ -309,7 +309,7 @@ class TrackerConfig:
 
     @property
     def irc_server(self):
-        return self._user_tracker["irc_server"]
+        return str(self._user_tracker["irc_server"])
 
     @property
     def irc_tls(self):

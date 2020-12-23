@@ -130,11 +130,11 @@ class UserConfig:
 
     @property
     def webui_host(self):
-        return self.toml["webui"]["host"]
+        return str(self.toml["webui"]["host"])
 
     @property
     def webui_port(self):
-        return self.toml["webui"]["port"]
+        return int(self.toml["webui"]["port"])
 
     @property
     def webui_shutdown(self):
