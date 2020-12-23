@@ -1,7 +1,6 @@
 from asyncio import all_tasks, run_coroutine_threadsafe
 import logging
 import pydle
-import socket
 import time
 
 import message_handler
@@ -22,7 +21,8 @@ class IRC(BotBase):
     async def connect(self, *args, **kwargs):
         try:
             await super().connect(*args, **kwargs)
-        except socket.error:
+        except OSError as e:
+            logging.error("%s: %s", type(e).__name__, e)
             await self.on_disconnect(expected=False)
 
     # Request channel invite or join channel
