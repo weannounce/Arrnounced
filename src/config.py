@@ -155,11 +155,6 @@ class UserConfig:
         return False
 
 
-def _init_value(table, key, value):
-    if table.get(key) is None:
-        table[key] = value
-
-
 def toml_notice():
     print(
         "Please note that the configuration format has changed to TOML", file=sys.stderr
@@ -168,6 +163,96 @@ def toml_notice():
     print("* The default config file path has changed", file=sys.stderr)
     print("* Config file must be updated to conform with TOML", file=sys.stderr)
     print("See the release notes for more info", file=sys.stderr)
+
+
+def _init_value(table, keys, value, value_type=None):
+    if value_type is None:
+        value_type = type(value)
+
+    section = table
+    for k in keys[:-1]:
+        section = section[k]
+
+    last_key = keys[-1]
+    if value is not None and section.get(last_key) is None:
+        section[last_key] = value
+    elif section.get(last_key) is not None and not isinstance(
+        section[last_key], value_type
+    ):
+        print(
+            "Error: {} must be of type {}".format(".".join(keys), value_type.__name__)
+        )
+        return False
+
+    return True
+
+
+def _init_backends(toml_cfg):
+    valid_types = True
+    for backend_name in toml_cfg["backends"]:
+        backend_type = toml_cfg["backends"][backend_name].get("type")
+        if not backend_type:
+            continue
+        default_url = backend_urls.get(backend_type.lower())
+        if not default_url:
+            continue
+
+        # Init default values and check types
+        default_backend_values = [
+            ("url", default_url, None),
+            ("type", None, str),
+            ("apikey", None, str),
+        ]
+        for last_key, default_value, the_type in default_backend_values:
+            keys = ["backends", backend_name, last_key]
+            valid_types = (
+                _init_value(toml_cfg, keys, default_value, the_type) and valid_types
+            )
+    return valid_types
+
+
+def _init_trackers(toml_cfg):
+    valid_types = True
+    for tracker_type in toml_cfg["trackers"]:
+        # Init default values
+        default_tracker_values = [
+            ("irc_tls", False),
+            ("irc_tls_verify", False),
+            ("torrent_https", False),
+            ("announce_delay", 0),
+            ("category", {}),
+            ("settings", {}),
+        ]
+        for last_key, default_value in default_tracker_values:
+            keys = ["trackers", tracker_type, last_key]
+            valid_types = _init_value(toml_cfg, keys, default_value) and valid_types
+
+        # Check mandatory and empty value types
+        tracker_types = [
+            ("irc_nickname", str),
+            ("irc_server", str),
+            ("irc_port", int),
+            ("irc_channels", str),
+            ("irc_ident_password", str),
+            ("irc_inviter", str),
+            ("irc_invite_cmd", str),
+            ("notify", str),
+        ]
+        for last_key, the_type in tracker_types:
+            keys = ["trackers", tracker_type, last_key]
+            valid_types = _init_value(toml_cfg, keys, None, the_type) and valid_types
+
+        # All settings must be string
+        for setting in toml_cfg["trackers"][tracker_type]["settings"].keys():
+            keys = ["trackers", tracker_type, "settings", setting]
+            valid_types = _init_value(toml_cfg, keys, None, str) and valid_types
+
+        # All categories must be string
+        for category in toml_cfg["trackers"][tracker_type]["category"].keys():
+            keys = ["trackers", tracker_type, "category", category]
+            valid_types = _init_value(toml_cfg, keys, None, str) and valid_types
+
+    return valid_types
 
 
 def init(config_path):
@@ -180,36 +265,39 @@ def init(config_path):
             toml_notice()
             return None
 
-    # TODO: Check types
-    # Settings
-    _init_value(toml_cfg, "webui", {})
-    _init_value(toml_cfg["webui"], "host", "0.0.0.0")
-    _init_value(toml_cfg["webui"], "port", 3467)
-    _init_value(toml_cfg["webui"], "shutdown", False)
+    valid_types = True
 
-    _init_value(toml_cfg, "log", {})
-    _init_value(toml_cfg["log"], "to_file", True)
-    _init_value(toml_cfg["log"], "to_console", True)
+    # Init default values
+    default_values = [
+        (["webui"], {}),
+        (["webui", "host"], "0.0.0.0"),
+        (["webui", "port"], 3467),
+        (["webui", "shutdown"], False),
+        (["log"], {}),
+        (["log", "to_file"], True),
+        (["log", "to_console"], True),
+        (["backends"], {}),
+        (["trackers"], {}),
+    ]
+    for keys, default_value in default_values:
+        valid_types = _init_value(toml_cfg, keys, default_value) and valid_types
 
-    _init_value(toml_cfg, "backends", {})
-    for backend_name in toml_cfg["backends"]:
-        backend_type = toml_cfg["backends"][backend_name].get("type")
-        if not backend_type:
-            continue
-        default_url = backend_urls.get(backend_type.lower())
-        if not default_url:
-            continue
-        _init_value(toml_cfg["backends"][backend_name], "url", default_url)
+    # Check type of default empty fields
+    types = [
+        (["webui", "username"], str),
+        (["webui", "password"], str),
+    ]
+    for keys, the_type in types:
+        valid_types = _init_value(toml_cfg, keys, None, the_type) and valid_types
 
-    _init_value(toml_cfg, "trackers", {})
-    for tracker_type in toml_cfg["trackers"]:
-        # Init optional tracker values
-        _init_value(toml_cfg["trackers"][tracker_type], "irc_tls", False)
-        _init_value(toml_cfg["trackers"][tracker_type], "irc_tls_verify", False)
-        _init_value(toml_cfg["trackers"][tracker_type], "torrent_https", False)
-        _init_value(toml_cfg["trackers"][tracker_type], "announce_delay", 0)
-        _init_value(toml_cfg["trackers"][tracker_type], "category", {})
-        _init_value(toml_cfg["trackers"][tracker_type], "settings", {})
+    valid_types = _init_backends(toml_cfg) and valid_types
+    valid_types = _init_trackers(toml_cfg) and valid_types
+
+    if not valid_types:
+        print(
+            "Found configuration type error(s), double check your config quote marks, spelling and subsections"
+        )
+        return None
 
     # for k, v in toml_cfg.items():
     #    print(k + ": " + str(v))

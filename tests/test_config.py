@@ -333,6 +333,26 @@ class ConfigTest(unittest.TestCase):
         cfg = config.init("./tests/configs/invalid_toml.toml")
         self.assertEqual(cfg, None, "Config is not None")
 
+    def test_invalid_mandatory_type(self):
+        cfg = config.init("./tests/configs/invalid_mandatory_type.toml")
+        self.assertEqual(cfg, None, "Config is not None")
+
+    def test_invalid_optional_type(self):
+        cfg = config.init("./tests/configs/invalid_optional_type.toml")
+        self.assertEqual(cfg, None, "Config is not None")
+
+    def test_invalid_backend_toml_type(self):
+        cfg = config.init("./tests/configs/invalid_backend_toml_type.toml")
+        self.assertEqual(cfg, None, "Config is not None")
+
+    def test_invalid_category_type(self):
+        cfg = config.init("./tests/configs/invalid_category_type.toml")
+        self.assertEqual(cfg, None, "Config is not None")
+
+    def test_invalid_settings_type(self):
+        cfg = config.init("./tests/configs/invalid_settings_type.toml")
+        self.assertEqual(cfg, None, "Config is not None")
+
 
 if __name__ == "__main__":
     unittest.main()
