@@ -1,0 +1,11 @@
+[backends.msonarr]
+type = "sonarr"
+apikey = "lidapi"
+
+[trackers.tracker1]
+irc_nickname = "t1nick"
+irc_server = "t1url"
+irc_port = 1234
+irc_channels = "t1ch"
+
+announce_delay = "10"
