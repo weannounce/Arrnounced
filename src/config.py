@@ -270,7 +270,7 @@ def init(config_path):
     # Init default values
     default_values = [
         (["webui"], {}),
-        (["webui", "host"], "0.0.0.0"),
+        (["webui", "host"], "0.0.0.0"),  # nosec B104: bind all interfaces
         (["webui", "port"], 3467),
         (["webui", "shutdown"], False),
         (["log"], {}),
