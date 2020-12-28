@@ -23,7 +23,7 @@ Only a few of the supported trackers are tested at the moment. Please report any
 Docker or Python >=3.6 is required to run Arrnounced.
 
 ## Configuration
-The default configuration path is `~/.arrnounced/settings.cfg`.
+The default configuration path is `~/.arrnounced/settings.toml`.
 [example.cfg](https://github.com/weannounce/arrnounced/blob/master/example.cfg)
 is the acting configuration documentation.
 
@@ -34,8 +34,8 @@ The default XML tracker configuration path is `~/.arrnounced/autodl-trackers/tra
 ### Docker
 [Arrnounced on dockerhub](https://hub.docker.com/r/weannounce/arrnounced)
 
-* You must provide `settings.cfg` in `/config`. This is also where logs and the database will be stored.
-* To access the web UI using bridged network the webui host in settings.cfg must be `0.0.0.0`.
+* You must provide `settings.toml` in `/config`. This is also where logs and the database will be stored.
+* To access the web UI using bridged network the webui host in settings.toml must be `0.0.0.0`.
 * As Arrnounced runs as a non-root user by default it is recommended to specify your own user to handle write access to `/config`.
 
 ```bash
@@ -59,7 +59,7 @@ docker run -v /path/to/settings:/config \
 ### Manual
 1. `mkdir ~/.arrnounced`
 2. `git clone https://github.com/autodl-community/autodl-trackers.git ~/.arrnounced/`
-3. Create `~/.arrnounced/settings.cfg` with
+3. Create `~/.arrnounced/settings.toml` with
    [example.cfg](https://github.com/weannounce/arrnounced/blob/master/example.cfg)
    as guide and your [choice of
    trackers](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)

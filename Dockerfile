@@ -20,5 +20,5 @@ USER arrnounced
 
 CMD ["./arrnounced.py", \
     "--data", "/config", \
-    "--config", "/config/settings.cfg", \
+    "--config", "/config/settings.toml", \
     "--trackers", "/trackers"]
