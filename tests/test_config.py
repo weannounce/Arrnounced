@@ -11,7 +11,11 @@ class ConfigTest(unittest.TestCase):
         self.assertFalse(cfg.login_required, "Login required")
         self.assertTrue(cfg.login(None, None), "Login denied")
 
-        self.assertEqual(cfg.webui_host, "0.0.0.0", "host is invalid")
+        self.assertEqual(
+            cfg.webui_host,
+            "0.0.0.0",  # nosec B104: bind all interfaces
+            "host is invalid",
+        )
         self.assertEqual(cfg.webui_port, 3467, "host is invalid")
         self.assertEqual(
             cfg.toml["webui"].get("username"), None, "Invalid default value"
