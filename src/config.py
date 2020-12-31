@@ -58,8 +58,8 @@ class UserConfig:
                 valid = False
 
             always_backends = (
-                [b.strip() for b in section.get("notify").split(",")]
-                if section.get("notify")
+                [b.strip() for b in section.get("notify_backends").split(",")]
+                if section.get("notify_backends")
                 else []
             )
             category_backends = list(section.get("category").keys())
@@ -74,7 +74,7 @@ class UserConfig:
             backend_duplicates = [b for b in always_backends if b in category_backends]
             if len(backend_duplicates) != 0:
                 logger.error(
-                    "trackers.%s: Cannot specify the same backend for both 'notify' and 'category'. Found %s",
+                    "trackers.%s: Cannot specify the same backend for both 'notify_backends' and 'category'. Found %s",
                     section_name,
                     ",".join(backend_duplicates),
                 )
@@ -236,7 +236,7 @@ def _init_trackers(toml_cfg):
             ("irc_ident_password", str),
             ("irc_inviter", str),
             ("irc_invite_cmd", str),
-            ("notify", str),
+            ("notify_backends", str),
         ]
         for last_key, the_type in tracker_types:
             keys = ["trackers", tracker_type, last_key]

@@ -36,7 +36,7 @@ class TrackerConfigHelper(tracker_config.TrackerConfig):
         tracker_type="trackertype",
     ):
         self._user_tracker = {}
-        self._user_tracker["notify"] = None
+        self._user_tracker["notify_backends"] = None
         self._user_tracker["category"] = {}
         self._user_tracker["torrent_https"] = False
         self._user_tracker["settings"] = {}

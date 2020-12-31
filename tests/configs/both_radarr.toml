@@ -8,7 +8,7 @@ irc_server = "t1url"
 irc_port = 1234
 irc_channels = "t1ch"
 
-notify = "mradarr"
+notify_backends = "mradarr"
 
 [trackers.tracker1.category]
 mradarr = "soncat"
