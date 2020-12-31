@@ -291,8 +291,8 @@ class TrackerConfig:
         self._user_tracker = user_tracker.tracker
 
         self.always_backends = (
-            [b.strip() for b in self._user_tracker.get("notify").split(",")]
-            if self._user_tracker.get("notify")
+            [b.strip() for b in self._user_tracker.get("notify_backends").split(",")]
+            if self._user_tracker.get("notify_backends")
             else []
         )
 

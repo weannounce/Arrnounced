@@ -8,7 +8,7 @@ irc_server = "t1url"
 irc_port = 1234
 irc_channels = "t1ch"
 
-notify = "msonarr"
+notify_backends = "msonarr"
 
 [trackers.tracker1.category]
 msonarr = "soncat"

@@ -41,7 +41,7 @@ torrent_https = true
 
 announce_delay = 9000
 
-notify = "test_sonarr, test_radarr, test_lidarr"
+notify_backends = "test_sonarr, test_radarr, test_lidarr"
 
 [trackers.tracker1.category]
 test_sonarr = "soncat"

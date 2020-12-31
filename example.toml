@@ -81,7 +81,7 @@ announce_delay = 0
 
 # List of backend names to always notify of an announcement from this tracker
 # Default empty
-notify = "example_backend, MyLidarr"
+notify_backends = "example_backend, MyLidarr"
 
 # Some trackers have a category in the annoucement. This section may be used to
 # specify which backend shall be notified of the announcement based on the category.
@@ -90,11 +90,11 @@ notify = "example_backend, MyLidarr"
 # Set the value for each of your backend names.
 # The value is case insensitive regular expression.
 Radarr4k = "movie|film|motion picture"
-# example_backend and MyLidarr may be not specified as they are set in "notify"
+# example_backend and MyLidarr may be not specified as they are set in "notify_backends"
 #example_backend =
 #MyLidarr =
 
-# N.B: If none of notify or category are specified all configured backends
+# N.B: If none of notify_backends or category are specified all configured backends
 # will be notified.
 # Notifications will stop after a backend approved an announcement.
 
@@ -114,7 +114,7 @@ irc_channels = "#example_channel2"
 irc_ident_password = "password"
 
 # Only notify Sonarr of all announcements.
-notify = "example_backend"
+notify_backends = "example_backend"
 
 # Tracker XML config settings. (Remove "gazelle_" and "cookie_")
 [trackers.nbl.settings]

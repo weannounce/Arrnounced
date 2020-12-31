@@ -83,7 +83,7 @@ class ConfigTest(unittest.TestCase):
         )
         self.assertEqual(tracker1["torrent_https"], False, "Invalid default value")
         self.assertEqual(tracker1["announce_delay"], 0, "Invalid default value")
-        self.assertEqual(tracker1.get("notify"), None, "Invalid default value")
+        self.assertEqual(tracker1.get("notify_backends"), None, "Invalid default value")
         self.assertEqual(len(tracker1["category"]), 0)
 
     def test_override_default(self):
@@ -152,7 +152,7 @@ class ConfigTest(unittest.TestCase):
             9000,
             "Invalid announce delay",
         )
-        always_notify = [b.strip() for b in tracker1["notify"].split(",")]
+        always_notify = [b.strip() for b in tracker1["notify_backends"].split(",")]
         self.assertTrue("test_sonarr" in always_notify, "Invalid sonarr notify")
         self.assertTrue("test_radarr" in always_notify, "Invalid radarr notify")
         self.assertTrue("test_lidarr" in always_notify, "Invalid lidarr notify")
