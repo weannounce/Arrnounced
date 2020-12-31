@@ -20,6 +20,10 @@ Only a few of the supported trackers are tested at the moment. Please report any
 
 # Setup
 
+_Release v0.7 updated the configuration format. See the [release
+notes](https://github.com/weannounce/arrnounced/releases/tag/v0.7) for more
+information._
+
 Docker or Python >=3.6 is required to run Arrnounced.
 
 ## Configuration
