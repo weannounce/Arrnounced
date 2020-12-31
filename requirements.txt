@@ -1,7 +1,7 @@
 defusedxml==0.6.0
 Flask==1.1.1
 Flask-Login==0.4.1
-pony==0.7.11
+pony==0.7.14
 tomlkit==0.7.0
 pydle==0.9.4
 requests==2.22.0
