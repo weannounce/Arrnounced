@@ -1,6 +1,7 @@
 import asyncio
 import html
 import logging
+from pony.orm.core import TransactionError
 
 import announce_parser
 import db
@@ -24,8 +25,7 @@ def _sanitize_message(message):
     return message
 
 
-@db.db_session
-async def on_message(tracker_config, source, target, message):
+def _check_and_parse(tracker_config, source, target, message):
     if not _is_announcement(source, target, tracker_config):
         logger.debug("Message is no announcement")
         return
@@ -34,13 +34,13 @@ async def on_message(tracker_config, source, target, message):
 
     variables = announce_parser.parse(tracker_config, message)
     if variables is None:
-        return
+        return None
 
-    announcement = create_announcement(tracker_config, variables)
+    return create_announcement(tracker_config, variables)
 
-    if announcement is None:
-        return
 
+@db.db_session
+async def _handle_announcement(tracker_config, announcement):
     backends = notify_which_backends(tracker_config, announcement.category)
 
     backends_string = (
@@ -72,3 +72,15 @@ async def on_message(tracker_config, source, target, message):
     else:
         logger.info("%s approved release: %s", backend.name, announcement.title)
         db.insert_snatched(db_announced, backend.name)
+
+
+async def on_message(tracker_config, source, target, message):
+    announcement = _check_and_parse(tracker_config, source, target, message)
+    if announcement is None:
+        return
+
+    try:
+        await _handle_announcement(tracker_config, announcement)
+    except TransactionError as e:
+        logger.error("Database transaction failed")
+        logger.error("%s: %s", type(e).__name__, e)
