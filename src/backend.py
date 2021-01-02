@@ -49,11 +49,15 @@ class Backend:
 
     def _send_notification(self, announcement):
         headers = {"X-Api-Key": self.apikey}
-        http_response = requests.post(
-            url="{}{}".format(self.url, self.api_path),
-            headers=headers,
-            json=self._create_json(announcement),
-        )
+        try:
+            http_response = requests.post(
+                url="{}{}".format(self.url, self.api_path),
+                headers=headers,
+                json=self._create_json(announcement),
+            )
+        except OSError as e:
+            logger.error("%s %s: %s", self.name, type(e).__name__, e)
+            return None
 
         try:
             http_response.raise_for_status()

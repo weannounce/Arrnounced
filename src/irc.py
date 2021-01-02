@@ -22,7 +22,7 @@ class IRC(BotBase):
         try:
             await super().connect(*args, **kwargs)
         except OSError as e:
-            logging.error("%s: %s", type(e).__name__, e)
+            logger.error("%s: %s", type(e).__name__, e)
             await self.on_disconnect(expected=False)
 
     # Request channel invite or join channel
