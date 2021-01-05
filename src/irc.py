@@ -2,15 +2,14 @@ from asyncio import all_tasks, run_coroutine_threadsafe
 import logging
 import pydle
 import time
+import irc_modes
 
 import message_handler
-
-BotBase = pydle.featurize(pydle.features.RFC1459Support, pydle.features.TLSSupport)
 
 logger = logging.getLogger("IRC")
 
 
-class IRC(BotBase):
+class IRC(irc_modes.ModesFixer):
     tracker_config = None
     RECONNECT_MAX_ATTEMPTS = None
 
