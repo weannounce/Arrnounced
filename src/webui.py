@@ -1,6 +1,5 @@
 import inspect
 import logging
-from math import ceil
 import os
 import requests
 from flask import Flask
@@ -16,12 +15,8 @@ from flask_login import login_required
 from flask_login import UserMixin
 from pathlib import Path
 
-import db
-import irc
 import log
-import utils
-from backend import renotify, get_configured_backends, get_backend
-from announcement import Announcement
+import web_handler
 
 logger = logging.getLogger("WEB-UI")
 table_row_count = 20
@@ -68,7 +63,7 @@ def shutdown():
 
     logger.info("Shutting down Arrnounced")
     logger.info("Disable shutdown by removing webui.shutdown from config")
-    irc.stop()
+    web_handler.shutdown()
     func = request.environ.get("werkzeug.server.shutdown")
     if func is None:
         raise RuntimeError("Not running with the Werkzeug Server")
@@ -111,12 +106,12 @@ def send_asset(path):
 
 @app.route("/")
 @login_required
-@db.db_session
 def index():
+    announce_pages, snatch_pages = web_handler.get_page_counts(table_row_count)
     return render_template(
         "index.html",
-        announcement_pages=ceil(db.get_announced_count() / table_row_count),
-        snatch_pages=ceil(db.get_snatched_count() / table_row_count),
+        announcement_pages=announce_pages,
+        snatch_pages=snatch_pages,
         login_required=user_config.login_required,
     )
 
@@ -165,80 +160,40 @@ def check(pvr_name):
 
 @app.route("/notify", methods=["POST"])
 @login_required
-@db.db_session
 def notify():
-    try:
-        data = request.json
-        if "id" in data and "backend_name" in data:
-            # Request to check this torrent again
-            db_announcement = db.get_announcement(data.get("id"))
-            if db_announcement is not None and len(db_announcement.title) > 0:
-                logger.debug("Checking announcement again: %s", db_announcement.title)
-
-                announcement = Announcement(
-                    db_announcement.title,
-                    db_announcement.torrent,
-                    indexer=db_announcement.indexer,
-                    date=db_announcement.date,
-                )
-
-                backend = get_backend(data["backend_name"])
-                if not backend:
-                    logger.warning(
-                        "Could not find the requested backend '%s'",
-                        data["backend_name"],
-                    )
-                    return "ERR"
-
-                if renotify(announcement, backend):
-                    logger.debug("%s accepted the torrent this time!", backend.name)
-                    db.insert_snatched(db_announcement, backend.name)
-                    return "OK"
-
-                logger.debug("%s still refused this torrent...", backend.name)
-                return "ERR"
-            else:
-                logger.warning("Announcement to notify not found in database")
-        else:
-            logger.warning("Missing data in notify request")
-
-    # TODO: Catch more specific types
-    except Exception:
-        logger.exception("Exception while notifying announcement:")
+    data = request.json
+    if "id" in data and "backend_name" in data:
+        if web_handler.notify_backend(data["id"], data["backend_name"]):
+            return "OK"
+    else:
+        logger.warning("Missing data in notify request")
 
     return "ERR"
 
 
 @app.route("/announced", methods=["POST"])
 @login_required
-@db.db_session
 def announced():
     page_nr = 1
     if "page_nr" in request.json:
         page_nr = request.json["page_nr"]
 
+    announced_page, configured_backends = web_handler.get_announced_page(
+        page_nr, table_row_count
+    )
     announced = jsonify(
-        announces=[
-            e.serialize(utils.human_datetime)
-            for e in db.get_announced(limit=table_row_count, page=page_nr)
-        ],
-        backends=get_configured_backends(),
+        announces=announced_page,
+        backends=configured_backends,
     )
     return announced
 
 
 @app.route("/snatched", methods=["POST"])
 @login_required
-@db.db_session
 def snatched():
     page_nr = 1
     if "page_nr" in request.json:
         page_nr = request.json["page_nr"]
 
-    snatched = jsonify(
-        snatches=[
-            db.snatched_to_dict(e, utils.human_datetime)
-            for e in db.get_snatched(limit=table_row_count, page=page_nr)
-        ]
-    )
+    snatched = jsonify(snatches=web_handler.get_snatched_page(page_nr, table_row_count))
     return snatched
