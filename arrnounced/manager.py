@@ -53,7 +53,7 @@ def run(user_config, tracker_config_path):
         sys.exit(1)
 
     backend.check()
-    # register_observer(webui.update)
+    register_observer(webui.update)
 
     db_thread = threading.Thread(target=db.run, args=(user_config,))
     irc_thread = threading.Thread(target=irc.run, args=(trackers,))
