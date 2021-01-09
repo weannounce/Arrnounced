@@ -7,7 +7,7 @@ from arrnounced import db
 from arrnounced import irc
 from arrnounced import webui
 
-from arrnounced.tracker import Tracker, TrackerConfig
+from arrnounced.tracker import register_observer, Tracker, TrackerConfig
 from arrnounced.tracker_xml_config import get_tracker_xml_configs
 
 logger = logging.getLogger("MANAGER")
@@ -53,6 +53,7 @@ def run(user_config, tracker_config_path):
         sys.exit(1)
 
     backend.check()
+    register_observer(webui.update)
 
     db_thread = threading.Thread(target=db.run, args=(user_config,))
     irc_thread = threading.Thread(target=irc.run, args=(trackers,))
