@@ -48,10 +48,11 @@ def _locked_notify(announcement_id, backend):
 
     future = eventloop_util.run(renotify(announcement, backend))
     if future.result():
+        announcement.snatched()
         logger.debug("%s accepted the torrent this time!", backend.name)
         with db.db_session:
             db_announcement = db.get_announcement(db_announcement.id)
-            db.insert_snatched(db_announcement, backend.name)
+            db.insert_snatched(db_announcement, announcement.snatch_date, backend.name)
         return True
 
     logger.debug("%s still refused this torrent...", backend.name)

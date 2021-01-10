@@ -98,8 +98,8 @@ def insert_announcement(announcement, backends):
     )
 
 
-def insert_snatched(announcement, backend):
-    Snatched(date=datetime.now(), announced=announcement, backend=backend)
+def insert_snatched(announcement, date, backend):
+    Snatched(date=date, announced=announcement, backend=backend)
 
 
 def get_announced_count():
