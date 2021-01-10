@@ -15,7 +15,6 @@ logger = logging.getLogger("MANAGER")
 
 def _set_latest(tracker):
     latest_announcement, latest_snatch = db.get_latest(tracker.config.short_name)
-    print(latest_announcement, latest_snatch)
     tracker.status.init_latest(latest_announcement, latest_snatch)
 
 
