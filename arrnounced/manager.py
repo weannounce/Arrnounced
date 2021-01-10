@@ -13,6 +13,12 @@ from arrnounced.tracker_xml_config import get_tracker_xml_configs
 logger = logging.getLogger("MANAGER")
 
 
+def _set_latest(tracker):
+    latest_announcement, latest_snatch = db.get_latest(tracker.config.short_name)
+    print(latest_announcement, latest_snatch)
+    tracker.status.init_latest(latest_announcement, latest_snatch)
+
+
 def _get_trackers(user_config, tracker_config_path):
     xml_configs = get_tracker_xml_configs(tracker_config_path)
     trackers = {}
@@ -27,6 +33,7 @@ def _get_trackers(user_config, tracker_config_path):
             trackers[user_tracker.type] = Tracker(
                 TrackerConfig(user_tracker, xml_configs[user_tracker.type])
             )
+            _set_latest(trackers[user_tracker.type])
     return trackers
 
 
