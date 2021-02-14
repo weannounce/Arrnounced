@@ -95,7 +95,9 @@ class TrackerConfig:
 
     @property
     def user_channels(self):
-        return [x.strip() for x in self._user_tracker["irc_channels"].split(",")]
+        return [
+            x.strip().lower() for x in self._user_tracker["irc_channels"].split(",")
+        ]
 
     # Return both channels from XML and user config
     @property
