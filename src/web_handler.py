@@ -7,13 +7,18 @@ import irc
 import utils
 
 from backend import renotify, get_configured_backends, get_backend
+from eventloop_utils import eventloop_util
 from announcement import Announcement
 
 logger = logging.getLogger("WEB-HANDLER")
 
 
 def shutdown():
-    irc.stop()
+    for task in irc.get_stop_tasks():
+        eventloop_util.run(task)
+    eventloop_util.wait_till_complete()
+
+    eventloop_util.stop_eventloop()
 
 
 # Request to check this torrent again
