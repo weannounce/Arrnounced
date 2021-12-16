@@ -5,6 +5,7 @@ from pony.orm.core import TransactionError
 import db
 import irc
 import utils
+
 from backend import renotify, get_configured_backends, get_backend
 from announcement import Announcement
 
@@ -17,7 +18,8 @@ def shutdown():
 
 # Request to check this torrent again
 def _locked_notify(announcement_id, backend):
-    db_announcement = db.get_announcement(announcement_id)
+    with db.db_session:
+        db_announcement = db.get_announcement(announcement_id)
 
     if db_announcement is None or len(db_announcement.title) == 0:
         logger.warning("Announcement to notify not found in database")
@@ -33,7 +35,9 @@ def _locked_notify(announcement_id, backend):
 
     if renotify(announcement, backend):
         logger.debug("%s accepted the torrent this time!", backend.name)
-        db.insert_snatched(db_announcement, backend.name)
+        with db.db_session:
+            db_announcement = db.get_announcement(db_announcement.id)
+            db.insert_snatched(db_announcement, backend.name)
         return True
 
     logger.debug("%s still refused this torrent...", backend.name)
@@ -44,10 +48,9 @@ def notify_backend(announcement_id, backend_name):
     backend = get_backend(backend_name)
     if backend:
         try:
-            with db.db_session:
-                return _locked_notify(announcement_id, backend)
-        except TransactionError as e:
-            logger.error("%s: %s", type(e).__name__, e)
+            return _locked_notify(announcement_id, backend)
+        except TransactionError:
+            logger.exception("Database transaction failed")
     else:
         logger.warning(
             "Could not find the requested backend '%s'",

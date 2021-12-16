@@ -39,7 +39,6 @@ def _check_and_parse(tracker, source, target, message):
     return create_announcement(tracker, variables)
 
 
-@db.db_session
 async def _handle_announcement(tracker, announcement):
     backends = notify_which_backends(tracker, announcement.category)
 
@@ -56,7 +55,8 @@ async def _handle_announcement(tracker, announcement):
         )
         await asyncio.sleep(tracker.config.announce_delay)
 
-    db_announced = db.insert_announcement(announcement, backends_string)
+    with db.db_session:
+        db_announced = db.insert_announcement(announcement, backends_string)
     logger.info(
         "Notifying %s of release from %s: %s",
         backends_string,
@@ -71,7 +71,9 @@ async def _handle_announcement(tracker, announcement):
         logger.debug("Release was rejected: %s", announcement.title)
     else:
         logger.info("%s approved release: %s", backend.name, announcement.title)
-        db.insert_snatched(db_announced, backend.name)
+        with db.db_session:
+            db_announced = db.get_announcement(db_announced.id)
+            db.insert_snatched(db_announced, backend.name)
 
 
 async def on_message(tracker, source, target, message):
@@ -81,6 +83,5 @@ async def on_message(tracker, source, target, message):
 
     try:
         await _handle_announcement(tracker, announcement)
-    except TransactionError as e:
-        logger.error("Database transaction failed")
-        logger.error("%s: %s", type(e).__name__, e)
+    except TransactionError:
+        logger.exception("Database transaction failed for %s", announcement.title)
