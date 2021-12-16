@@ -64,7 +64,7 @@ async def _handle_announcement(tracker, announcement):
         announcement.title,
     )
 
-    backend = notify(announcement, backends)
+    backend = await notify(announcement, backends)
 
     if backend is None:
         # TODO Print rejection reason

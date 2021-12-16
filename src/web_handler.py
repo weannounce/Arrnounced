@@ -6,7 +6,7 @@ import db
 import irc
 import utils
 
-from backend import renotify, get_configured_backends, get_backend
+from backend import renotify, get_configured_backends, get_backend, stop
 from eventloop_utils import eventloop_util
 from announcement import Announcement
 
@@ -16,6 +16,9 @@ logger = logging.getLogger("WEB-HANDLER")
 def shutdown():
     for task in irc.get_stop_tasks():
         eventloop_util.run(task)
+    eventloop_util.wait_till_complete()
+
+    eventloop_util.run(stop())
     eventloop_util.wait_till_complete()
 
     eventloop_util.stop_eventloop()
@@ -38,7 +41,8 @@ def _locked_notify(announcement_id, backend):
         date=db_announcement.date,
     )
 
-    if renotify(announcement, backend):
+    future = eventloop_util.run(renotify(announcement, backend))
+    if future.result():
         logger.debug("%s accepted the torrent this time!", backend.name)
         with db.db_session:
             db_announcement = db.get_announcement(db_announcement.id)
