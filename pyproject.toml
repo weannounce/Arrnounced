@@ -5,9 +5,18 @@ description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
 authors = ["WeAnnounce <weannounce@protonmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
+aiohttp = "3.8.1"
+defusedxml = "0.6.0"
+Flask = "1.1.1"
+Flask-Login = "0.4.1"
+pony = "0.7.14"
+tomlkit = "0.7.0"
+pydle = "0.9.4"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
+coverage = "5.0.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
