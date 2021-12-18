@@ -16,7 +16,6 @@ Flask-Login = "0.4.1"
 pony = "0.7.14"
 tomlkit = "0.7.0"
 pydle = "0.9.4"
-requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "5.0.3"

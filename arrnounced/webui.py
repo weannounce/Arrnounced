@@ -1,7 +1,6 @@
 import inspect
 import logging
 import os
-import requests
 from flask import Flask
 from flask import jsonify
 from flask import redirect
@@ -142,10 +141,11 @@ def check(pvr_name):
                 data.get("url"),
             )
 
-            headers = {"X-Api-Key": data.get("apikey")}
-            resp = requests.get(
-                url="{}/api/diskspace".format(data.get("url")), headers=headers
-            ).json()
+            resp = {}
+            # headers = {"X-Api-Key": data.get("apikey")}
+            # resp = requests.get(
+            #     url="{}/api/diskspace".format(data.get("url")), headers=headers
+            # ).json()
             logger.debug("check response: %s", resp)
 
             if "error" not in resp:
