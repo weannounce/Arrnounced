@@ -4,6 +4,9 @@ version = "0.7.0"
 description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
 authors = ["WeAnnounce <weannounce@protonmail.com>"]
 
+[tool.poetry.scripts]
+arrnounced = 'arrnounced.arrnounced:main'
+
 [tool.poetry.dependencies]
 python = "^3.9"
 aiohttp = "3.8.1"

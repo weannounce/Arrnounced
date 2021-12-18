@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from src import announcement, tracker, tracker_xml_config
+from arrnounced import announcement, tracker, tracker_xml_config
 from announcement import (
     Var,
     Http,
