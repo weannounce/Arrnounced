@@ -5,11 +5,11 @@ import os
 import sys
 from pathlib import Path
 
-import backend
-import config
-import db
-import log
-import manager
+from arrnounced import backend
+from arrnounced import config
+from arrnounced import db
+from arrnounced import log
+from arrnounced import manager
 
 
 def is_file(path):
@@ -26,7 +26,7 @@ def is_dir(path):
         raise NotADirectoryError("Error: '" + path + "' is not a valid directory")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description="Arrnounced - Listen for IRC announcements"
     )
@@ -81,3 +81,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     manager.run(user_config, args.trackers)
+
+
+if __name__ == "__main__":
+    main()

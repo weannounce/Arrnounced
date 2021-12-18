@@ -5,7 +5,8 @@ import re
 from enum import Enum
 from itertools import filterfalse
 from multiprocessing import Lock
-from utils import get_default_variables
+
+from arrnounced.utils import get_default_variables
 
 logger = logging.getLogger("ANNOUNCE_PARSER")
 

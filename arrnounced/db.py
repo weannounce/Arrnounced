@@ -1,11 +1,11 @@
 import datetime
 import logging
-from pony.orm import Database, desc, pony, Required, Set
-from pony.orm import db_session  # noqa: F401
 import os
 
-logger = logging.getLogger("DB")
+from pony.orm import Database, desc, pony, Required, Set
+from pony.orm import db_session  # noqa: F401
 
+logger = logging.getLogger("DB")
 db = Database()
 
 

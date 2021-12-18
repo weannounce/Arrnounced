@@ -15,8 +15,8 @@ from flask_login import login_required
 from flask_login import UserMixin
 from pathlib import Path
 
-import log
-import web_handler
+from arrnounced import log
+from arrnounced import web_handler
 
 logger = logging.getLogger("WEB-UI")
 table_row_count = 20

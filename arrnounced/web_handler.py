@@ -2,13 +2,13 @@ import logging
 from math import ceil
 from pony.orm.core import TransactionError
 
-import db
-import irc
-import utils
+from arrnounced import db
+from arrnounced import irc
+from arrnounced import utils
 
-from backend import renotify, get_configured_backends, get_backend, stop
-from eventloop_utils import eventloop_util
-from announcement import Announcement
+from arrnounced.backend import renotify, get_configured_backends, get_backend, stop
+from arrnounced.eventloop_utils import eventloop_util
+from arrnounced.announcement import Announcement
 
 logger = logging.getLogger("WEB-HANDLER")
 

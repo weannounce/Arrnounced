@@ -5,7 +5,7 @@ description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
 authors = ["WeAnnounce <weannounce@protonmail.com>"]
 
 [tool.poetry.scripts]
-arrnounced = 'arrnounced.arrnounced:main'
+arrnounced = 'arrnounced.cli:main'
 
 [tool.poetry.dependencies]
 python = "^3.9"
