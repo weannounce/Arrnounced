@@ -18,6 +18,9 @@ class EventLoopUtil:
 
     def wait_till_complete(self):
         logger.info("Waiting for eventloop tasks...")
+        # The backend stop task has likely not had time to start yet
+        # Therefore sleep a while until it does
+        time.sleep(1)
         while len(all_tasks(self._the_eventloop)) != 0:
             time.sleep(1)
         logger.info("Tasks done")
