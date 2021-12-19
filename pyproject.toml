@@ -3,6 +3,7 @@ name = "arrnounced"
 version = "0.7.0"
 description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
 authors = ["WeAnnounce <weannounce@protonmail.com>"]
+readme = "README.md"
 
 [tool.poetry.scripts]
 arrnounced = 'arrnounced.cli:main'
