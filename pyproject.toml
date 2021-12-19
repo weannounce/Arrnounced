@@ -9,7 +9,7 @@ readme = "README.md"
 arrnounced = 'arrnounced.cli:main'
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "~3.9"
 aiohttp = "3.8.1"
 defusedxml = "0.6.0"
 Flask = "1.1.1"
