@@ -1,25 +1,21 @@
 import logging
 import re
-import requests
-from json.decoder import JSONDecodeError
-from requests.exceptions import HTTPError, RequestException
+from asyncio import Lock
+
+from session_provider import SessionProvider
 
 
 logger = logging.getLogger("BACKEND")
 
 
-def _extract_approval(http_response, backend_name):
+def _extract_approval(json_response, backend_name):
     try:
-        json_response = http_response.json()
-        return "approved" in json_response and json_response["approved"]
-    except JSONDecodeError as e:
-        logger.warning(
-            "Could not parse response from %s: %s",
-            backend_name,
-            http_response.content,
-        )
-        logger.warning(e)
-        return False
+        return json_response["approved"]
+    except TypeError:
+        logger.warning("No valid JSON reply from %s", backend_name, exc_info=True)
+    except KeyError:
+        logger.warning("No approval info in reply from %s", backend_name, exc_info=True)
+    return False
 
 
 class Backend:
@@ -27,6 +23,7 @@ class Backend:
         self.apikey = user_backend.apikey
         self.url = user_backend.url
         self.name = user_backend.name
+        self.lock = Lock()
 
     def _create_json(self, announcement):
         params = {
@@ -36,54 +33,44 @@ class Backend:
             "publishDate": announcement.date.isoformat(),
         }
 
-        if self.use_indexer:
-            params["indexer"] = "Irc" + announcement.indexer
         return params
 
-    def _send_notification(self, announcement):
-        headers = {"X-Api-Key": self.apikey}
-        try:
-            http_response = requests.post(
-                url="{}{}".format(self.url, self.api_path),
-                headers=headers,
+    async def _send_notification(self, announcement):
+        # Mitigate https://github.com/Sonarr/Sonarr/issues/2975
+        async with Lock():
+            json_response = await SessionProvider.post(
+                url=f"{self.url}{self.api_path}",
+                headers={"X-Api-Key": self.apikey},
                 json=self._create_json(announcement),
             )
-        except OSError as e:
-            logger.error("%s %s: %s", self.name, type(e).__name__, e)
-            return None
 
-        try:
-            http_response.raise_for_status()
-        except HTTPError as e:
-            logger.warning("%s: %s", self.name, e)
-            return None
-        except RequestException as e:
-            logger.error("%s connection problem", self.name)
-            logger.error("%s", e)
-            return None
+        return json_response
 
-        return http_response
-
-    def notify(self, announcement):
-        http_response = self._send_notification(announcement)
-        if not http_response:
+    async def notify(self, announcement):
+        json_response = await self._send_notification(announcement)
+        if not json_response:
             return False
-        return _extract_approval(http_response, self.name)
+        return _extract_approval(json_response, self.name)
 
 
-class Sonarr(Backend):
+class UseIndexer(Backend):
+    def _create_json(self, announcement):
+        params = super()._create_json(announcement)
+        params["indexer"] = "Irc" + announcement.indexer
+
+        return params
+
+
+class Sonarr(UseIndexer):
     api_path = "/api/release/push"
-    use_indexer = True
 
 
-class Radarr(Backend):
+class Radarr(UseIndexer):
     api_path = "/api/release/push"
-    use_indexer = True
 
 
 class Lidarr(Backend):
     api_path = "/api/v1/release/push"
-    use_indexer = False
 
 
 backend_mapping = {
@@ -99,6 +86,10 @@ _backends = {}
 def init(user_backends):
     for user_backend in user_backends:
         _backends[user_backend.name] = backend_mapping[user_backend.type](user_backend)
+
+
+async def stop():
+    await SessionProvider.close_session()
 
 
 def get_configured_backends():
@@ -126,9 +117,9 @@ def notify_which_backends(tracker, announced_category):
     return notify_backends
 
 
-def notify(announcement, backends):
+async def notify(announcement, backends):
     for backend in backends:
-        if backend.notify(announcement):
+        if await backend.notify(announcement):
             return backend
 
     return None
@@ -138,5 +129,5 @@ def get_backend(backend_name):
     return _backends.get(backend_name)
 
 
-def renotify(announcement, backend):
-    return backend.notify(announcement)
+async def renotify(announcement, backend):
+    return await backend.notify(announcement)
