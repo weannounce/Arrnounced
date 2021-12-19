@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arrnounced"
-version = "0.7.1"
+version = "0.7.2"
 description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
 authors = ["WeAnnounce <weannounce@protonmail.com>"]
 readme = "README.md"
