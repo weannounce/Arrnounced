@@ -12,20 +12,24 @@ on:
 
 jobs:
   build:
-
+    strategy:
+      matrix:
+        python-version: [3.9]
+        poetry-version: [1.1.12]
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v1
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: ${{ matrix.python-version }}
+    - name: Set up Poetry
+      uses: abatilo/actions-poetry@v2.0.0
+      with:
+        poetry-version: ${{ matrix.poetry-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install coverage==5.0.3
+        poetry install
     - uses: jpetrucciani/black-check@master
     - name: Lint with flake8
       run: |
@@ -34,7 +38,7 @@ jobs:
     - name: Run Bandit
       uses: jpetrucciani/bandit-check@master
       with:
-        path: 'src'
+        path: 'arrnounced'
     - name: Run unit tests
       run: |
-        ./run_tests.py
+        poetry run ./run_tests.py
