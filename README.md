@@ -24,8 +24,6 @@ _Release v0.7 updated the configuration format. See the [release
 notes](https://github.com/weannounce/arrnounced/releases/tag/v0.7) for more
 information._
 
-Docker or Python >=3.6 is required to run Arrnounced.
-
 ## Configuration
 The default configuration path is `~/.arrnounced/settings.toml`.
 [example.cfg](https://github.com/weannounce/arrnounced/blob/master/example.cfg)
@@ -34,6 +32,21 @@ is the acting configuration documentation.
 The default XML tracker configuration path is `~/.arrnounced/autodl-trackers/trackers`
 
 ## Installation
+
+```bash
+# Optional virtual environment
+$ python -m venv path/to/venv
+$ source path/to/venv/bin/activate
+
+# Install
+$ pip install arrnounced
+
+# Run
+$ arrnounced
+```
+
+Configuration files path as well as log and database location may be changed with command line arguments.
+
 
 ### Docker
 [Arrnounced on dockerhub](https://hub.docker.com/r/weannounce/arrnounced)
@@ -59,23 +72,6 @@ docker run -v /path/to/settings:/config \
            --user 1000 \
            -p 3467:3467 weannounce/arrnounced:latest
 ```
-
-### Manual
-1. `mkdir ~/.arrnounced`
-2. `git clone https://github.com/autodl-community/autodl-trackers.git ~/.arrnounced/`
-3. Create `~/.arrnounced/settings.toml` with
-   [example.cfg](https://github.com/weannounce/arrnounced/blob/master/example.cfg)
-   as guide and your [choice of
-   trackers](https://github.com/autodl-community/autodl-trackers/tree/master/trackers)
-4. `git clone https://github.com/weannounce/arrnounced.git` in you location of choice
-5. Inside arrnounced directory: `pip install --user -r requirements.txt`.
-   Preferably do this in a [virtual
-   environment](https://docs.python.org/3/tutorial/venv.html) as to not end up
-   with dependency conflicts.
-
-Start with `<path to arrnounced>/src/arrnounced.py`.
-
-Configuration files path as well as log and database location may be changed with command line arguments.
 
 ## Database design update
 The database design was updated in [v0.3](https://github.com/weannounce/arrnounced/releases/tag/v0.3)
