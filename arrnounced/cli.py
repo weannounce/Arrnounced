@@ -5,53 +5,58 @@ import os
 import sys
 from pathlib import Path
 
-import backend
-import config
-import db
-import log
-import manager
+from arrnounced import __version__
+from arrnounced import backend
+from arrnounced import config
+from arrnounced import db
+from arrnounced import log
+from arrnounced import manager
 
 
-def is_file(path):
-    if os.path.isfile(path):
-        return path
-    else:
-        raise FileNotFoundError("Error: '" + path + "' is not a valid file")
+def _is_file(path):
+    if not os.path.isfile(path):
+        print("Error: '" + path + "' is not a valid file")
+        return False
+    return True
 
 
-def is_dir(path):
-    if os.path.isdir(path):
-        return path
-    else:
-        raise NotADirectoryError("Error: '" + path + "' is not a valid directory")
+def _is_dir(path):
+    if not os.path.isdir(path):
+        print("Error: '" + path + "' is not a valid directory")
+        return False
+    return True
 
 
-if __name__ == "__main__":
+def _validate_args(args):
+    checks = [_is_dir(args.data), _is_dir(args.trackers), _is_file(args.config)]
+    if len(checks) > sum(checks):
+        sys.exit(1)
+
+
+def main():
     parser = argparse.ArgumentParser(
         description="Arrnounced - Listen for IRC announcements"
     )
     parser.add_argument(
         "-d",
         "--data",
-        type=is_dir,
         help="Data directory for storing logs and database. Default ~/.arrnounced",
         default=str(Path.home().joinpath(".arrnounced")),
     )
     parser.add_argument(
         "-c",
         "--config",
-        type=is_file,
         help="Configuration file. Default ~/.arrnounced/settings.toml",
         default=str(Path.home().joinpath(".arrnounced", "settings.toml")),
     )
     parser.add_argument(
         "-t",
         "--trackers",
-        type=is_dir,
         help="XML tracker config path. Default ~/.arrnounced/autodl-trackers/trackers",
         default=str(Path.home().joinpath(".arrnounced", "autodl-trackers", "trackers")),
     )
     parser.add_argument("-v", "--verbose", help="Verbose logging", action="store_true")
+    parser.add_argument("--version", help="Print version", action="store_true")
 
     try:
         args = parser.parse_args()
@@ -60,6 +65,12 @@ if __name__ == "__main__":
         if isinstance(e, FileNotFoundError):
             config.toml_notice()
         sys.exit(1)
+
+    if args.version:
+        print("Arrnounced version", __version__)
+        sys.exit(0)
+
+    _validate_args(args)
 
     user_config = config.init(args.config)
     if user_config is None:
@@ -81,3 +92,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     manager.run(user_config, args.trackers)
+
+
+if __name__ == "__main__":
+    main()

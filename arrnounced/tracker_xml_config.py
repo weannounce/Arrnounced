@@ -4,7 +4,7 @@ import re
 import defusedxml.ElementTree as ET
 from collections import namedtuple
 
-from announcement import (
+from arrnounced.announcement import (
     Var,
     Http,
     Extract,

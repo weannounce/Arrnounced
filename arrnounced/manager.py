@@ -2,10 +2,11 @@ import logging
 import sys
 import threading
 
-import irc
-import webui
-from tracker import Tracker, TrackerConfig
-from tracker_xml_config import get_tracker_xml_configs
+from arrnounced import irc
+from arrnounced import webui
+
+from arrnounced.tracker import Tracker, TrackerConfig
+from arrnounced.tracker_xml_config import get_tracker_xml_configs
 
 logger = logging.getLogger("MANAGER")
 

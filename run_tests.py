@@ -5,10 +5,10 @@ import unittest
 import sys
 import coverage
 
-sys.path.append("src/")
+sys.path.append("arrnounced/")
 
 cov = coverage.coverage(
-    branch=True, include="src/*", omit=["*/__init__.py", "*/config/*"]
+    branch=True, include="arrnounced/*", omit=["*/__init__.py", "*/config/*"]
 )
 
 if __name__ == "__main__":

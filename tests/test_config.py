@@ -1,6 +1,6 @@
 import unittest
 
-from src import config
+from arrnounced import config
 
 
 class ConfigTest(unittest.TestCase):

@@ -2,7 +2,7 @@ import logging
 import re
 from asyncio import Lock
 
-from session_provider import SessionProvider
+from arrnounced.session_provider import SessionProvider
 
 
 logger = logging.getLogger("BACKEND")

@@ -1,9 +1,10 @@
 import logging
 import pydle
-import irc_modes
 
-from eventloop_utils import eventloop_util
-import message_handler
+from arrnounced import irc_modes
+from arrnounced import message_handler
+
+from arrnounced.eventloop_utils import eventloop_util
 
 logger = logging.getLogger("IRC")
 

@@ -21,8 +21,7 @@ repos:
     hooks:
     -   id: unit-tests
         name: unit tests
-        entry: ./run_tests.py
+        entry: poetry run ./run_tests.py
         language: python
         types: [python]
-        additional_dependencies: ['defusedxml==0.6.0', 'coverage==5.0.3', 'tomlkit==0.7.0', 'requests==2.22.0']
         pass_filenames: false

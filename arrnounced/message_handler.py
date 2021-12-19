@@ -3,11 +3,11 @@ import html
 import logging
 from pony.orm.core import TransactionError
 
-import announce_parser
-import db
-import utils
-from announcement import create_announcement
-from backend import notify, notify_which_backends
+from arrnounced import announce_parser
+from arrnounced import db
+from arrnounced import utils
+from arrnounced.announcement import create_announcement
+from arrnounced.backend import notify, notify_which_backends
 
 logger = logging.getLogger("MESSAGE_HANDLER")
 
