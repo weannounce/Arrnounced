@@ -35,3 +35,16 @@ class SessionProvider:
             logger.exception("Client error pushing release to %s", url)
 
         return None
+
+    @staticmethod
+    async def get(url, headers):
+        try:
+            async with SessionProvider.get_session().get(
+                url,
+                headers=headers,
+            ) as http_response:
+                return await http_response.json()
+        except Exception as e:
+            logger.warning("Could not access backend '%s': %s", url, e)
+
+        return None
