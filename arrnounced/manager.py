@@ -2,6 +2,7 @@ import logging
 import sys
 import threading
 
+from arrnounced import backend
 from arrnounced import irc
 from arrnounced import webui
 
@@ -49,6 +50,8 @@ def run(user_config, tracker_config_path):
     if len(trackers) == 0:
         logger.error("No trackers configured, exiting...")
         sys.exit(1)
+
+    backend.check()
 
     irc_thread = threading.Thread(target=irc.run, args=(trackers,))
     webui_thread = threading.Thread(target=webui.run, args=(user_config,))

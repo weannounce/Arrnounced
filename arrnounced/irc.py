@@ -76,6 +76,7 @@ class IRC(irc_modes.ModesFixer):
 
 
 pool = pydle.ClientPool()
+eventloop_util.set_eventloop(pool.eventloop)
 clients = []
 
 
@@ -88,7 +89,6 @@ def get_stop_tasks():
 
 def run(trackers):
     global pool, clients
-    eventloop_util.set_eventloop(pool.eventloop)
 
     for tracker in trackers.values():
         logger.info(

@@ -2,6 +2,7 @@ import logging
 import re
 from asyncio import Lock
 
+from arrnounced.eventloop_utils import eventloop_util
 from arrnounced.session_provider import SessionProvider
 
 
@@ -39,7 +40,7 @@ class Backend:
         # Mitigate https://github.com/Sonarr/Sonarr/issues/2975
         async with Lock():
             json_response = await SessionProvider.post(
-                url=f"{self.url}{self.api_path}",
+                url=f"{self.url}{self.push_path}",
                 headers={"X-Api-Key": self.apikey},
                 json=self._create_json(announcement),
             )
@@ -52,6 +53,13 @@ class Backend:
             return False
         return _extract_approval(json_response, self.name)
 
+    async def check(self):
+        json_response = await SessionProvider.get(
+            url=f"{self.url}{self.diskspace_path}",
+            headers={"X-Api-Key": self.apikey},
+        )
+        return json_response is not None
+
 
 class UseIndexer(Backend):
     def _create_json(self, announcement):
@@ -62,15 +70,45 @@ class UseIndexer(Backend):
 
 
 class Sonarr(UseIndexer):
-    api_path = "/api/release/push"
+    push_path = "/api/release/push"
+    diskspace_path = "/api/diskspace"
 
 
 class Radarr(UseIndexer):
-    api_path = "/api/release/push"
+    push_path_v3 = "/api/v3/release/push"
+    diskspace_path_v3 = "/api/v3/diskspace"
+    push_path_legacy = "/api/release/push"
+    diskspace_path_legacy = "/api/diskspace"
+
+    def __init__(self, user_backend):
+        self._set_v3()
+        super().__init__(user_backend)
+
+    def _set_v3(self):
+        self.push_path = self.push_path_v3
+        self.diskspace_path = self.diskspace_path_v3
+
+    def _set_legacy(self):
+        self.push_path = self.push_path_legacy
+        self.diskspace_path = self.diskspace_path_legacy
+
+    async def check(self):
+        if await super().check():
+            return True
+
+        logger.info("%s: Falling back to legacy API", self.name)
+        self._set_legacy()
+        if await super().check():
+            return True
+
+        # Neither worked, setting v3 as default
+        self._set_v3()
+        return False
 
 
 class Lidarr(Backend):
-    api_path = "/api/v1/release/push"
+    push_path = "/api/v1/release/push"
+    diskspace_path = "/api/v1/diskspace"
 
 
 backend_mapping = {
@@ -131,3 +169,8 @@ def get_backend(backend_name):
 
 async def renotify(announcement, backend):
     return await backend.notify(announcement)
+
+
+def check():
+    for backend in _backends.values():
+        eventloop_util.run(backend.check())
