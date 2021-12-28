@@ -58,7 +58,9 @@ class Backend:
             url=f"{self.url}{self.diskspace_path}",
             headers={"X-Api-Key": self.apikey},
         )
-        return json_response is not None
+        result = json_response is not None
+        logger.debug("%s access: %s", self.name, "granted" if result else "failed")
+        return result
 
 
 class UseIndexer(Backend):
@@ -69,6 +71,7 @@ class UseIndexer(Backend):
         return params
 
 
+# TODO: Use v3 API
 class Sonarr(UseIndexer):
     push_path = "/api/release/push"
     diskspace_path = "/api/diskspace"
