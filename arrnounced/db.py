@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime, timedelta
 import logging
 import os
+import time
 
 from pony.orm import Database, desc, pony, Required, Set
 from pony.orm import db_session  # noqa: F401
@@ -10,7 +11,7 @@ db = Database()
 
 
 class Announced(db.Entity):
-    date = Required(datetime.datetime)
+    date = Required(datetime)
     title = Required(str)
     indexer = Required(str)
     torrent = Required(str)
@@ -29,7 +30,7 @@ class Announced(db.Entity):
 
 
 class Snatched(db.Entity):
-    date = Required(datetime.datetime)
+    date = Required(datetime)
     announced = Required(Announced)
     backend = Required(str)
 
@@ -98,7 +99,7 @@ def insert_announcement(announcement, backends):
 
 
 def insert_snatched(announcement, backend):
-    Snatched(date=datetime.datetime.now(), announced=announcement, backend=backend)
+    Snatched(date=datetime.now(), announced=announcement, backend=backend)
 
 
 def get_announced_count():
@@ -107,3 +108,15 @@ def get_announced_count():
 
 def get_snatched_count():
     return pony.orm.count(s for s in Snatched)
+
+
+def run(user_config):
+    while True:
+        print("Checking old")
+        with db_session:
+            old_a = pony.orm.select(
+                a for a in Announced if a.date < datetime.now() - timedelta(days=50)
+            )
+            print([a.title for a in list(old_a)])
+            old_a.delete(bulk=True)
+        time.sleep(30)
