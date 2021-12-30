@@ -94,12 +94,18 @@ class Var:
             self.name = var[self.type_to_name[self.var_type]]
 
 
+_log_once = True
+
+
 class Http:
     def process(self, tracker_config, variables):
-        logger.warning(
-            "HTTP header (e.g. cookie) in tracker configuration not supported. "
-            + "This might cause problems downloading the torrent file."
-        )
+        global _log_once
+        if _log_once:
+            logger.warning(
+                "HTTP header (e.g. cookie) in tracker configuration not supported. "
+                + "This might cause problems downloading the torrent file."
+            )
+            _log_once = False
 
 
 class Extract:
