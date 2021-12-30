@@ -12,6 +12,11 @@ port = 3467
 username = "admin"
 password = "password"
 
+# Database configuration
+[database]
+# Purge releases in the database which are older the given number of days
+purge_days = 365
+
 # Logging configuration
 [log]
 to_file = true
