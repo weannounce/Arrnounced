@@ -112,11 +112,14 @@ def get_snatched_count():
 
 def run(user_config):
     while True:
-        print("Checking old")
         with db_session:
-            old_a = pony.orm.select(
-                a for a in Announced if a.date < datetime.now() - timedelta(days=50)
+            old = pony.orm.select(
+                a
+                for a in Announced
+                if a.date < datetime.now() - timedelta(days=user_config.db_purge_days)
             )
-            print([a.title for a in list(old_a)])
-            old_a.delete(bulk=True)
+            old_len = len(old)
+            if old_len > 0:
+                logger.debug("Purging %s old entries from the database", old_len)
+                old.delete(bulk=True)
         time.sleep(30)
