@@ -14,6 +14,7 @@ logger = logging.getLogger("WEB-HANDLER")
 
 
 def shutdown():
+    db.stop()
     for task in irc.get_stop_tasks():
         eventloop_util.run(task)
     eventloop_util.wait_till_complete()

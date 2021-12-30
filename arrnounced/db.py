@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 import os
-import time
+import threading
 
 from pony.orm import Database, desc, pony, Required, Set
 from pony.orm import db_session  # noqa: F401
@@ -110,8 +110,17 @@ def get_snatched_count():
     return pony.orm.count(s for s in Snatched)
 
 
+_stop_thread = threading.Event()
+
+
+def stop():
+    logger.debug("Stopping database purge thread")
+    _stop_thread.set()
+
+
 def run(user_config):
-    while True:
+    running = True
+    while running:
         with db_session:
             old = pony.orm.select(
                 a
@@ -122,4 +131,5 @@ def run(user_config):
             if old_len > 0:
                 logger.debug("Purging %s old entries from the database", old_len)
                 old.delete(bulk=True)
-        time.sleep(30)
+
+        running = not _stop_thread.wait(timeout=30)
