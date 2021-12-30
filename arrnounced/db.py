@@ -119,6 +119,7 @@ def stop():
 
 
 def run(user_config):
+    one_day = 24 * 60 * 60
     running = True
     while running:
         with db_session:
@@ -132,4 +133,4 @@ def run(user_config):
                 logger.debug("Purging %s old entries from the database", old_len)
                 old.delete(bulk=True)
 
-        running = not _stop_thread.wait(timeout=30)
+        running = not _stop_thread.wait(timeout=one_day)
