@@ -15,6 +15,7 @@ password = "password"
 # Database configuration
 [database]
 # Purge releases in the database which are older the given number of days
+# Disable purging: 0
 purge_days = 365
 
 # Logging configuration

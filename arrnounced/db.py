@@ -120,7 +120,7 @@ def stop():
 
 def run(user_config):
     one_day = 24 * 60 * 60
-    running = True
+    running = user_config.db_purge_days > 0
     while running:
         with db_session:
             old = pony.orm.select(
