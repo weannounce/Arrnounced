@@ -128,9 +128,8 @@ def run(user_config):
                 for a in Announced
                 if a.date < datetime.now() - timedelta(days=user_config.db_purge_days)
             )
-            old_len = len(old)
-            if old_len > 0:
-                logger.debug("Purging %s old entries from the database", old_len)
-                old.delete(bulk=True)
+            deleted = old.delete(bulk=False)
+            if deleted > 0:
+                logger.debug("Purged %s old entries from the database", deleted)
 
         running = not _stop_thread.wait(timeout=one_day)

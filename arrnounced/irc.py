@@ -84,6 +84,7 @@ def get_stop_tasks():
     logger.info("Stopping IRC client(s)")
     global clients
     for client in clients:
+        # TODO: quit("Arrnounced out"). Capture Ctrl-C and close threads
         yield client.disconnect(expected=True)
 
 
