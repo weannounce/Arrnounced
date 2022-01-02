@@ -141,6 +141,10 @@ class UserConfig:
         return self.toml["webui"]["shutdown"]
 
     @property
+    def db_purge_days(self):
+        return self.toml["database"]["purge_days"]
+
+    @property
     def login_required(self):
         return self.toml["webui"].get("username") is not None
 
@@ -273,6 +277,8 @@ def init(config_path):
         (["webui", "host"], "0.0.0.0"),  # nosec B104: bind all interfaces
         (["webui", "port"], 3467),
         (["webui", "shutdown"], False),
+        (["database"], {}),
+        (["database", "purge_days"], 365),
         (["log"], {}),
         (["log", "to_file"], True),
         (["log", "to_console"], True),

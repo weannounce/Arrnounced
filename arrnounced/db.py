@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime, timedelta
 import logging
 import os
+import threading
 
 from pony.orm import Database, desc, pony, Required, Set
 from pony.orm import db_session  # noqa: F401
@@ -10,7 +11,7 @@ db = Database()
 
 
 class Announced(db.Entity):
-    date = Required(datetime.datetime)
+    date = Required(datetime)
     title = Required(str)
     indexer = Required(str)
     torrent = Required(str)
@@ -29,7 +30,7 @@ class Announced(db.Entity):
 
 
 class Snatched(db.Entity):
-    date = Required(datetime.datetime)
+    date = Required(datetime)
     announced = Required(Announced)
     backend = Required(str)
 
@@ -98,7 +99,7 @@ def insert_announcement(announcement, backends):
 
 
 def insert_snatched(announcement, backend):
-    Snatched(date=datetime.datetime.now(), announced=announcement, backend=backend)
+    Snatched(date=datetime.now(), announced=announcement, backend=backend)
 
 
 def get_announced_count():
@@ -107,3 +108,28 @@ def get_announced_count():
 
 def get_snatched_count():
     return pony.orm.count(s for s in Snatched)
+
+
+_stop_thread = threading.Event()
+
+
+def stop():
+    logger.debug("Stopping database purge thread")
+    _stop_thread.set()
+
+
+def run(user_config):
+    one_day = 24 * 60 * 60
+    running = user_config.db_purge_days > 0
+    while running:
+        with db_session:
+            old = pony.orm.select(
+                a
+                for a in Announced
+                if a.date < datetime.now() - timedelta(days=user_config.db_purge_days)
+            )
+            deleted = old.delete(bulk=False)
+            if deleted > 0:
+                logger.debug("Purged %s old entries from the database", deleted)
+
+        running = not _stop_thread.wait(timeout=one_day)

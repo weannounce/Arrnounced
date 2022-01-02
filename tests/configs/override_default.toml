@@ -5,6 +5,9 @@ username = "usern"
 password = "passw"
 shutdown = true
 
+[database]
+purge_days = 1
+
 [log]
 to_file = false
 to_console = false

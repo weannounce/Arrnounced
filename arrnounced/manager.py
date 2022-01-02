@@ -3,6 +3,7 @@ import sys
 import threading
 
 from arrnounced import backend
+from arrnounced import db
 from arrnounced import irc
 from arrnounced import webui
 
@@ -53,12 +54,15 @@ def run(user_config, tracker_config_path):
 
     backend.check()
 
+    db_thread = threading.Thread(target=db.run, args=(user_config,))
     irc_thread = threading.Thread(target=irc.run, args=(trackers,))
     webui_thread = threading.Thread(target=webui.run, args=(user_config,))
 
+    db_thread.start()
     irc_thread.start()
     webui_thread.start()
 
+    db_thread.join()
     irc_thread.join()
     webui_thread.join()
 

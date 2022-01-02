@@ -28,6 +28,8 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(cfg.log_to_file, True, "Invalid default value")
         self.assertEqual(cfg.log_to_console, True, "Invalid default value")
 
+        self.assertEqual(cfg.db_purge_days, 365, "Invalid default value")
+
         sonarr = next(b for b in cfg.backends if b.name == "test_sonarr")
         self.assertEqual(sonarr.type, "sonarr", "Invalid default value")
         self.assertEqual(sonarr.backend.get("apikey"), None, "Invalid default value")
@@ -97,6 +99,8 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(cfg.webui_host, "webhost", "host is invalid")
         self.assertEqual(cfg.webui_port, 456, "host is invalid")
         self.assertEqual(cfg.webui_shutdown, True, "Invalid shutdown value")
+
+        self.assertEqual(cfg.db_purge_days, 1, "Invalid db purge value")
 
         self.assertEqual(cfg.log_to_file, False, "Invalid log to file")
         self.assertEqual(cfg.log_to_console, False, "Invalid log to console")
