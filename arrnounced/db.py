@@ -123,13 +123,23 @@ def run(user_config):
     running = user_config.db_purge_days > 0
     while running:
         with db_session:
-            old = pony.orm.select(
-                a
-                for a in Announced
-                if a.date < datetime.now() - timedelta(days=user_config.db_purge_days)
-            )
-            deleted = old.delete(bulk=False)
-            if deleted > 0:
-                logger.debug("Purged %s old entries from the database", deleted)
+            old_date = datetime.now() - timedelta(days=user_config.db_purge_days)
+            snatched_rows = db.execute(
+                "DELETE FROM Snatched WHERE announced IN "
+                "(SELECT Announced.id FROM Announced "
+                "INNER JOIN Snatched ON Snatched.announced = Announced.id "
+                "WHERE Announced.date < $old_date)"
+            ).rowcount
+            announced_rows = db.execute(
+                "DELETE FROM Announced WHERE date < $old_date"
+            ).rowcount
+
+            if announced_rows > 0:
+                logger.debug(
+                    "Purged %s announcements older than %s from the database, %s of which where snatched",
+                    announced_rows,
+                    old_date,
+                    snatched_rows,
+                )
 
         running = not _stop_thread.wait(timeout=one_day)
