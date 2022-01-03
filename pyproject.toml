@@ -4,6 +4,7 @@ version = "0.8.0"
 description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
 authors = ["WeAnnounce <weannounce@protonmail.com>"]
 readme = "README.md"
+homepage = "https://github.com/weannounce/arrnounced"
 
 [tool.poetry.scripts]
 arrnounced = 'arrnounced.cli:main'
