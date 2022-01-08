@@ -117,3 +117,4 @@ def run(trackers):
         pool.handle_forever()
     except Exception:
         logger.exception("Exception pool.handle_forever:")
+    logger.info("IRC thread finished")

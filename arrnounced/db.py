@@ -135,7 +135,7 @@ def run(user_config):
             ).rowcount
 
             if announced_rows > 0:
-                logger.debug(
+                logger.info(
                     "Purged %s announcements older than %s from the database, %s of which where snatched",
                     announced_rows,
                     old_date,
@@ -143,3 +143,4 @@ def run(user_config):
                 )
 
         running = not _stop_thread.wait(timeout=one_day)
+    logger.info("Purge thread finished")

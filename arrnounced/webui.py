@@ -53,6 +53,7 @@ def run(config):
         )
     except OSError as e:
         logger.error("Error starting webserver: %s", e)
+    logger.info("Flask thread finished")
 
 
 @app.route("/shutdown", methods=["GET", "POST"])
