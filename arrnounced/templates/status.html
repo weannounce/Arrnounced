@@ -53,38 +53,25 @@
       crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8">
     var socket = io();
-    // socket.on('connect', function() {
-    //     socket.emit('status_event', {data: 'I\'m connected!'});
+    // socket.on("connect", function() {
+    //     socket.emit("status_event", {data: "I\"m connected!"});
     // });
   function add_indexer_row(tbody, indexer_status) {
       var newRow = tbody.insertRow();
       newRow.setAttribute("id", "indexer_" + indexer_status["type"])
-      var keys = ['name', 'connected', 'channels', 'latest_announcement', 'latest_snatch']
+      var keys = ["name", "connected", "channels", "latest_announcement", "latest_snatch"]
       for(var key in keys) {
-        //console.log("   cell " + key + ": " + indexer_status[key])
         var newCell = newRow.insertCell();
-        var newText = document.createTextNode(indexer_status[keys[key]])
-        newCell.appendChild(newText)
       }
+      return newRow
   }
-  socket.on("init_status", function(indexer_status) {
-
-      var new_tbody = document.createElement('tbody');
-
-      for (let key in indexer_status) {
-        console.log("Got obj " + key + ": " + indexer_status[key]["latest_snatch"])
-          add_indexer_row(new_tbody, indexer_status[key])
-        }
-      var old_tbody = document.getElementById('indexers').getElementsByTagName('tbody')[0];
-      old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
-      console.log("init done")
-      });
-  socket.on("update_status", function(msg) {
-      console.log(msg);
-      row = document.getElementById("indexer_" + msg["type"])
-      for (var j = 1, col; col = row.cells[j]; j++) {
-          if (j == 1) {
-              if (msg["connected"]) {
+  function update_indexer_status(row, indexer_status) {
+      for (var j = 0, col; col = row.cells[j]; j++) {
+          if (j == 0) {
+              col.innerHTML = indexer_status["name"]
+          }
+          else if (j == 1) {
+              if (indexer_status["connected"]) {
                   text = "<p style=\"color:green\">Yes</p>"
                 }
               else {
@@ -93,15 +80,33 @@
               col.innerHTML = text
           }
           else if (j == 2) {
-              col.innerHTML = JSON.stringify(msg["channels"])
+              col.innerHTML = JSON.stringify(indexer_status["channels"])
           }
           else if (j == 3) {
-              col.innerHTML = msg["latest_announcement"]
+              col.innerHTML = indexer_status["latest_announcement"]
           }
           else if (j == 4) {
-              col.innerHTML = msg["latest_snatch"]
+              col.innerHTML = indexer_status["latest_snatch"]
           }
       }
+  }
+  socket.on("init_status", function(indexer_status) {
+
+      var new_tbody = document.createElement("tbody");
+
+      for (let key in indexer_status) {
+        console.log("Got obj " + key + ": " + indexer_status[key]["latest_snatch"])
+          newRow = add_indexer_row(new_tbody, indexer_status[key])
+          update_indexer_status(newRow, indexer_status[key])
+        }
+      var old_tbody = document.getElementById("indexers").getElementsByTagName("tbody")[0];
+      old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+      console.log("init done")
+      });
+  socket.on("update_status", function(indexer_status) {
+      console.log(indexer_status);
+      row = document.getElementById("indexer_" + indexer_status["type"])
+      update_indexer_status(row, indexer_status)
     });
 </script>
 </body>
