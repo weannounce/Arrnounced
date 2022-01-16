@@ -60,10 +60,6 @@ def run(config):
     logger.info("Flask thread finished")
 
 
-def ack():
-    print("msg received")
-
-
 def update(tracker_status_dict):
     socketio.emit("update_status", tracker_status_dict, room="indexer_status")
 
@@ -72,19 +68,16 @@ def update(tracker_status_dict):
 def handle_connected():
     join_room("indexer_status")
     socketio.emit("init_status", web_handler.get_tracker_status())
-    # TODO: Add this back before merging
+    # TODO: Authenticate socketio connection
     if current_user.is_authenticated or not user_config.login_required:
         print("is authed")
     else:
         print("is NOT authed")
 
-    # print("connected")
-
 
 @socketio.on("disconnect")
 def handle_disconnected():
     leave_room("indexer_status")
-    print("disconnected")
 
 
 @app.route("/shutdown", methods=["GET", "POST"])
