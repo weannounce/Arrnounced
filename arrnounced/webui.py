@@ -9,7 +9,7 @@ from flask import request
 from flask import send_from_directory
 from flask import url_for
 from flask_login import LoginManager
-from flask_login import login_user, logout_user  # , current_user
+from flask_login import login_user, logout_user, current_user
 from flask_login import login_required
 from flask_login import UserMixin
 from flask_socketio import SocketIO
@@ -73,10 +73,10 @@ def handle_connected():
     join_room("indexer_status")
     socketio.emit("init_status", web_handler.get_tracker_status())
     # TODO: Add this back before merging
-    # if current_user.is_authenticated or not user_config.login_required:
-    #    print("is authed")
-    # else:
-    #    print("is NOT authed")
+    if current_user.is_authenticated or not user_config.login_required:
+        print("is authed")
+    else:
+        print("is NOT authed")
 
     # print("connected")
 

@@ -137,21 +137,21 @@ class TrackerStatus:
         self._channels[rejection.channel] = TrackerStatus.ChannelStatus(
             rejection.channel
         )
-        self._channels[rejection.channel].set_reason("Channel full", rejection.reason)
+        self._channels[rejection.channel].set_reason("channel full", rejection.reason)
         notify_observers(self.irc_status)
 
     def invite_only(self, rejection):
         self._channels[rejection.channel] = TrackerStatus.ChannelStatus(
             rejection.channel
         )
-        self._channels[rejection.channel].set_reason("Invite only", rejection.reason)
+        self._channels[rejection.channel].set_reason("invite only", rejection.reason)
         notify_observers(self.irc_status)
 
     def banned(self, rejection):
         self._channels[rejection.channel] = TrackerStatus.ChannelStatus(
             rejection.channel
         )
-        self._channels[rejection.channel].set_reason("Banned", rejection.reason)
+        self._channels[rejection.channel].set_reason("banned", rejection.reason)
         notify_observers(self.irc_status)
 
     def bad_channel_key(self, rejection):
@@ -159,7 +159,7 @@ class TrackerStatus:
             rejection.channel
         )
         self._channels[rejection.channel].set_reason(
-            "Bad channel key", rejection.reason
+            "bad channel key", rejection.reason
         )
         notify_observers(self.irc_status)
 
@@ -170,12 +170,12 @@ class TrackerStatus:
 
     def parted(self, channel, message):
         self._channels[channel].joined = False
-        self._channels[channel].set_reason("Parted", message)
+        self._channels[channel].set_reason("parted", message)
         notify_observers(self.irc_status)
 
     def kicked(self, channel, by, reason):
         self._channels[channel].joined = False
-        self._channels[channel].set_reason("Kicked by {}".format(by), reason)
+        self._channels[channel].set_reason("kicked by {}".format(by), reason)
         notify_observers(self.irc_status)
 
 

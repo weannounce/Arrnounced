@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700">
     <link rel="stylesheet" href="assets/css/user.css">
+    <link rel="stylesheet" href="assets/css/status.css">
 </head>
 
 <body>
@@ -27,22 +28,24 @@
             </div>
         </div>
     </nav>
-    <div id="status_div" class="container-fluid" style="padding-left:25px;padding-right:25px;">
-      <div class="table-responsive" id="indexers">
-        <table class="table table-bordered table-condensed">
-          <thead>
-            <tr>
-              <th class="col-xs-2">Indexer</th>
-              <th class="col-xs-2">Connected</th>
-              <th class="col-xs-8">Channels</th>
-              <th class="col-xs-2">Latest Announcement</th>
-              <th class="col-xs-2">Latest Snatch</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-          <caption class="text-center text-success bg-success">Indexers Status</caption>
-        </table>
+    <div class="row">
+      <div id="status_div" class="container-fluid col-md-7 col-centered" style="padding-left:25px;padding-right:25px;">
+        <div class="table-responsive" id="indexers">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th class="col-xs-2 text-centered">Indexer</th>
+                <th class="col-xs-1 text-centered">Connected</th>
+                <th class="col-md-6">Channels</th>
+                <th class="col-xs-2 text-centered">Latest Announcement</th>
+                <th class="col-xs-2 text-centered">Latest Snatch</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <caption class="text-center text-success bg-success">Indexers Status</caption>
+          </table>
+        </div>
       </div>
     </div>
     <script src="assets/js/jquery.min.js"></script>
@@ -59,19 +62,65 @@
       var keys = ["name", "connected", "channels", "latest_announcement", "latest_snatch"]
       for(var key in keys) {
           var newCell = newRow.insertCell();
-          newCell.setAttribute("class", keys[key])
+          if (keys[key] ==  "channels") {
+            newCell.setAttribute("class", keys[key])
+          } else {
+            newCell.setAttribute("class", keys[key] + " text-centered")
+          }
       }
       return newRow
   }
   function update_irc_status(row, indexer_status) {
+      var connected = document.createElement("i")
       if (indexer_status["connected"]) {
-          connected = "<p style=\"color:green\">Yes</p>"
+          connected.setAttribute("class", "glyphicon glyphicon-ok-circle")
+          connected.setAttribute("title", "Connected")
+          connected.setAttribute("style", "color:green")
         }
       else {
-          connected = "<p style=\"color:red\">No</p>"
+          connected.setAttribute("class", "glyphicon glyphicon-remove-circle")
+          connected.setAttribute("title", "Not connected")
+          connected.setAttribute("style", "color:red")
         }
-      row.getElementsByClassName("connected")[0].innerHTML = connected
-      row.getElementsByClassName("channels")[0].innerHTML = JSON.stringify(indexer_status["channels"])
+      var conntag = row.getElementsByClassName("connected")[0]
+      if (conntag.children.length == 0) {
+        conntag.appendChild(connected)
+      } else {
+        conntag.replaceChild(connected, conntag.firstChild)
+      }
+
+      //row.getElementsByClassName("channels")[0].innerHTML = JSON.stringify(indexer_status["channels"])
+      var channeltag= row.getElementsByClassName("channels")[0]
+      var ul = document.createElement("ul")
+      for (let i in indexer_status["channels"]) {
+          channel_status = indexer_status["channels"][i]
+          var il = document.createElement("li")
+          var joined = document.createElement("i")
+          if (channel_status["joined"]) {
+              joined.setAttribute("class", "glyphicon glyphicon-ok-circle")
+              joined.setAttribute("title", "Joined")
+              joined.setAttribute("style", "color:green")
+          }
+          else {
+              joined.setAttribute("class", "glyphicon glyphicon-remove-circle")
+              joined.setAttribute("title", "Not joined")
+              joined.setAttribute("style", "color:red")
+          }
+          var channel_span = document.createElement("span")
+          var channel_text = "  " + channel_status["channel"]
+          if (channel_status["reason"].length > 0) {
+              channel_text += " - " + channel_status["reason"]
+          }
+          channel_span.innerHTML = channel_text
+
+          if (channeltag.children.length == 0) {
+            channeltag.appendChild(joined)
+            channeltag.appendChild(channel_span)
+          } else {
+            channeltag.replaceChild(joined, channeltag.firstChild)
+            channeltag.replaceChild(channel_span, channeltag.children[1])
+          }
+      }
   }
   function update_release_status(row, indexer_status) {
       row.getElementsByClassName("latest_announcement")[0].innerHTML = indexer_status["latest_announcement"]
