@@ -25,7 +25,7 @@ def shutdown():
     eventloop_util.stop_eventloop()
 
 
-def get_status():
+def get_tracker_status():
     return irc.get_connected()
 
 

@@ -40,15 +40,6 @@
             </tr>
           </thead>
           <tbody>
-            {% for tracker, values in connected.items() %}
-            <tr id="indexer_{{ tracker }}">
-              <td>{{ values["name"] }}</td>
-              <td>{{ values["connected"] }}</td>
-              <td>{{ values["channels"] }}</td>
-              <td>{{ values["latest_announcement"] }}</td>
-              <td>{{ values["latest_snatch"] }}</td>
-            </tr>
-            {% endfor %}
           </tbody>
           <caption class="text-center text-success bg-success">Indexers Status</caption>
         </table>
@@ -62,10 +53,33 @@
       crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8">
     var socket = io();
-    socket.on('connect', function() {
-        socket.emit('status_event', {data: 'I\'m connected!'});
-    });
-  socket.on("reply", function(msg) {
+    // socket.on('connect', function() {
+    //     socket.emit('status_event', {data: 'I\'m connected!'});
+    // });
+  function add_indexer_row(tbody, indexer_status) {
+      var newRow = tbody.insertRow();
+      newRow.setAttribute("id", "indexer_" + indexer_status["type"])
+      var keys = ['name', 'connected', 'channels', 'latest_announcement', 'latest_snatch']
+      for(var key in keys) {
+        //console.log("   cell " + key + ": " + indexer_status[key])
+        var newCell = newRow.insertCell();
+        var newText = document.createTextNode(indexer_status[keys[key]])
+        newCell.appendChild(newText)
+      }
+  }
+  socket.on("init_status", function(indexer_status) {
+
+      var new_tbody = document.createElement('tbody');
+
+      for (let key in indexer_status) {
+        console.log("Got obj " + key + ": " + indexer_status[key]["latest_snatch"])
+          add_indexer_row(new_tbody, indexer_status[key])
+        }
+      var old_tbody = document.getElementById('indexers').getElementsByTagName('tbody')[0];
+      old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+      console.log("init done")
+      });
+  socket.on("update_status", function(msg) {
       console.log(msg);
       row = document.getElementById("indexer_" + msg["type"])
       for (var j = 1, col; col = row.cells[j]; j++) {
@@ -88,7 +102,6 @@
               col.innerHTML = msg["latest_snatch"]
           }
       }
-      //$("status_div").text("Connected: " + msg);
     });
 </script>
 </body>

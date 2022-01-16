@@ -9,7 +9,7 @@ from flask import request
 from flask import send_from_directory
 from flask import url_for
 from flask_login import LoginManager
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user  # , current_user
 from flask_login import login_required
 from flask_login import UserMixin
 from flask_socketio import SocketIO
@@ -65,17 +65,19 @@ def ack():
 
 
 def update(tracker_status):
-    socketio.emit("reply", tracker_status.as_dict(), room="status")
+    socketio.emit("update_status", tracker_status.as_dict(), room="status")
 
 
 @socketio.on("connect")
 def handle_connected():
-    if current_user.is_authenticated or not user_config.login_required:
-        print("is authed")
-    else:
-        print("is NOT authed")
+    socketio.emit("init_status", web_handler.get_tracker_status())
+    # TODO: Add this back before merging
+    # if current_user.is_authenticated or not user_config.login_required:
+    #    print("is authed")
+    # else:
+    #    print("is NOT authed")
 
-    print("connected")
+    # print("connected")
 
 
 @socketio.on("disconnect")
@@ -155,7 +157,6 @@ def index():
 def status():
     return render_template(
         "status.html",
-        connected=web_handler.get_status(),
         login_required=user_config.login_required,
     )
 
