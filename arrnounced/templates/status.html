@@ -89,9 +89,9 @@
         conntag.replaceChild(connected, conntag.firstChild)
       }
 
-      //row.getElementsByClassName("channels")[0].innerHTML = JSON.stringify(indexer_status["channels"])
       var channeltag= row.getElementsByClassName("channels")[0]
       var ul = document.createElement("ul")
+      ul.setAttribute("class", "channel-ul")
       for (let i in indexer_status["channels"]) {
           channel_status = indexer_status["channels"][i]
           var il = document.createElement("li")
@@ -113,13 +113,14 @@
           }
           channel_span.innerHTML = channel_text
 
-          if (channeltag.children.length == 0) {
-            channeltag.appendChild(joined)
-            channeltag.appendChild(channel_span)
-          } else {
-            channeltag.replaceChild(joined, channeltag.firstChild)
-            channeltag.replaceChild(channel_span, channeltag.children[1])
-          }
+          il.appendChild(joined)
+          il.appendChild(channel_span)
+          ul.appendChild(il)
+      }
+      if (channeltag.children.length == 0) {
+        channeltag.appendChild(ul)
+      } else {
+        channeltag.replaceChild(ul, channeltag.firstChild)
       }
   }
   function update_release_status(row, indexer_status) {

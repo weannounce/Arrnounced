@@ -1,0 +1,26 @@
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}
+
+.text-centered{
+    text-align: center;
+}
+
+table {
+  table-layout:fixed;
+}
+
+.table > tbody > tr > td {
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  vertical-align: middle;
+}
+
+.channel-ul {
+  padding: 0;
+  list-style-type: none;
+  margin-top: 2px;
+  margin-bottom: 2px
+}
