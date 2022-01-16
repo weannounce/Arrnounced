@@ -6,12 +6,10 @@ def register_observer(observer):
     observers.append(observer)
 
 
-def notify_observers(tracker_status):
+def notify_observers(tracker_status_dict):
     global observers
-    print("notify_observers")
     for observer in observers:
-        print("notify_observers loop")
-        observer(tracker_status)
+        observer(tracker_status_dict)
 
 
 class Tracker:
@@ -50,12 +48,31 @@ class TrackerStatus:
 
     def as_dict(self):
         return {
-            "type": self._type,
+            "status_type": "all",
+            "indexer_type": self._type,
             "name": self._name,
             "connected": self._connected,
             "channels": [cs.as_dict() for cs in self.channels.values()],
             "latest_announcement": _date2str(self._latest_announcement),
             "latest_snatch": _date2str(self._latest_snatch),
+        }
+
+    @property
+    def release_status(self):
+        return {
+            "status_type": "release",
+            "indexer_type": self._type,
+            "latest_announcement": _date2str(self._latest_announcement),
+            "latest_snatch": _date2str(self._latest_snatch),
+        }
+
+    @property
+    def irc_status(self):
+        return {
+            "status_type": "irc",
+            "indexer_type": self._type,
+            "connected": self._connected,
+            "channels": [cs.as_dict() for cs in self.channels.values()],
         }
 
     @property
@@ -75,7 +92,7 @@ class TrackerStatus:
         self._latest_announcement = announcement.date
         if announcement.snatch_date is not None:
             self._latest_snatch = announcement.snatch_date
-        notify_observers(self)
+        notify_observers(self.release_status)
 
     @property
     def latest_snatch(self):
@@ -84,14 +101,14 @@ class TrackerStatus:
     @latest_snatch.setter
     def latest_snatch(self, announcement):
         self._latest_snatch = announcement.snatch_date
-        notify_observers(self)
+        notify_observers(self.release_status)
 
     @connected.setter
     def connected(self, connected):
         if not connected:
             self._channels = {}
         self._connected = connected
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
     class ChannelStatus:
         def __init__(self, channel):
@@ -121,21 +138,21 @@ class TrackerStatus:
             rejection.channel
         )
         self._channels[rejection.channel].set_reason("Channel full", rejection.reason)
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
     def invite_only(self, rejection):
         self._channels[rejection.channel] = TrackerStatus.ChannelStatus(
             rejection.channel
         )
         self._channels[rejection.channel].set_reason("Invite only", rejection.reason)
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
     def banned(self, rejection):
         self._channels[rejection.channel] = TrackerStatus.ChannelStatus(
             rejection.channel
         )
         self._channels[rejection.channel].set_reason("Banned", rejection.reason)
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
     def bad_channel_key(self, rejection):
         self._channels[rejection.channel] = TrackerStatus.ChannelStatus(
@@ -144,22 +161,22 @@ class TrackerStatus:
         self._channels[rejection.channel].set_reason(
             "Bad channel key", rejection.reason
         )
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
     def joined(self, channel):
         self._channels[channel] = TrackerStatus.ChannelStatus(channel)
         self._channels[channel].joined = True
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
     def parted(self, channel, message):
         self._channels[channel].joined = False
         self._channels[channel].set_reason("Parted", message)
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
     def kicked(self, channel, by, reason):
         self._channels[channel].joined = False
         self._channels[channel].set_reason("Kicked by {}".format(by), reason)
-        notify_observers(self)
+        notify_observers(self.irc_status)
 
 
 class TrackerConfig:

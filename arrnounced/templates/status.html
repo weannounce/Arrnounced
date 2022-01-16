@@ -55,7 +55,7 @@
   var socket = io();
   function add_indexer_row(tbody, indexer_status) {
       var newRow = tbody.insertRow();
-      newRow.setAttribute("id", "indexer_" + indexer_status["type"])
+      newRow.setAttribute("id", "indexer_" + indexer_status["indexer_type"])
       var keys = ["name", "connected", "channels", "latest_announcement", "latest_snatch"]
       for(var key in keys) {
           var newCell = newRow.insertCell();
@@ -78,9 +78,17 @@
       row.getElementsByClassName("latest_snatch")[0].innerHTML = indexer_status["latest_snatch"]
   }
   function update_indexer_status(row, indexer_status) {
-      row.getElementsByClassName("name")[0].innerHTML = indexer_status["name"]
-      update_irc_status(row, indexer_status)
-      update_release_status(row, indexer_status)
+      update_all = indexer_status["status_type"] == "all"
+
+      if (update_all) {
+        row.getElementsByClassName("name")[0].innerHTML = indexer_status["name"]
+      }
+      if (update_all || indexer_status["status_type"] == "irc") {
+        update_irc_status(row, indexer_status)
+      }
+      if (update_all || indexer_status["status_type"] == "release") {
+        update_release_status(row, indexer_status)
+      }
   }
   socket.on("init_status", function(indexer_status) {
 
@@ -97,7 +105,7 @@
       });
   socket.on("update_status", function(indexer_status) {
       console.log(indexer_status);
-      row = document.getElementById("indexer_" + indexer_status["type"])
+      row = document.getElementById("indexer_" + indexer_status["indexer_type"])
       update_indexer_status(row, indexer_status)
     });
 </script>
