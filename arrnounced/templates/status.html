@@ -52,43 +52,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.js"
       crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8">
-    var socket = io();
-    // socket.on("connect", function() {
-    //     socket.emit("status_event", {data: "I\"m connected!"});
-    // });
+  var socket = io();
   function add_indexer_row(tbody, indexer_status) {
       var newRow = tbody.insertRow();
       newRow.setAttribute("id", "indexer_" + indexer_status["type"])
       var keys = ["name", "connected", "channels", "latest_announcement", "latest_snatch"]
       for(var key in keys) {
-        var newCell = newRow.insertCell();
+          var newCell = newRow.insertCell();
+          newCell.setAttribute("class", keys[key])
       }
       return newRow
   }
+  function update_irc_status(row, indexer_status) {
+      if (indexer_status["connected"]) {
+          connected = "<p style=\"color:green\">Yes</p>"
+        }
+      else {
+          connected = "<p style=\"color:red\">No</p>"
+        }
+      row.getElementsByClassName("connected")[0].innerHTML = connected
+      row.getElementsByClassName("channels")[0].innerHTML = JSON.stringify(indexer_status["channels"])
+  }
+  function update_release_status(row, indexer_status) {
+      row.getElementsByClassName("latest_announcement")[0].innerHTML = indexer_status["latest_announcement"]
+      row.getElementsByClassName("latest_snatch")[0].innerHTML = indexer_status["latest_snatch"]
+  }
   function update_indexer_status(row, indexer_status) {
-      for (var j = 0, col; col = row.cells[j]; j++) {
-          if (j == 0) {
-              col.innerHTML = indexer_status["name"]
-          }
-          else if (j == 1) {
-              if (indexer_status["connected"]) {
-                  text = "<p style=\"color:green\">Yes</p>"
-                }
-              else {
-                  text = "<p style=\"color:red\">No</p>"
-                }
-              col.innerHTML = text
-          }
-          else if (j == 2) {
-              col.innerHTML = JSON.stringify(indexer_status["channels"])
-          }
-          else if (j == 3) {
-              col.innerHTML = indexer_status["latest_announcement"]
-          }
-          else if (j == 4) {
-              col.innerHTML = indexer_status["latest_snatch"]
-          }
-      }
+      row.getElementsByClassName("name")[0].innerHTML = indexer_status["name"]
+      update_irc_status(row, indexer_status)
+      update_release_status(row, indexer_status)
   }
   socket.on("init_status", function(indexer_status) {
 

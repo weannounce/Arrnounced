@@ -8,7 +8,9 @@ def register_observer(observer):
 
 def notify_observers(tracker_status):
     global observers
+    print("notify_observers")
     for observer in observers:
+        print("notify_observers loop")
         observer(tracker_status)
 
 

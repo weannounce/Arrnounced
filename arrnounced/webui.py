@@ -65,11 +65,13 @@ def ack():
 
 
 def update(tracker_status):
-    socketio.emit("update_status", tracker_status.as_dict(), room="status")
+    print("Updating")
+    socketio.emit("update_status", tracker_status.as_dict(), room="indexer_status")
 
 
 @socketio.on("connect")
 def handle_connected():
+    join_room("indexer_status")
     socketio.emit("init_status", web_handler.get_tracker_status())
     # TODO: Add this back before merging
     # if current_user.is_authenticated or not user_config.login_required:
@@ -82,14 +84,8 @@ def handle_connected():
 
 @socketio.on("disconnect")
 def handle_disconnected():
-    leave_room("status")
+    leave_room("indexer_status")
     print("disconnected")
-
-
-@socketio.on("status_event")
-def handle_status_event(json):
-    print("received json: " + str(json))
-    join_room("status")
 
 
 @app.route("/shutdown", methods=["GET", "POST"])
