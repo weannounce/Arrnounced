@@ -137,10 +137,6 @@ class UserConfig:
         return int(self.toml["webui"]["port"])
 
     @property
-    def webui_shutdown(self):
-        return self.toml["webui"]["shutdown"]
-
-    @property
     def db_purge_days(self):
         return self.toml["database"]["purge_days"]
 

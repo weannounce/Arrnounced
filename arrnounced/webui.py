@@ -80,21 +80,6 @@ def handle_disconnected():
     leave_room("indexer_status")
 
 
-@app.route("/shutdown", methods=["GET", "POST"])
-def shutdown():
-    if not user_config.webui_shutdown:
-        return redirect(url_for("index"))
-
-    logger.info("Shutting down Arrnounced")
-    logger.info("Disable shutdown by removing webui.shutdown from config")
-    web_handler.shutdown()
-    func = request.environ.get("werkzeug.server.shutdown")
-    if func is None:
-        raise RuntimeError("Not running with the Werkzeug Server")
-    func()
-    return "Shutting down..."
-
-
 @login_manager.user_loader
 def load_user(id):
     return user
