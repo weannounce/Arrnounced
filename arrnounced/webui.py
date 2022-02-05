@@ -66,13 +66,9 @@ def update(tracker_status_dict):
 
 @socketio.on("connect")
 def handle_connected():
-    join_room("indexer_status")
-    socketio.emit("init_status", web_handler.get_tracker_status())
-    # TODO: Authenticate socketio connection
     if current_user.is_authenticated or not user_config.login_required:
-        print("is authed")
-    else:
-        print("is NOT authed")
+        join_room("indexer_status")
+        socketio.emit("init_status", web_handler.get_tracker_status())
 
 
 @socketio.on("disconnect")
