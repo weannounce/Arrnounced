@@ -9,9 +9,11 @@ from flask import request
 from flask import send_from_directory
 from flask import url_for
 from flask_login import LoginManager
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 from flask_login import login_required
 from flask_login import UserMixin
+from flask_socketio import SocketIO
+from flask_socketio import join_room, leave_room
 from pathlib import Path
 
 from arrnounced import log
@@ -34,6 +36,7 @@ app = Flask("Arrnounced", template_folder=templates_dir)
 # This will invalidate logins on each restart of Arrnounced
 # But I'm too lazy to think of something else at the moment
 app.secret_key = os.urandom(16)
+socketio = SocketIO(app)
 
 login_manager = LoginManager(app=app)
 login_manager.login_view = "login"
@@ -45,10 +48,11 @@ def run(config):
     global user_config
     user_config = config
     try:
-        app.run(
-            debug=False,
+        socketio.run(
+            app,
             host=user_config.webui_host,
             port=user_config.webui_port,
+            debug=False,
             use_reloader=False,
         )
     except OSError as e:
@@ -56,19 +60,20 @@ def run(config):
     logger.info("Flask thread finished")
 
 
-@app.route("/shutdown", methods=["GET", "POST"])
-def shutdown():
-    if not user_config.webui_shutdown:
-        return redirect(url_for("index"))
+def update(tracker_status_dict):
+    socketio.emit("update_status", tracker_status_dict, room="indexer_status")
 
-    logger.info("Shutting down Arrnounced")
-    logger.info("Disable shutdown by removing webui.shutdown from config")
-    web_handler.shutdown()
-    func = request.environ.get("werkzeug.server.shutdown")
-    if func is None:
-        raise RuntimeError("Not running with the Werkzeug Server")
-    func()
-    return "Shutting down..."
+
+@socketio.on("connect")
+def handle_connected():
+    if current_user.is_authenticated or not user_config.login_required:
+        join_room("indexer_status")
+        socketio.emit("init_status", web_handler.get_tracker_status())
+
+
+@socketio.on("disconnect")
+def handle_disconnected():
+    leave_room("indexer_status")
 
 
 @login_manager.user_loader
@@ -112,6 +117,15 @@ def index():
         "index.html",
         announcement_pages=announce_pages,
         snatch_pages=snatch_pages,
+        login_required=user_config.login_required,
+    )
+
+
+@app.route("/status")
+@login_required
+def status():
+    return render_template(
+        "status.html",
         login_required=user_config.login_required,
     )
 

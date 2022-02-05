@@ -19,6 +19,7 @@ pony = "0.7.14"
 tomlkit = "0.7.0"
 pydle = "0.9.4"
 importlib-metadata = {version = "^1.0", python = "<3.8"}
+Flask-SocketIO = "^4.3.2"
 
 [tool.poetry.dev-dependencies]
 coverage = "5.0.3"

@@ -98,8 +98,8 @@ def insert_announcement(announcement, backends):
     )
 
 
-def insert_snatched(announcement, backend):
-    Snatched(date=datetime.now(), announced=announcement, backend=backend)
+def insert_snatched(announcement, date, backend):
+    Snatched(date=date, announced=announcement, backend=backend)
 
 
 def get_announced_count():
@@ -108,6 +108,27 @@ def get_announced_count():
 
 def get_snatched_count():
     return pony.orm.count(s for s in Snatched)
+
+@db_session
+def get_latest(indexer):
+    latest_a = (
+        Announced.select(lambda a: a.indexer == indexer).order_by(desc(1)).limit(1)
+    )
+    latest_s = (
+        pony.orm.select(
+            (s.id, s.date)
+            for s in Snatched
+            for a in s.announced
+            if a.indexer == indexer
+        )
+        .order_by(desc(1))
+        .limit(1)
+    )
+
+    return (
+        None if len(latest_a) == 0 else latest_a[0].date,
+        None if len(latest_s) == 0 else latest_s[0][1],
+    )
 
 
 _stop_thread = threading.Event()

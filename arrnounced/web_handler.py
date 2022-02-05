@@ -2,27 +2,16 @@ import logging
 from math import ceil
 from pony.orm.core import TransactionError
 
-from arrnounced import db
-from arrnounced import irc
-from arrnounced import utils
-
-from arrnounced.backend import renotify, get_configured_backends, get_backend, stop
+from arrnounced import db, irc, utils
+from arrnounced.backend import renotify, get_configured_backends, get_backend
 from arrnounced.eventloop_utils import eventloop_util
 from arrnounced.announcement import Announcement
 
 logger = logging.getLogger("WEB-HANDLER")
 
 
-def shutdown():
-    db.stop()
-    for task in irc.get_stop_tasks():
-        eventloop_util.run(task)
-    eventloop_util.wait_till_complete()
-
-    eventloop_util.run(stop())
-    eventloop_util.wait_till_complete()
-
-    eventloop_util.stop_eventloop()
+def get_tracker_status():
+    return irc.get_connected()
 
 
 # Request to check this torrent again
@@ -44,10 +33,11 @@ def _locked_notify(announcement_id, backend):
 
     future = eventloop_util.run(renotify(announcement, backend))
     if future.result():
+        announcement.snatched()
         logger.debug("%s accepted the torrent this time!", backend.name)
         with db.db_session:
             db_announcement = db.get_announcement(db_announcement.id)
-            db.insert_snatched(db_announcement, backend.name)
+            db.insert_snatched(db_announcement, announcement.snatch_date, backend.name)
         return True
 
     logger.debug("%s still refused this torrent...", backend.name)

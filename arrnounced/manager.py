@@ -1,16 +1,36 @@
 import logging
+import os
+import signal
 import sys
 import threading
 
-from arrnounced import backend
-from arrnounced import db
-from arrnounced import irc
-from arrnounced import webui
+from arrnounced import backend, db, irc, webui
 
-from arrnounced.tracker import Tracker, TrackerConfig
+from arrnounced.eventloop_utils import eventloop_util
+from arrnounced.tracker import register_observer, Tracker, TrackerConfig
 from arrnounced.tracker_xml_config import get_tracker_xml_configs
 
 logger = logging.getLogger("MANAGER")
+
+
+def _signal_handler(sig, frame):
+    logger.info("Shutting down...")
+
+    db.stop()
+    for task in irc.get_stop_tasks():
+        eventloop_util.run(task)
+    eventloop_util.wait_till_complete()
+
+    eventloop_util.run(backend.stop())
+    eventloop_util.wait_till_complete()
+
+    eventloop_util.stop_eventloop()
+    os._exit(os.EX_OK)
+
+
+def _set_latest(tracker):
+    latest_announcement, latest_snatch = db.get_latest(tracker.config.short_name)
+    tracker.status.init_latest(latest_announcement, latest_snatch)
 
 
 def _get_trackers(user_config, tracker_config_path):
@@ -27,6 +47,7 @@ def _get_trackers(user_config, tracker_config_path):
             trackers[user_tracker.type] = Tracker(
                 TrackerConfig(user_tracker, xml_configs[user_tracker.type])
             )
+            _set_latest(trackers[user_tracker.type])
     return trackers
 
 
@@ -52,8 +73,10 @@ def run(user_config, tracker_config_path):
         logger.error("No trackers configured, exiting...")
         sys.exit(1)
 
-    backend.check()
+    signal.signal(signal.SIGINT, _signal_handler)
 
+    backend.check()
+    register_observer(webui.update)
     db_thread = threading.Thread(target=db.run, args=(user_config,))
     irc_thread = threading.Thread(target=irc.run, args=(trackers,))
     webui_thread = threading.Thread(target=webui.run, args=(user_config,))

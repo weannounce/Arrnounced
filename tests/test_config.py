@@ -98,7 +98,6 @@ class ConfigTest(unittest.TestCase):
 
         self.assertEqual(cfg.webui_host, "webhost", "host is invalid")
         self.assertEqual(cfg.webui_port, 456, "host is invalid")
-        self.assertEqual(cfg.webui_shutdown, True, "Invalid shutdown value")
 
         self.assertEqual(cfg.db_purge_days, 1, "Invalid db purge value")
 

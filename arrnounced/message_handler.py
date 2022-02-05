@@ -70,10 +70,13 @@ async def _handle_announcement(tracker, announcement):
         # TODO Print rejection reason
         logger.debug("Release was rejected: %s", announcement.title)
     else:
+        announcement.snatched()
         logger.info("%s approved release: %s", backend.name, announcement.title)
         with db.db_session:
             db_announced = db.get_announcement(db_announced.id)
-            db.insert_snatched(db_announced, backend.name)
+            db.insert_snatched(db_announced, announcement.snatch_date, backend.name)
+
+    tracker.status.latest_announcement = announcement
 
 
 async def on_message(tracker, source, target, message):
