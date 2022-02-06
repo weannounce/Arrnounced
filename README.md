@@ -22,7 +22,7 @@ Only a few of the supported trackers are tested at the moment. Please report any
 
 ### Main page
 ![Index Page](https://raw.githubusercontent.com/weannounce/arrnounced/img/doc/index.PNG)
-### Status page
+### Status page (upcoming release)
 ![Status Page](https://raw.githubusercontent.com/weannounce/arrnounced/img/doc/status.gif)
 
 # Setup
