@@ -109,6 +109,7 @@ def get_announced_count():
 def get_snatched_count():
     return pony.orm.count(s for s in Snatched)
 
+
 @db_session
 def get_latest(indexer):
     latest_a = (
