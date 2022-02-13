@@ -1,4 +1,5 @@
-FROM python:3.9.9-slim
+# https://hub.docker.com/_/python?tab=tags&page=1&name=3.9
+FROM python:3.9.10-slim as release
 
 COPY autodl-trackers/trackers/ /trackers
 
