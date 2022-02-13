@@ -172,12 +172,13 @@ eventloop_util.set_eventloop(pool.eventloop)
 clients = []
 
 
-def get_stop_tasks():
-    logger.info("Stopping IRC client(s)")
+def disconnect_all():
+    global pool
     global clients
+    logger.info("Stopping IRC client(s)")
     for client in clients:
         # TODO: quit("Arrnounced out"). Capture Ctrl-C and close threads
-        yield client.disconnect(expected=True)
+        pool.disconnect(client)
 
 
 def run(trackers):

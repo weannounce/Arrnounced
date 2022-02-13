@@ -17,8 +17,7 @@ def _signal_handler(sig, frame):
     logger.info("Shutting down...")
 
     db.stop()
-    for task in irc.get_stop_tasks():
-        eventloop_util.run(task)
+    irc.disconnect_all()
     eventloop_util.wait_till_complete()
 
     eventloop_util.run(backend.stop())
