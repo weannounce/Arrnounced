@@ -18,3 +18,9 @@ CMD ["arrnounced", \
     "--data", "/config", \
     "--config", "/config/settings.toml", \
     "--trackers", "/trackers"]
+
+FROM release as dev
+USER root
+COPY dist/arrnounced-*.tar.gz /arr.tar.gz
+RUN pip install --force-reinstall /arr.tar.gz
+USER arrnounced
