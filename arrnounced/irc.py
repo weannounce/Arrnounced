@@ -200,6 +200,7 @@ def run(trackers):
                 client,
                 hostname=tracker.config.irc_server,
                 port=tracker.config.irc_port,
+                password=tracker.config.irc_password,
                 tls=tracker.config.irc_tls,
                 tls_verify=tracker.config.irc_tls_verify,
             )

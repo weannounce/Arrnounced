@@ -57,6 +57,8 @@ irc_nickname = "arrnounced_bot"
 irc_server = "example.com"
 irc_port = 6667
 
+irc_password = ""
+
 # IRC channels to join. If irc_invite_cmd is set the channels will not be
 # joined until an invite to a channel is received.
 # Mandatory

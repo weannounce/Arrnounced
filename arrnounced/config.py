@@ -216,6 +216,7 @@ def _init_trackers(toml_cfg):
     for tracker_type in toml_cfg["trackers"]:
         # Init default values
         default_tracker_values = [
+            ("irc_server", ""),
             ("irc_tls", False),
             ("irc_tls_verify", False),
             ("torrent_https", False),

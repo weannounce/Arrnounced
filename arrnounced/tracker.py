@@ -206,6 +206,10 @@ class TrackerConfig:
         return str(self._user_tracker["irc_server"])
 
     @property
+    def irc_password(self):
+        return str(self._user_tracker["irc_password"])
+
+    @property
     def irc_tls(self):
         return self._user_tracker["irc_tls"]
 
