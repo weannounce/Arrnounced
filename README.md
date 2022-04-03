@@ -33,7 +33,7 @@ information._
 
 ## Configuration
 The default configuration path is `~/.arrnounced/settings.toml`.
-[example.cfg](https://github.com/weannounce/arrnounced/blob/master/example.cfg)
+[example.toml](https://github.com/weannounce/arrnounced/blob/master/example.toml)
 is the acting configuration documentation.
 
 The default XML tracker configuration path is `~/.arrnounced/autodl-trackers/trackers`
