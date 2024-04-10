@@ -1,29 +1,68 @@
-[tool.poetry]
-name = "arrnounced"
-version = "0.9.0"
-description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
-authors = ["WeAnnounce <weannounce@protonmail.com>"]
-readme = "README.md"
-homepage = "https://github.com/weannounce/arrnounced"
+[build-system]
+requires = ["setuptools ~= 69.2", "wheel", "build"]
+build-backend = "setuptools.build_meta"
 
-[tool.poetry.scripts]
+[project]
+name = "arrnounced"
+description = "Notify Sonarr/Radarr/Lidarr of tracker IRC announcements"
+urls = {"homepage" = "https://github.com/weannounce/arrnounced"}
+authors = [
+  {"name" = "WeAnnounce", "email" = "weannounce@protonmail.com"},
+]
+readme = "README.md"
+dynamic = ["version"]
+
+requires-python = ">= 3.7, < 3.10"
+
+dependencies = [
+  "aiohttp~=3.8.1",
+  "defusedxml~=0.6.0",
+  "Flask~=1.1.1",
+  "Flask-Login~=0.4.1",
+  "pony~=0.7.14",
+  "tomlkit~=0.7.0",
+  "pydle~=0.9.4",
+  "Flask-SocketIO~=4.3.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "bandit",
+  "black",
+  "bumpver",
+  "coverage~=5.0",
+  "flake8",
+  "pre-commit",
+]
+
+[project.entry-points.console_scripts]
 arrnounced = 'arrnounced.cli:main'
 
-[tool.poetry.dependencies]
-python = ">= 3.7, < 3.10"
-aiohttp = "3.8.1"
-defusedxml = "0.6.0"
-Flask = "1.1.1"
-Flask-Login = "0.4.1"
-pony = "0.7.14"
-tomlkit = "0.7.0"
-pydle = "0.9.4"
-importlib-metadata = {version = "^1.0", python = "<3.8"}
-Flask-SocketIO = "^4.3.2"
+[tool.setuptools.dynamic]
+version = {attr = "arrnounced.__version__"}
 
-[tool.poetry.dev-dependencies]
-coverage = "5.0.3"
+[tool.setuptools.packages.find]
+include = [
+  "arrnounced*",
+]
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.setuptools.package-data]
+"*" = ["*.html", "*.js", "*.css", "*.eot", "*.woff", "*.svg", "*.woff2", "*.ttf"]
+
+[tool.coverage.run]
+source = [
+  "arrnounced",
+]
+
+[tool.bumpver]
+current_version = "1.0.2"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "New version: {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"arrnounced/__init__.py" = [
+    '__version__ = "{version}"',
+]

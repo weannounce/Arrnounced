@@ -21,7 +21,7 @@ repos:
     hooks:
     -   id: unit-tests
         name: unit tests
-        entry: poetry run ./run_tests.py
-        language: python
+        entry: ./run_tests.py
+        language: system
         types: [python]
         pass_filenames: false
