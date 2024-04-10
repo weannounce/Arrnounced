@@ -15,21 +15,21 @@ dynamic = ["version"]
 requires-python = ">= 3.7, < 3.10"
 
 dependencies = [
-  "aiohttp~=3.8.1",
-  "defusedxml~=0.6.0",
-  "Flask~=1.1.1",
-  "Flask-Login~=0.4.1",
-  "pony~=0.7.14",
-  "tomlkit~=0.7.0",
+  "Flask-Login~=0.6.3",
+  "Flask-SocketIO~=5.3.6",
+  "Flask~=3.0.3",
+  "aiohttp~=3.9.3",
+  "defusedxml~=0.7.1",
+  "pony~=0.7.17",
   "pydle~=0.9.4",
-  "Flask-SocketIO~=4.3.2",
+  "tomlkit~=0.12.4",
 ]
 
 [project.optional-dependencies]
 dev = [
   "bandit",
   "black",
-  "bumpver",
+  "bumpver==2023.1129",
   "coverage~=5.0",
   "flake8",
   "pre-commit",
