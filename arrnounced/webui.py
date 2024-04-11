@@ -54,6 +54,7 @@ def run(config):
             port=user_config.webui_port,
             debug=False,
             use_reloader=False,
+            allow_unsafe_werkzeug=True,
         )
     except OSError as e:
         logger.error("Error starting webserver: %s", e)
