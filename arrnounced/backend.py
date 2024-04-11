@@ -1,6 +1,8 @@
 import logging
 import re
 from asyncio import Lock
+from functools import reduce
+from operator import and_
 
 from arrnounced.eventloop_utils import eventloop_util
 from arrnounced.session_provider import SessionProvider
@@ -11,7 +13,15 @@ logger = logging.getLogger("BACKEND")
 
 def _extract_approval(json_response, backend_name):
     try:
-        return json_response["approved"]
+        approvals = (
+            e["approved"]
+            for e in (
+                json_response if isinstance(json_response, list) else [json_response]
+            )
+        )
+        # Not sure why the response is a list when the push is a single item.
+        # Reducing all the values with "and" seems reasonable
+        return reduce(and_, approvals)
     except TypeError:
         logger.warning("No valid JSON reply from %s", backend_name, exc_info=True)
     except KeyError:
@@ -63,25 +73,17 @@ class Backend:
         return result
 
 
-class UseIndexer(Backend):
+class V3Api(Backend):
+    push_path_v3 = "/api/v3/release/push"
+    diskspace_path_v3 = "/api/v3/diskspace"
+    push_path_legacy = "/api/release/push"
+    diskspace_path_legacy = "/api/diskspace"
+
     def _create_json(self, announcement):
         params = super()._create_json(announcement)
         params["indexer"] = "Irc" + announcement.indexer
 
         return params
-
-
-# TODO: Use v3 API
-class Sonarr(UseIndexer):
-    push_path = "/api/release/push"
-    diskspace_path = "/api/diskspace"
-
-
-class Radarr(UseIndexer):
-    push_path_v3 = "/api/v3/release/push"
-    diskspace_path_v3 = "/api/v3/diskspace"
-    push_path_legacy = "/api/release/push"
-    diskspace_path_legacy = "/api/diskspace"
 
     def __init__(self, user_backend):
         self._set_v3()
@@ -107,6 +109,12 @@ class Radarr(UseIndexer):
         # Neither worked, setting v3 as default
         self._set_v3()
         return False
+
+
+class Sonarr(V3Api): ...
+
+
+class Radarr(V3Api): ...
 
 
 class Lidarr(Backend):
