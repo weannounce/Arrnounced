@@ -12,6 +12,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 dist/
+*egg-info/
 
 # Covers Announced sensitive info
 # torrents
